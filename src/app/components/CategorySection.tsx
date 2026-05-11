@@ -1,31 +1,12 @@
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 
-const categories = [
-  {
-    id: 1,
-    name: 'Necklaces',
-    image: 'https://images.unsplash.com/photo-1755151606128-7ca2f97e46ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw1fHxsdXh1cnklMjBuZWNrbGFjZSUyMGpld2Vscnl8ZW58MXx8fHwxNzc4NDMwNzM3fDA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: 2,
-    name: 'Earrings',
-    image: 'https://images.unsplash.com/photo-1684439673104-f5d22791c71a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGVnYW50JTIwZWFycmluZ3MlMjBqZXdlbHJ5fGVufDF8fHx8MTc3ODQzMDczN3ww&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: 3,
-    name: 'Bracelets',
-    image: 'https://images.unsplash.com/photo-1777817117832-d8df9bef1a01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw1fHxsdXh1cnklMjBicmFjZWxldCUyMGpld2Vscnl8ZW58MXx8fHwxNzc4MzAxOTU5fDA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: 4,
-    name: 'Rings',
-    image: 'https://images.unsplash.com/photo-1629201688908-a4e75b6444e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHxkaWFtb25kJTIwcmluZyUyMGpld2Vscnl8ZW58MXx8fHwxNzc4NDMwNzM4fDA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-];
+import { motion, useInView } from 'motion/react';
 
-export function CategorySection() {
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { resolveMediaUrl } from '../api';
+import type { CategoryNode } from '../lib/types';
+
+export function CategorySection({ categories }: { categories: CategoryNode[] }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
@@ -45,7 +26,7 @@ export function CategorySection() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => (
+          {categories.slice(0, 4).map((category, index) => (
             <motion.div
               key={category.id}
               className="group relative aspect-square overflow-hidden cursor-pointer"
@@ -65,13 +46,9 @@ export function CategorySection() {
                 transition: { duration: 0.3 },
               }}
             >
-              <motion.div
-                className="w-full h-full"
-                whileHover={{ scale: 1.1 }}
-                transition={{ duration: 0.7, ease: 'easeOut' }}
-              >
+              <motion.div className="w-full h-full" whileHover={{ scale: 1.1 }} transition={{ duration: 0.7, ease: 'easeOut' }}>
                 <ImageWithFallback
-                  src={category.image}
+                  src={resolveMediaUrl(category.coverMedia)}
                   alt={category.name}
                   className="w-full h-full object-cover"
                 />

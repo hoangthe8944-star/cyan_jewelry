@@ -12,3 +12,4 @@ dist/
 
 # Không commit file môi trường (chứa mật khẩu/API key)
 .env*
+!.env.example

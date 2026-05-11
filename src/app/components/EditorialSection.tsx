@@ -1,17 +1,21 @@
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { motion, useInView, useScroll, useTransform } from 'motion/react';
 import { useRef } from 'react';
 
-export function EditorialSection() {
+import { motion, useInView, useScroll, useTransform } from 'motion/react';
+
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { resolveMediaUrl } from '../api';
+import type { EditorialSummary } from '../lib/types';
+
+export function EditorialSection({ editorials }: { editorials: EditorialSummary[] }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
   });
-
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.6, 1, 1, 0.6]);
+  const featuredEditorial = editorials[0];
 
   return (
     <section ref={ref} className="py-20 bg-white overflow-hidden">
@@ -24,8 +28,8 @@ export function EditorialSection() {
         >
           <motion.div style={{ y }} className="w-full h-[120%]">
             <ImageWithFallback
-              src="https://images.unsplash.com/photo-1761475375956-484196fedaae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBqZXdlbHJ5JTIwZWRpdG9yaWFsJTIwZmFzaGlvbnxlbnwxfHx8fDE3Nzg0MzA3Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080"
-              alt="Discover More"
+              src={resolveMediaUrl(featuredEditorial?.coverMedia)}
+              alt={featuredEditorial?.title ?? 'Discover More'}
               className="w-full h-full object-cover"
             />
           </motion.div>
@@ -41,7 +45,7 @@ export function EditorialSection() {
                 animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
-                The Art of Luxury
+                {featuredEditorial?.title ?? 'The Art of Luxury'}
               </motion.h2>
               <motion.p
                 className="text-white/90 text-lg mb-8 tracking-wide leading-relaxed"
@@ -49,8 +53,8 @@ export function EditorialSection() {
                 animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
               >
-                Experience the ethereal beauty of handcrafted jewelry. Each piece tells a story of
-                elegance, precision, and timeless design.
+                {featuredEditorial?.summary ??
+                  'Experience the ethereal beauty of handcrafted jewelry. Each piece tells a story of elegance, precision, and timeless design.'}
               </motion.p>
               <motion.button
                 className="bg-accent text-white px-10 py-4 hover:bg-accent-light hover:text-primary transition-all duration-300 tracking-wide"

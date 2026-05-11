@@ -1,41 +1,30 @@
-import { Heart, ShoppingBag } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { motion, useInView } from 'motion/react';
-import { useShop } from '../context/ShopContext';
-import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { Heart, ShoppingBag } from 'lucide-react';
+import { motion, useInView } from 'motion/react';
+
+import { formatCurrency } from '../api';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { useShop } from '../context/ShopContext';
 
 interface ProductCardProps {
-  id: number;
+  id: string;
+  slug: string;
   image: string;
   name: string;
   collection: string;
-  price: string;
+  price: number;
   badge?: string;
   index?: number;
 }
 
-export function ProductCard({ id, image, name, collection, price, badge, index = 0 }: ProductCardProps) {
+export function ProductCard({ id, slug, image, name, collection, price, badge, index = 0 }: ProductCardProps) {
   const { toggleWishlist, isInWishlist, addToCart } = useShop();
   const navigate = useNavigate();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  const product = { id, image, name, collection, price, badge };
-
-  const handleQuickView = () => {
-    navigate(`/product/${id}`);
-  };
-
-  const handleWishlist = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleWishlist(product);
-  };
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    addToCart(product);
-  };
+  const product = { id, slug, image, name, collection, price, badge };
 
   return (
     <motion.div
@@ -49,24 +38,17 @@ export function ProductCard({ id, image, name, collection, price, badge, index =
         ease: [0.21, 0.47, 0.32, 0.98],
       }}
       whileHover={{ y: -8 }}
-      onClick={handleQuickView}
+      onClick={() => navigate(`/product/${slug}`)}
     >
       <motion.div
         className="relative aspect-[3/4] overflow-hidden bg-muted"
         whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.4 }}
       >
-        <motion.div
-          whileHover={{ scale: 1.08 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-        >
-          <ImageWithFallback
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover"
-          />
+        <motion.div whileHover={{ scale: 1.08 }} transition={{ duration: 0.7, ease: 'easeOut' }}>
+          <ImageWithFallback src={image} alt={name} className="w-full h-full object-cover" />
         </motion.div>
-        {badge && (
+        {badge ? (
           <motion.span
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
@@ -75,9 +57,12 @@ export function ProductCard({ id, image, name, collection, price, badge, index =
           >
             {badge}
           </motion.span>
-        )}
+        ) : null}
         <motion.button
-          onClick={handleWishlist}
+          onClick={(event) => {
+            event.stopPropagation();
+            toggleWishlist(product);
+          }}
           initial={{ opacity: 0, scale: 0.8 }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -88,7 +73,10 @@ export function ProductCard({ id, image, name, collection, price, badge, index =
           <Heart className={`w-4 h-4 ${isInWishlist(id) ? 'fill-white' : ''}`} />
         </motion.button>
         <motion.button
-          onClick={handleAddToCart}
+          onClick={(event) => {
+            event.stopPropagation();
+            addToCart(product);
+          }}
           initial={{ opacity: 0, y: 20 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -111,9 +99,7 @@ export function ProductCard({ id, image, name, collection, price, badge, index =
         <h3 className="text-sm mb-2 tracking-wide group-hover:text-accent transition-colors">
           {name}
         </h3>
-        <p className="text-accent font-medium tracking-wide">
-          ${price}
-        </p>
+        <p className="text-accent font-medium tracking-wide">{formatCurrency(price)}</p>
       </motion.div>
     </motion.div>
   );

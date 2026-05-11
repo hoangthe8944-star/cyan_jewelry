@@ -1,28 +1,21 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-interface Product {
-  id: number;
-  image: string;
-  name: string;
-  collection: string;
-  price: string;
-  badge?: string;
-}
+import type { ShopProduct } from '../lib/types';
 
-interface CartItem extends Product {
+interface CartItem extends ShopProduct {
   quantity: number;
 }
 
 interface ShopContextType {
   cart: CartItem[];
-  wishlist: Product[];
+  wishlist: ShopProduct[];
   isSearchOpen: boolean;
   isMobileMenuOpen: boolean;
-  addToCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
-  toggleWishlist: (product: Product) => void;
-  isInWishlist: (productId: number) => boolean;
+  addToCart: (product: ShopProduct) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  toggleWishlist: (product: ShopProduct) => void;
+  isInWishlist: (productId: string) => boolean;
   setIsSearchOpen: (open: boolean) => void;
   setIsMobileMenuOpen: (open: boolean) => void;
   getCartTotal: () => number;
@@ -33,11 +26,11 @@ const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export function ShopProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [wishlist, setWishlist] = useState<Product[]>([]);
+  const [wishlist, setWishlist] = useState<ShopProduct[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: ShopProduct) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
@@ -49,11 +42,11 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: string) => {
     setCart((prev) => prev.filter((item) => item.id !== productId));
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;
@@ -63,7 +56,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const toggleWishlist = (product: Product) => {
+  const toggleWishlist = (product: ShopProduct) => {
     setWishlist((prev) => {
       const exists = prev.find((item) => item.id === product.id);
       if (exists) {
@@ -73,20 +66,11 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const isInWishlist = (productId: number) => {
-    return wishlist.some((item) => item.id === productId);
-  };
+  const isInWishlist = (productId: string) => wishlist.some((item) => item.id === productId);
 
-  const getCartTotal = () => {
-    return cart.reduce((total, item) => {
-      const price = parseFloat(item.price.replace(',', ''));
-      return total + price * item.quantity;
-    }, 0);
-  };
+  const getCartTotal = () => cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  const getCartCount = () => {
-    return cart.reduce((count, item) => count + item.quantity, 0);
-  };
+  const getCartCount = () => cart.reduce((count, item) => count + item.quantity, 0);
 
   return (
     <ShopContext.Provider
