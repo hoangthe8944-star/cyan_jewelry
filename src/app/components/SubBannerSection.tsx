@@ -22,7 +22,7 @@ export function SubBannerSection({ banners }: { banners: Banner[] }) {
           >
             {banner.media.mediaType === 'MP4' ? (
               <video
-                src={banner.media.url}
+                src={resolveMediaUrl(banner.media)}
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 autoPlay
                 muted

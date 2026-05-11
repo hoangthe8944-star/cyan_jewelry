@@ -46,7 +46,7 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
           <div className="relative h-full">
             {currentBanner.media.mediaType === 'MP4' ? (
               <video
-                src={currentBanner.media.url}
+                src={resolveMediaUrl(currentBanner.media)}
                 className="w-full h-full object-cover"
                 autoPlay
                 muted
