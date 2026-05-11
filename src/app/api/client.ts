@@ -1,5 +1,5 @@
-const DEFAULT_API_BASE_URL = "http://localhost:8081";
-const DEFAULT_FALLBACK_API_BASE_URL = "https://cyan-admin.onrender.com";
+const DEFAULT_API_BASE_URL = "https://cyan-admin.onrender.com";
+const DEFAULT_FALLBACK_API_BASE_URL = "http://localhost:8081";
 
 function normalizeBaseUrl(value: string) {
   return value.replace(/\/+$/, "");
@@ -21,11 +21,22 @@ function buildUrl(baseUrl: string, path: string) {
   return `${baseUrl}${path}`;
 }
 
+function extractOrigin(value: string) {
+  try {
+    return new URL(value).origin;
+  } catch {
+    return value;
+  }
+}
+
 function isNetworkError(error: unknown) {
   return error instanceof TypeError;
 }
 
 type QueryValue = string | number | boolean | null | undefined;
+
+const API_ORIGIN = extractOrigin(API_BASE_URL);
+const FALLBACK_API_ORIGIN = extractOrigin(FALLBACK_API_BASE_URL);
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const requestInit: RequestInit = {
@@ -74,4 +85,4 @@ export function buildQuery(params: Record<string, QueryValue>) {
   return query ? `?${query}` : "";
 }
 
-export { API_BASE_URL };
+export { API_BASE_URL, API_ORIGIN, FALLBACK_API_BASE_URL, FALLBACK_API_ORIGIN };
