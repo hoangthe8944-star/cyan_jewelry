@@ -6,6 +6,7 @@ import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { MobileMenu } from './components/MobileMenu';
 import { ProductDetailPage } from './pages/ProductDetailPage';
+import { ProductsPage } from './pages/ProductsPage';
 import { ScrollToTop } from './components/ScrollToTop';
 import { SearchModal } from './components/SearchModal';
 import { ShopProvider } from './context/ShopContext';
@@ -20,6 +21,7 @@ export default function App() {
           <main>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/products" element={<ProductsPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/product/:slug" element={<ProductDetailPage />} />
             </Routes>

@@ -33,6 +33,22 @@ function normalizeMediaUrl(value?: string | null) {
 }
 
 export function resolveMediaUrl(media?: MediaAsset | null) {
+  if (media?.mediaType === "MP4") {
+    return (
+      normalizeMediaUrl(media.url) ||
+      normalizeMediaUrl(media.thumbnailUrl) ||
+      "https://placehold.co/800x1000?text=Cyan"
+    );
+  }
+
+  return (
+    normalizeMediaUrl(media?.thumbnailUrl) ||
+    normalizeMediaUrl(media?.url) ||
+    "https://placehold.co/800x1000?text=Cyan"
+  );
+}
+
+export function resolveMediaPosterUrl(media?: MediaAsset | null) {
   return (
     normalizeMediaUrl(media?.thumbnailUrl) ||
     normalizeMediaUrl(media?.url) ||

@@ -1,8 +1,37 @@
+import { useState } from 'react';
+
 import { motion } from 'motion/react';
 
-import { resolveMediaUrl } from '../api';
+import { resolveMediaPosterUrl, resolveMediaUrl } from '../api';
 import type { Banner } from '../lib/types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+
+function BannerMedia({ banner }: { banner: Banner }) {
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  if (banner.media.mediaType === 'MP4' && !videoFailed) {
+    return (
+      <video
+        src={resolveMediaUrl(banner.media)}
+        poster={resolveMediaPosterUrl(banner.media)}
+        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        autoPlay
+        muted
+        loop
+        playsInline
+        onError={() => setVideoFailed(true)}
+      />
+    );
+  }
+
+  return (
+    <ImageWithFallback
+      src={resolveMediaPosterUrl(banner.media)}
+      alt={banner.title}
+      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+    />
+  );
+}
 
 export function SubBannerSection({ banners }: { banners: Banner[] }) {
   if (banners.length === 0) {
@@ -20,22 +49,7 @@ export function SubBannerSection({ banners }: { banners: Banner[] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: index * 0.12 }}
           >
-            {banner.media.mediaType === 'MP4' ? (
-              <video
-                src={resolveMediaUrl(banner.media)}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            ) : (
-              <ImageWithFallback
-                src={resolveMediaUrl(banner.media)}
-                alt={banner.title}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-            )}
+            <BannerMedia banner={banner} />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-8 text-white">

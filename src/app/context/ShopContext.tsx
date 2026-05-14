@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 import type { ShopProduct } from '../lib/types';
 
@@ -23,12 +23,35 @@ interface ShopContextType {
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
+const CART_STORAGE_KEY = 'cyan-cart';
+
+function readCartFromSession(): CartItem[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const value = window.sessionStorage.getItem(CART_STORAGE_KEY);
+    if (!value) {
+      return [];
+    }
+
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 export function ShopProvider({ children }: { children: ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(readCartFromSession);
   const [wishlist, setWishlist] = useState<ShopProduct[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (product: ShopProduct) => {
     setCart((prev) => {
