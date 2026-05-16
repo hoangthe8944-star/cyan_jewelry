@@ -19,9 +19,9 @@ export function ProductGrid({ products }: { products: ProductCardItem[] }) {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="font-sterling text-[40px] mb-3">New Arrivals</h2>
+          <h2 className="font-sterling text-[40px] mb-3">Bộ sưu tập mới</h2>
           <p className="text-muted-foreground tracking-wide">
-            Discover our latest ethereal creations
+            Khám phá những thiết kế mới nhất vừa có mặt tại Oriven
           </p>
         </motion.div>
 

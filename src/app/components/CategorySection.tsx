@@ -19,9 +19,9 @@ export function CategorySection({ categories }: { categories: CategoryNode[] }) 
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="font-sterling text-[40px] mb-3">Shop by Category</h2>
+          <h2 className="font-sterling text-[40px] mb-3">Danh mục sản phẩm</h2>
           <p className="text-muted-foreground tracking-wide">
-            Curated collections for every occasion
+            Những lựa chọn được tuyển chọn cho từng phong cách và dịp khác nhau
           </p>
         </motion.div>
 

@@ -21,12 +21,12 @@ function ProductsDropdown({
     : 'text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase';
 
   const menuClass = compact
-    ? 'fixed left-1/2 top-[72px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
+    ? 'fixed left-1/2 top-[86px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
     : 'fixed left-1/2 top-[126px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-black/70 py-6 text-white shadow-2xl backdrop-blur-[18px]';
 
   return (
     <div className="relative group">
-      <button className={linkClass} type="button" onClick={onNavigateProducts}>
+      <button className={`relative z-[60] ${linkClass}`} type="button" onClick={onNavigateProducts}>
         Sản phẩm
       </button>
       <div className="pointer-events-none fixed left-1/2 top-0 h-[150px] w-screen -translate-x-1/2 group-hover:pointer-events-auto" />
@@ -86,6 +86,7 @@ export function Header() {
   const isHomePage = location.pathname === '/';
   const navigateToProducts = () => navigate('/products');
   const navigateToCategory = (slug: string) => navigate(`/products?category=${slug}`);
+  const navigateToFeatured = () => navigate('/products?featured=true');
   const navigateToAbout = () => navigate('/about');
 
   useEffect(() => {
@@ -139,7 +140,10 @@ export function Header() {
                   onNavigateProducts={navigateToProducts}
                   onNavigateCategory={navigateToCategory}
                 />
-                <button className="text-sm tracking-wide text-white hover:text-accent-light transition-colors">
+                <button
+                  onClick={navigateToFeatured}
+                  className="text-sm tracking-wide text-white hover:text-accent-light transition-colors"
+                >
                   Bộ sưu tập mới
                 </button>
                 <button
@@ -250,6 +254,7 @@ export function Header() {
               onNavigateCategory={navigateToCategory}
             />
             <button
+              onClick={navigateToFeatured}
               className="text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase"
               style={{
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',

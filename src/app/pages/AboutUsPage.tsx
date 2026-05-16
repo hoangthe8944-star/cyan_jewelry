@@ -39,7 +39,7 @@ export function AboutUsPage() {
           <div className="mx-auto grid max-w-[1800px] gap-10 px-6 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:py-24">
             <div className="max-w-3xl">
               <p className="mb-4 text-sm uppercase tracking-[0.35em] text-muted-foreground">Về Oriven</p>
-              <h1 className="font-sterling text-[42px] leading-[1.05] text-primary lg:text-[72px]">
+              <h1 className="font-sterling text-[42px] text-primary ">
                 Một thương hiệu trang sức hiện đại được định hình bởi cảm xúc, sự tinh gọn và nét sang trọng lặng lẽ.
               </h1>
               <div className="mt-8 space-y-5 text-base leading-8 text-foreground/80 lg:text-lg">
@@ -111,11 +111,11 @@ export function AboutUsPage() {
               <div>
                 <p className="mb-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">Câu chuyện mới nhất</p>
                 <h2 className="font-sterling text-[32px] text-primary lg:text-[48px]">
-                  Nội dung động được lấy trực tiếp từ API hiện tại
+                  Những câu chuyện mới nhất từ Oriven
                 </h2>
               </div>
               <p className="max-w-xl text-sm leading-7 text-muted-foreground">
-                Phần này được tải động để trang giới thiệu luôn kết nối với những câu chuyện thương hiệu và editorial mới nhất từ hệ thống của bạn.
+                Nơi Oriven chia sẻ những cảm hứng thiết kế, câu chuyện bộ sưu tập và góc nhìn mới xoay quanh vẻ đẹp hiện đại mà thương hiệu đang theo đuổi.
               </p>
             </div>
 
@@ -145,7 +145,7 @@ export function AboutUsPage() {
               <div className="border border-dashed border-border bg-white px-6 py-12 text-center">
                 <h3 className="font-sterling text-[28px] text-primary">Chưa có câu chuyện editorial</h3>
                 <p className="mt-3 text-sm text-muted-foreground">
-                  API đã được kết nối sẵn. Khi có dữ liệu, các bài viết sẽ tự động hiển thị tại đây.
+                  Khi có bài viết mới, những câu chuyện từ Oriven sẽ xuất hiện tại đây để bạn tiếp tục khám phá thêm về thương hiệu.
                 </p>
               </div>
             ) : null}
