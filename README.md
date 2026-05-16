@@ -24,7 +24,7 @@
   import { toMediaAsset, uploadMediaToCloudinary } from "./src/app/api";
 
   const upload = await uploadMediaToCloudinary(file, {
-    folder: "cyan/banners",
+    folder: "Oriven/banners",
     tags: ["banner", "hero"],
   });
 

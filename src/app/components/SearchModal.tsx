@@ -104,7 +104,7 @@ export function SearchModal() {
                         />
                       </div>
                       <p className="text-xs tracking-wider text-muted-foreground mb-1 uppercase">
-                        {product.brand || 'Cyan Jewelry'}
+                        {product.brand || 'Oriven Jewelry'}
                       </p>
                       <h3 className="text-lg mb-2 group-hover:text-accent transition-colors">
                         {product.name}

@@ -23,7 +23,7 @@ interface ShopContextType {
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
-const CART_STORAGE_KEY = 'cyan-cart';
+const CART_STORAGE_KEY = 'Oriven-cart';
 
 function readCartFromSession(): CartItem[] {
   if (typeof window === 'undefined') {

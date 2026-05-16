@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useShop } from '../context/ShopContext';
 
 const menuItems = [
-  { label: 'New In', href: '#new' },
-  { label: 'Jewelry', href: '#jewelry' },
-  { label: 'Watches', href: '#watches' },
-  { label: 'Accessories', href: '#accessories' },
-  { label: 'Gifts', href: '#gifts' },
-  { label: 'World of Cyan', href: '#world' },
+  { label: 'Hàng mới', href: '#new' },
+  { label: 'Trang sức', href: '#jewelry' },
+  { label: 'Đồng hồ', href: '#watches' },
+  { label: 'Phụ kiện', href: '#accessories' },
+  { label: 'Quà tặng', href: '#gifts' },
+  { label: 'Thế giới Oriven', href: '#world' },
 ];
 
 export function MobileMenu() {
@@ -33,7 +33,7 @@ export function MobileMenu() {
             className="fixed left-0 top-0 h-full w-80 bg-white z-50 shadow-2xl lg:hidden"
           >
             <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="font-sterling text-[24px]">Menu</h2>
+              <h2 className="font-sterling text-[24px]">Danh mục</h2>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="text-foreground hover:text-accent transition-colors"
@@ -64,21 +64,21 @@ export function MobileMenu() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-3 px-4 hover:bg-muted transition-colors text-sm"
                 >
-                  My Account
+                  Tài khoản của tôi
                 </a>
                 <a
                   href="#stores"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-3 px-4 hover:bg-muted transition-colors text-sm"
                 >
-                  Find a Store
+                  Tìm cửa hàng
                 </a>
                 <a
                   href="#contact"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-3 px-4 hover:bg-muted transition-colors text-sm"
                 >
-                  Contact Us
+                  Liên hệ
                 </a>
               </div>
             </nav>

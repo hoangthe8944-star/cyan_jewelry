@@ -21,18 +21,18 @@ function ProductsDropdown({
     : 'text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase';
 
   const menuClass = compact
-    ? 'absolute left-[50vw] top-full z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
-    : 'absolute left-[50vw] top-full z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-black/70 py-6 text-white shadow-2xl backdrop-blur-[18px]';
+    ? 'fixed left-1/2 top-[72px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
+    : 'fixed left-1/2 top-[126px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-black/70 py-6 text-white shadow-2xl backdrop-blur-[18px]';
 
   return (
     <div className="relative group">
       <button className={linkClass} type="button" onClick={onNavigateProducts}>
-        Product
+        Sản phẩm
       </button>
-      <div className="pointer-events-none absolute left-[50vw] top-full h-4 w-screen -translate-x-1/2 group-hover:pointer-events-auto" />
+      <div className="pointer-events-none fixed left-1/2 top-0 h-[150px] w-screen -translate-x-1/2 group-hover:pointer-events-auto" />
       <div className={`invisible absolute opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`}>
         {categories.length === 0 ? (
-          <div className="py-6 text-center text-sm text-white/70">Loading categories...</div>
+          <div className="py-6 text-center text-sm text-white/70">Đang tải danh mục...</div>
         ) : (
           <div className="mx-auto max-w-[1800px] px-6">
             <div className="grid grid-cols-3 gap-6">
@@ -59,7 +59,7 @@ function ProductsDropdown({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-white/55">Explore this collection</p>
+                    <p className="text-sm text-white/55">Khám phá bộ sưu tập này</p>
                   )}
                 </div>
               ))}
@@ -86,6 +86,7 @@ export function Header() {
   const isHomePage = location.pathname === '/';
   const navigateToProducts = () => navigate('/products');
   const navigateToCategory = (slug: string) => navigate(`/products?category=${slug}`);
+  const navigateToAbout = () => navigate('/about');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -123,14 +124,14 @@ export function Header() {
                 onClick={() => navigate('/')}
                 className="font-sterling tracking-wide text-white text-[25px] hover:text-accent-light transition-all duration-300"
               >
-                Cyan Jewelry
+                Oriven Jewelry
               </button>
               <nav className="hidden lg:flex items-center gap-8">
                 <button
                   onClick={() => navigate('/')}
                   className="text-sm tracking-wide text-white hover:text-accent-light transition-colors"
                 >
-                  Home
+                  Trang chủ
                 </button>
                 <ProductsDropdown
                   categories={categories}
@@ -139,16 +140,19 @@ export function Header() {
                   onNavigateCategory={navigateToCategory}
                 />
                 <button className="text-sm tracking-wide text-white hover:text-accent-light transition-colors">
-                  New Collection
+                  Bộ sưu tập mới
                 </button>
-                <button className="text-sm tracking-wide text-white hover:text-accent-light transition-colors">
-                  About Us
+                <button
+                  onClick={navigateToAbout}
+                  className="text-sm tracking-wide text-white hover:text-accent-light transition-colors"
+                >
+                  Về chúng tôi
                 </button>
                 {/* <a href="#" className="text-sm tracking-wide text-white hover:text-accent-light transition-colors">
                   Gifts
                 </a>
                 <a href="#" className="text-sm tracking-wide text-white hover:text-accent-light transition-colors">
-                  World of Cyan
+                  World of Oriven
                 </a> */}
               </nav>
             </div>
@@ -210,7 +214,7 @@ export function Header() {
               textShadow: '0px 3px 12px rgba(0, 0, 0, 0.15)',
             }}
           >
-            CYAN JEWELRY
+            ORIVEN JEWELRY
           </button>
         </div>
 
@@ -237,7 +241,7 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Home
+              Trang chủ
             </button>
             <ProductsDropdown
               categories={categories}
@@ -251,15 +255,16 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              New Collection
+              Bộ sưu tập mới
             </button>
             <button
+              onClick={navigateToAbout}
               className="text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase"
               style={{
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              About Us
+              Về chúng tôi
             </button>
             {/* <a
               href="#"
@@ -277,7 +282,7 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              World of Cyan
+              World of Oriven
             </a> */}
           </nav>
 

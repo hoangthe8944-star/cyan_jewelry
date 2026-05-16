@@ -33,7 +33,7 @@ export function ProductGrid({ products }: { products: ProductCardItem[] }) {
               slug={product.slug}
               image={resolveMediaUrl(product.gallery[0])}
               name={product.name}
-              collection={product.brand || 'Cyan Jewelry'}
+              collection={product.brand || 'Oriven Jewelry'}
               price={product.minPrice}
               badge={product.featured ? 'Featured' : undefined}
               index={index}

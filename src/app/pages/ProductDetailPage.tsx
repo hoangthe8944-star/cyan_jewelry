@@ -192,7 +192,7 @@ export function ProductDetailPage() {
                   transition={{ delay: 0.2 }}
                   className="text-sm tracking-wider text-muted-foreground mb-3 uppercase"
                 >
-                  {product.brand || 'Cyan Jewelry'}
+                  {product.brand || 'Oriven Jewelry'}
                 </motion.p>
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
@@ -214,7 +214,7 @@ export function ProductDetailPage() {
                 <div className="mb-10 pb-8 border-b border-border">
                   <p className="text-muted-foreground leading-relaxed">
                     {product.description ??
-                      'Exquisitely crafted with premium materials, this piece embodies the ethereal beauty and timeless elegance that define the Cyan Jewelry collection.'}
+                      'Exquisitely crafted with premium materials, this piece embodies the ethereal beauty and timeless elegance that define the Oriven Jewelry collection.'}
                   </p>
                 </div>
 
@@ -298,7 +298,7 @@ export function ProductDetailPage() {
                         id: product.id,
                         slug: product.slug,
                         name: product.name,
-                        collection: product.brand || 'Cyan Jewelry',
+                        collection: product.brand || 'Oriven Jewelry',
                         price: activeVariant?.price ?? product.minPrice,
                         image: resolveMediaUrl(activeVariant?.media[0] ?? product.gallery[0]),
                       })
@@ -317,7 +317,7 @@ export function ProductDetailPage() {
                         id: product.id,
                         slug: product.slug,
                         name: product.name,
-                        collection: product.brand || 'Cyan Jewelry',
+                        collection: product.brand || 'Oriven Jewelry',
                         price: product.minPrice,
                         image: resolveMediaUrl(product.gallery[0]),
                       })

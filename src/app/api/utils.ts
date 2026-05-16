@@ -37,14 +37,14 @@ export function resolveMediaUrl(media?: MediaAsset | null) {
     return (
       normalizeMediaUrl(media.url) ||
       normalizeMediaUrl(media.thumbnailUrl) ||
-      "https://placehold.co/800x1000?text=Cyan"
+      "https://placehold.co/800x1000?text=Oriven"
     );
   }
 
   return (
     normalizeMediaUrl(media?.thumbnailUrl) ||
     normalizeMediaUrl(media?.url) ||
-    "https://placehold.co/800x1000?text=Cyan"
+    "https://placehold.co/800x1000?text=Oriven"
   );
 }
 
@@ -52,6 +52,6 @@ export function resolveMediaPosterUrl(media?: MediaAsset | null) {
   return (
     normalizeMediaUrl(media?.thumbnailUrl) ||
     normalizeMediaUrl(media?.url) ||
-    "https://placehold.co/800x1000?text=Cyan"
+    "https://placehold.co/800x1000?text=Oriven"
   );
 }

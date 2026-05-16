@@ -134,7 +134,7 @@ export function ProductsPage() {
                 {activeCategoryLabel ? activeCategoryLabel : 'All Products'}
               </h1>
               <p className="mt-3 max-w-2xl text-sm tracking-wide text-muted-foreground">
-                Explore Cyan Jewelry collections with live filters by category, price, and featured pieces.
+                Explore Oriven Jewelry collections with live filters by category, price, and featured pieces.
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -436,7 +436,7 @@ export function ProductsPage() {
                       slug={product.slug}
                       image={resolveMediaUrl(product.gallery[0])}
                       name={product.name}
-                      collection={product.brand || 'Cyan Jewelry'}
+                      collection={product.brand || 'Oriven Jewelry'}
                       price={product.minPrice}
                       badge={product.featured ? 'Featured' : undefined}
                       index={index}

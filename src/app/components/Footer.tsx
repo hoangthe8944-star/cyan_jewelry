@@ -1,5 +1,6 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 export function Footer() {
   const ref = useRef(null);
@@ -7,31 +8,31 @@ export function Footer() {
 
   const footerLinks = [
     {
-      title: 'Shop',
+      title: 'Mua sắm',
       links: [
-        { label: 'New Arrivals', href: '#' },
-        { label: 'Necklaces', href: '#' },
-        { label: 'Earrings', href: '#' },
-        { label: 'Bracelets', href: '#' },
-        { label: 'Rings', href: '#' },
+        { label: 'Hàng mới về', href: '#' },
+        { label: 'Dây chuyền', href: '#' },
+        { label: 'Hoa tai', href: '#' },
+        { label: 'Vòng tay', href: '#' },
+        { label: 'Nhẫn', href: '#' },
       ],
     },
     {
-      title: 'About',
+      title: 'Giới thiệu',
       links: [
-        { label: 'Our Story', href: '#' },
-        { label: 'Craftsmanship', href: '#' },
-        { label: 'Sustainability', href: '#' },
-        { label: 'Press', href: '#' },
+        { label: 'Câu chuyện thương hiệu', href: '#' },
+        { label: 'Chế tác', href: '#' },
+        { label: 'Phát triển bền vững', href: '#' },
+        { label: 'Báo chí', href: '#' },
       ],
     },
     {
-      title: 'Customer Care',
+      title: 'Hỗ trợ khách hàng',
       links: [
-        { label: 'Contact Us', href: '#' },
-        { label: 'Shipping & Returns', href: '#' },
-        { label: 'Size Guide', href: '#' },
-        { label: 'Care Instructions', href: '#' },
+        { label: 'Liên hệ', href: '#' },
+        { label: 'Vận chuyển và đổi trả', href: '#' },
+        { label: 'Hướng dẫn kích cỡ', href: '#' },
+        { label: 'Hướng dẫn bảo quản', href: '#' },
       ],
     },
   ];
@@ -45,9 +46,9 @@ export function Footer() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.6 }}
           >
-            <h3 className="font-sterling text-[24px] mb-4">Cyan Jewelry</h3>
+            <h3 className="font-sterling text-[24px] mb-4">Oriven Jewelry</h3>
             <p className="text-white/70 text-sm leading-relaxed">
-              Elevating elegance through ethereal designs and timeless craftsmanship.
+              Tôn vinh vẻ đẹp thanh lịch qua những thiết kế tinh tế và kỹ thuật chế tác bền giá trị theo thời gian.
             </p>
           </motion.div>
 
@@ -70,14 +71,17 @@ export function Footer() {
                       delay: (sectionIndex + 1) * 0.1 + linkIndex * 0.05,
                     }}
                   >
-                    <motion.a
-                      href={link.href}
+                    <motion.div
                       className="hover:text-accent transition-colors inline-block"
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      {link.label}
-                    </motion.a>
+                      {link.label === 'Câu chuyện thương hiệu' ? (
+                        <Link to="/about">{link.label}</Link>
+                      ) : (
+                        <a href={link.href}>{link.label}</a>
+                      )}
+                    </motion.div>
                   </motion.li>
                 ))}
               </ul>
@@ -91,7 +95,7 @@ export function Footer() {
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
         >
-          <p>&copy; 2026 Cyan Jewelry. All rights reserved.</p>
+          <p>&copy; 2026 Oriven Jewelry. Bảo lưu mọi quyền.</p>
         </motion.div>
       </div>
     </footer>

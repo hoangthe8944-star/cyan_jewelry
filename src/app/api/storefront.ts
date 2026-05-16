@@ -90,7 +90,7 @@ export function toShopProduct(product: ProductDetail | ProductCatalogResponse["i
     id: product.id,
     slug: product.slug,
     name: product.name,
-    collection: product.brand || "Cyan Jewelry",
+    collection: product.brand || "Oriven Jewelry",
     price: product.minPrice,
     image: resolveMediaUrl(product.gallery[0]),
     badge: product.featured ? "Featured" : undefined,
