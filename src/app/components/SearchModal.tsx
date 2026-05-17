@@ -13,19 +13,27 @@ export function SearchModal() {
   const { isSearchOpen, setIsSearchOpen } = useShop();
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<ProductCardItem[]>([]);
+  const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!searchQuery.trim()) {
       setResults([]);
+      setKeywordSuggestions([]);
       return;
     }
 
     const timer = setTimeout(() => {
       storefrontApi
-        .searchProducts(searchQuery)
-        .then((response) => setResults(response.items))
-        .catch(() => setResults([]));
+        .getSearchSuggestions(searchQuery)
+        .then((response) => {
+          setResults(response.productSuggestions);
+          setKeywordSuggestions(response.keywordSuggestions);
+        })
+        .catch(() => {
+          setResults([]);
+          setKeywordSuggestions([]);
+        });
     }, 300);
 
     return () => clearTimeout(timer);
@@ -66,7 +74,7 @@ export function SearchModal() {
                 </button>
               </div>
               <p className="text-white/70 text-sm ml-[52px]">
-                {searchQuery.trim() ? `${results.length} results found` : ''}
+                {searchQuery.trim() ? `${results.length} product suggestions` : ''}
               </p>
             </div>
           </div>
@@ -78,7 +86,7 @@ export function SearchModal() {
                   <Search className="w-20 h-20 mx-auto mb-6 text-muted-foreground opacity-20" />
                   <h2 className="font-sterling text-[32px] mb-3">Search Our Collection</h2>
                   <p className="text-muted-foreground text-lg">
-                    Start typing to discover exquisite jewelry pieces
+                    Start typing to explore products and keyword suggestions from Cyan storefront
                   </p>
                 </div>
               ) : results.length === 0 ? (
@@ -89,29 +97,51 @@ export function SearchModal() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {results.map((product) => (
-                    <button
-                      key={product.id}
-                      onClick={() => handleProductClick(product.slug)}
-                      className="group text-left"
-                    >
-                      <div className="aspect-[3/4] bg-muted mb-4 overflow-hidden">
-                        <ImageWithFallback
-                          src={resolveMediaUrl(product.gallery[0])}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      </div>
-                      <p className="text-xs tracking-wider text-muted-foreground mb-1 uppercase">
-                        {product.brand || 'Oriven Jewelry'}
+                <div className="space-y-10">
+                  {keywordSuggestions.length > 0 ? (
+                    <div>
+                      <p className="mb-4 text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                        Suggested keywords
                       </p>
-                      <h3 className="text-lg mb-2 group-hover:text-accent transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="text-accent font-medium">{formatCurrency(product.minPrice)}</p>
-                    </button>
-                  ))}
+                      <div className="flex flex-wrap gap-3">
+                        {keywordSuggestions.map((keyword) => (
+                          <button
+                            key={keyword}
+                            type="button"
+                            onClick={() => setSearchQuery(keyword)}
+                            className="border border-border px-4 py-2 text-sm transition-colors hover:border-primary hover:text-primary"
+                          >
+                            {keyword}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    {results.map((product) => (
+                      <button
+                        key={product.id}
+                        onClick={() => handleProductClick(product.slug)}
+                        className="group text-left"
+                      >
+                        <div className="mb-4 aspect-[3/4] overflow-hidden bg-muted">
+                          <ImageWithFallback
+                            src={resolveMediaUrl(product.gallery[0])}
+                            alt={product.name}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        </div>
+                        <p className="mb-1 text-xs uppercase tracking-wider text-muted-foreground">
+                          {product.brand || 'Oriven Jewelry'}
+                        </p>
+                        <h3 className="mb-2 text-lg transition-colors group-hover:text-accent">
+                          {product.name}
+                        </h3>
+                        <p className="text-accent font-medium">{formatCurrency(product.minPrice)}</p>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

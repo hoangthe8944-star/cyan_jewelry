@@ -1,8 +1,10 @@
-import { Search, User, Heart, ShoppingBag, Menu } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
+
 import { storefrontApi } from '../api';
 import { useShop } from '../context/ShopContext';
-import { useNavigate, useLocation } from 'react-router-dom';
 import type { CategoryNode } from '../lib/types';
 
 function ProductsDropdown({
@@ -17,20 +19,22 @@ function ProductsDropdown({
   onNavigateCategory: (slug: string) => void;
 }) {
   const linkClass = compact
-    ? 'text-sm tracking-wide text-white hover:text-accent-light transition-colors'
-    : 'text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase';
+    ? 'text-sm tracking-wide text-white transition-colors hover:text-accent-light'
+    : 'text-xs uppercase tracking-wider text-white transition-colors hover:text-accent-light';
 
   const menuClass = compact
-    ? 'fixed left-1/2 top-[86px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
-    : 'fixed left-1/2 top-[126px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-black/70 py-6 text-white shadow-2xl backdrop-blur-[18px]';
+    ? 'fixed left-1/2 top-[142px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
+    : 'fixed left-1/2 top-[196px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-black/70 py-6 text-white shadow-2xl backdrop-blur-[18px]';
 
   return (
-    <div className="relative group">
+    <div className="group relative">
       <button className={`relative z-[60] ${linkClass}`} type="button" onClick={onNavigateProducts}>
         Sản phẩm
       </button>
-      <div className="pointer-events-none fixed left-1/2 top-0 h-[150px] w-screen -translate-x-1/2 group-hover:pointer-events-auto" />
-      <div className={`invisible absolute opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`}>
+      <div className="pointer-events-none fixed left-1/2 top-0 h-[320px] w-screen -translate-x-1/2 group-hover:pointer-events-auto" />
+      <div
+        className={`invisible absolute opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`}
+      >
         {categories.length === 0 ? (
           <div className="py-6 text-center text-sm text-white/70">Đang tải danh mục...</div>
         ) : (
@@ -41,7 +45,7 @@ function ProductsDropdown({
                   <button
                     type="button"
                     onClick={() => onNavigateCategory(category.slug)}
-                    className="text-left font-medium uppercase tracking-[0.2em] text-white hover:text-accent-light transition-colors"
+                    className="text-left font-medium uppercase tracking-[0.2em] text-white transition-colors hover:text-accent-light"
                   >
                     {category.name}
                   </button>
@@ -76,12 +80,7 @@ export function Header() {
   const [categories, setCategories] = useState<CategoryNode[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    setIsSearchOpen,
-    setIsMobileMenuOpen,
-    wishlist,
-    getCartCount,
-  } = useShop();
+  const { setIsSearchOpen, setIsMobileMenuOpen, wishlist, getCartCount } = useShop();
 
   const isHomePage = location.pathname === '/';
   const navigateToProducts = () => navigate('/products');
@@ -91,8 +90,7 @@ export function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 30);
+      setIsScrolled(window.scrollY > 30);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -106,31 +104,29 @@ export function Header() {
       .catch(() => setCategories([]));
   }, []);
 
-  // Always show compact header on non-home pages
   if (isScrolled || !isHomePage) {
-    // Scrolled State - Original Horizontal Layout
     return (
-      <header className="fixed top-0 left-0 right-0 z-50 bg-primary/80 backdrop-blur-[15px] border-b border-accent transition-all duration-300 ease-in-out">
-        <div className="max-w-[1800px] mx-auto px-6">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-accent bg-primary/80 backdrop-blur-[15px] transition-all duration-300 ease-in-out">
+        <div className="mx-auto max-w-[1800px] px-6">
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center gap-6 lg:gap-12">
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden text-white hover:text-accent-light transition-colors"
+                className="text-white transition-colors hover:text-accent-light lg:hidden"
                 aria-label="Open menu"
               >
-                <Menu className="w-6 h-6" />
+                <Menu className="h-6 w-6" />
               </button>
               <button
                 onClick={() => navigate('/')}
-                className="font-sterling tracking-wide text-white text-[25px] hover:text-accent-light transition-all duration-300"
+                className="font-sterling text-[25px] tracking-wide text-white transition-all duration-300 hover:text-accent-light"
               >
                 Oriven Jewelry
               </button>
-              <nav className="hidden lg:flex items-center gap-8">
+              <nav className="hidden items-center gap-8 lg:flex">
                 <button
                   onClick={() => navigate('/')}
-                  className="text-sm tracking-wide text-white hover:text-accent-light transition-colors"
+                  className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
                   Trang chủ
                 </button>
@@ -142,61 +138,52 @@ export function Header() {
                 />
                 <button
                   onClick={navigateToFeatured}
-                  className="text-sm tracking-wide text-white hover:text-accent-light transition-colors"
+                  className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
-                  Bộ sưu tập mới
+                  Sản phẩm nổi bật
                 </button>
                 <button
                   onClick={navigateToAbout}
-                  className="text-sm tracking-wide text-white hover:text-accent-light transition-colors"
+                  className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
                   Về chúng tôi
                 </button>
-                {/* <a href="#" className="text-sm tracking-wide text-white hover:text-accent-light transition-colors">
-                  Gifts
-                </a>
-                <a href="#" className="text-sm tracking-wide text-white hover:text-accent-light transition-colors">
-                  World of Oriven
-                </a> */}
               </nav>
             </div>
 
             <div className="flex items-center gap-4 lg:gap-6">
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="text-white hover:text-accent-light transition-colors"
+                className="text-white transition-colors hover:text-accent-light"
                 aria-label="Search"
               >
-                <Search className="w-5 h-5" />
+                <Search className="h-5 w-5" />
               </button>
               <button
-                className="text-white hover:text-accent-light transition-colors hidden md:block"
+                className="hidden text-white transition-colors hover:text-accent-light md:block"
                 aria-label="Account"
               >
-                <User className="w-5 h-5" />
+                <User className="h-5 w-5" />
               </button>
-              <button
-                className="text-white hover:text-accent-light transition-colors relative"
-                aria-label="Wishlist"
-              >
-                <Heart className="w-5 h-5" />
-                {wishlist.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+              <button className="relative text-white transition-colors hover:text-accent-light" aria-label="Wishlist">
+                <Heart className="h-5 w-5" />
+                {wishlist.length > 0 ? (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs text-white">
                     {wishlist.length}
                   </span>
-                )}
+                ) : null}
               </button>
               <button
                 onClick={() => navigate('/cart')}
-                className="text-white hover:text-accent-light transition-colors relative"
+                className="relative text-white transition-colors hover:text-accent-light"
                 aria-label="Shopping bag"
               >
-                <ShoppingBag className="w-5 h-5" />
-                {getCartCount() > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                <ShoppingBag className="h-5 w-5" />
+                {getCartCount() > 0 ? (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs text-white">
                     {getCartCount()}
                   </span>
-                )}
+                ) : null}
               </button>
             </div>
           </div>
@@ -205,15 +192,13 @@ export function Header() {
     );
   }
 
-  // Not Scrolled State - Two Row Centered Layout
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300 ease-in-out">
-      <div className="max-w-[1800px] mx-auto px-6">
-        {/* Top Row - Brand Name */}
-        <div className="flex items-center justify-center py-6 border-b border-white/10">
+    <header className="fixed left-0 right-0 top-0 z-50 bg-transparent transition-all duration-300 ease-in-out">
+      <div className="mx-auto max-w-[1800px] px-6">
+        <div className="flex items-center justify-center border-b border-white/10 py-6">
           <button
             onClick={() => navigate('/')}
-            className="font-sterling tracking-[0.3em] text-white text-[56px] lg:text-[72px] hover:text-accent-light transition-all duration-300 ease-in-out"
+            className="font-sterling text-[56px] tracking-[0.3em] text-white transition-all duration-300 ease-in-out hover:text-accent-light lg:text-[72px]"
             style={{
               textShadow: '0px 3px 12px rgba(0, 0, 0, 0.15)',
             }}
@@ -222,25 +207,22 @@ export function Header() {
           </button>
         </div>
 
-        {/* Bottom Row - Navigation & Icons (Centered) */}
-        <div className="flex items-center justify-center py-4 gap-8">
-          {/* Mobile Menu Button */}
+        <div className="flex items-center justify-center gap-8 py-4">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden text-white hover:text-accent-light transition-colors"
+            className="text-white transition-colors hover:text-accent-light lg:hidden"
             aria-label="Open menu"
             style={{
               filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
             }}
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="h-5 w-5" />
           </button>
 
-          {/* Navigation */}
-          <nav className="hidden lg:flex items-center gap-6">
+          <nav className="hidden items-center gap-6 lg:flex">
             <button
               onClick={() => navigate('/')}
-              className="text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase"
+              className="text-xs uppercase tracking-wider text-white transition-colors hover:text-accent-light"
               style={{
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
@@ -255,94 +237,74 @@ export function Header() {
             />
             <button
               onClick={navigateToFeatured}
-              className="text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase"
+              className="text-xs uppercase tracking-wider text-white transition-colors hover:text-accent-light"
               style={{
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Bộ sưu tập mới
+              Sản phẩm nổi bật
             </button>
             <button
               onClick={navigateToAbout}
-              className="text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase"
+              className="text-xs uppercase tracking-wider text-white transition-colors hover:text-accent-light"
               style={{
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
               Về chúng tôi
             </button>
-            {/* <a
-              href="#"
-              className="text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase"
-              style={{
-                textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
-              }}
-            >
-              Gifts
-            </a>
-            <a
-              href="#"
-              className="text-xs tracking-wider text-white hover:text-accent-light transition-colors uppercase"
-              style={{
-                textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
-              }}
-            >
-              World of Oriven
-            </a> */}
           </nav>
 
-          {/* Divider */}
-          <div className="hidden lg:block w-px h-4 bg-white/30"></div>
+          <div className="hidden h-4 w-px bg-white/30 lg:block" />
 
-          {/* Icons */}
           <div className="flex items-center gap-5">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="text-white hover:text-accent-light transition-colors"
+              className="text-white transition-colors hover:text-accent-light"
               aria-label="Search"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
             >
-              <Search className="w-4 h-4" />
+              <Search className="h-4 w-4" />
             </button>
             <button
-              className="text-white hover:text-accent-light transition-colors hidden md:block"
+              className="hidden text-white transition-colors hover:text-accent-light md:block"
               aria-label="Account"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
             >
-              <User className="w-4 h-4" />
+              <User className="h-4 w-4" />
             </button>
             <button
-              className="text-white hover:text-accent-light transition-colors relative"
+              className="relative text-white transition-colors hover:text-accent-light"
               aria-label="Wishlist"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
             >
-              <Heart className="w-4 h-4" />
-              {wishlist.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-4 h-4 rounded-full flex items-center justify-center text-[10px]">
+              <Heart className="h-4 w-4" />
+              {wishlist.length > 0 ? (
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] text-white">
                   {wishlist.length}
                 </span>
-              )}
+              ) : null}
             </button>
             <button
               onClick={() => navigate('/cart')}
-              className="text-white hover:text-accent-light transition-colors relative"
+              className="relative text-white transition-colors hover:text-accent-light"
               aria-label="Shopping bag"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
             >
-              <ShoppingBag className="w-4 h-4" />
-              {getCartCount() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-4 h-4 rounded-full flex items-center justify-center text-[10px]">
+              <ShoppingBag className="h-4 w-4" />
+              {getCartCount() > 0 ? (
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] text-white">
                   {getCartCount()}
                 </span>
-              )}
+              ) : null}
             </button>
           </div>
         </div>

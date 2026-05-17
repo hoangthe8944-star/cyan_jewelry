@@ -1,41 +1,41 @@
 import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { motion, useInView } from 'motion/react';
 
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import { resolveMediaUrl } from '../api';
 import type { CategoryNode } from '../lib/types';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 export function CategorySection({ categories }: { categories: CategoryNode[] }) {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="py-20 bg-muted">
-      <div className="max-w-[1800px] mx-auto px-6">
+    <section ref={ref} className="bg-muted py-20">
+      <div className="mx-auto max-w-[1800px] px-6">
         <motion.div
-          className="text-center mb-12"
+          className="mb-12 text-center"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="font-sterling text-[40px] mb-3">Danh mục sản phẩm</h2>
-          <p className="text-muted-foreground tracking-wide">
+          <h2 className="mb-3 font-sterling text-[40px]">Danh mục sản phẩm</h2>
+          <p className="tracking-wide text-muted-foreground">
             Những lựa chọn được tuyển chọn cho từng phong cách và dịp khác nhau
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {categories.slice(0, 4).map((category, index) => (
-            <motion.div
+            <motion.button
               key={category.id}
-              className="group relative aspect-square overflow-hidden cursor-pointer"
+              type="button"
+              onClick={() => navigate(`/products?category=${category.slug}`)}
+              className="group relative aspect-square overflow-hidden text-left"
               initial={{ opacity: 0, scale: 0.9, y: 50 }}
-              animate={
-                isInView
-                  ? { opacity: 1, scale: 1, y: 0 }
-                  : { opacity: 0, scale: 0.9, y: 50 }
-              }
+              animate={isInView ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.9, y: 50 }}
               transition={{
                 duration: 0.6,
                 delay: index * 0.15,
@@ -46,11 +46,15 @@ export function CategorySection({ categories }: { categories: CategoryNode[] }) 
                 transition: { duration: 0.3 },
               }}
             >
-              <motion.div className="w-full h-full" whileHover={{ scale: 1.1 }} transition={{ duration: 0.7, ease: 'easeOut' }}>
+              <motion.div
+                className="h-full w-full"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.7, ease: 'easeOut' }}
+              >
                 <ImageWithFallback
                   src={resolveMediaUrl(category.coverMedia)}
                   alt={category.name}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               </motion.div>
               <motion.div
@@ -61,7 +65,7 @@ export function CategorySection({ categories }: { categories: CategoryNode[] }) 
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <motion.h3
-                  className="font-sterling text-white text-[32px] tracking-wide"
+                  className="font-sterling text-[32px] tracking-wide text-white"
                   initial={{ y: 0 }}
                   whileHover={{ y: -10, scale: 1.1 }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -75,7 +79,7 @@ export function CategorySection({ categories }: { categories: CategoryNode[] }) 
                 whileHover={{ scaleX: 1 }}
                 transition={{ duration: 0.3 }}
               />
-            </motion.div>
+            </motion.button>
           ))}
         </div>
       </div>

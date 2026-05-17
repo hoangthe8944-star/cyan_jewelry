@@ -34,7 +34,7 @@ export function MobileMenu() {
 
   return (
     <AnimatePresence>
-      {isMobileMenuOpen && (
+      {isMobileMenuOpen ? (
         <>
           <motion.div
             initial={{ opacity: 0 }}
@@ -80,7 +80,7 @@ export function MobileMenu() {
                   onClick={() => handleNavigate('/products?featured=true')}
                   className="flex w-full items-center justify-between px-4 py-4 text-left transition-colors hover:bg-muted"
                 >
-                  <span className="tracking-wide">Bộ sưu tập mới</span>
+                  <span className="tracking-wide">Sản phẩm nổi bật</span>
                   <ChevronRight className="h-5 w-5 text-muted-foreground transition-colors" />
                 </button>
                 <button
@@ -136,7 +136,7 @@ export function MobileMenu() {
             </nav>
           </motion.div>
         </>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 }

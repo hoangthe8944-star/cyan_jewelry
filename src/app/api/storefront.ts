@@ -2,6 +2,9 @@ import { buildQuery, request } from "./client";
 import type {
   Banner,
   BannerPlacement,
+  CheckoutOrderResponse,
+  CollectionDetail,
+  CollectionSummary,
   CategoryNode,
   EditorialDetail,
   EditorialQueryParams,
@@ -13,6 +16,7 @@ import type {
   ProductCatalogResponse,
   ProductDetail,
   ProductQueryParams,
+  SearchSuggestionResponse,
   ShopProduct,
 } from "../lib/types";
 import { resolveMediaUrl } from "./utils";
@@ -30,6 +34,14 @@ export const storefrontApi = {
 
   getCategories() {
     return request<CategoryNode[]>(`${STOREFRONT_PREFIX}/categories`);
+  },
+
+  getCollections(featured?: boolean) {
+    return request<CollectionSummary[]>(`${STOREFRONT_PREFIX}/collections${buildQuery({ featured })}`);
+  },
+
+  getCollectionBySlug(slug: string) {
+    return request<CollectionDetail>(`${STOREFRONT_PREFIX}/collections/${slug}`);
   },
 
   getCategoryBySlug(slug: string) {
@@ -52,6 +64,12 @@ export const storefrontApi = {
     );
   },
 
+  getSearchSuggestions(keyword: string, keywordLimit?: number, productLimit?: number) {
+    return request<SearchSuggestionResponse>(
+      `${STOREFRONT_PREFIX}/search/suggestions${buildQuery({ keyword, keywordLimit, productLimit })}`
+    );
+  },
+
   getProductBySlug(slug: string) {
     return request<ProductDetail>(`${STOREFRONT_PREFIX}/products/${slug}`);
   },
@@ -71,7 +89,7 @@ export const storefrontApi = {
   },
 
   createOrder(payload: OrderPayload) {
-    return request<OrderResponse>(`${STOREFRONT_PREFIX}/orders`, {
+    return request<CheckoutOrderResponse>(`${STOREFRONT_PREFIX}/orders`, {
       method: "POST",
       body: JSON.stringify(payload),
     });

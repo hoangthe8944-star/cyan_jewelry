@@ -21,6 +21,7 @@ export interface CategoryNode {
   slug: string;
   description?: string | null;
   level: number;
+  status?: string;
   coverMedia?: MediaAsset | null;
   children: CategoryNode[];
 }
@@ -38,6 +39,7 @@ export interface ProductCardItem {
   maxPrice: number;
   totalStock: number;
   featured: boolean;
+  status?: string;
   gallery: MediaAsset[];
 }
 
@@ -52,7 +54,11 @@ export interface ProductVariant {
   modelCode: string;
   styleCode: string;
   price: number;
+  compareAtPrice?: number | null;
+  costPrice?: number | null;
   stockQuantity: number;
+  weightInGram?: number | null;
+  active?: boolean;
   selections: VariantSelection[];
   media: MediaAsset[];
 }
@@ -92,10 +98,34 @@ export interface EditorialDetail extends EditorialSummary {
   sections: EditorialSectionBlock[];
 }
 
+export interface CollectionSummary {
+  id: string;
+  name: string;
+  slug: string;
+  summary?: string | null;
+  coverMedia?: MediaAsset | null;
+  featured: boolean;
+  displayOrder: number;
+  publishedAt?: string | null;
+  productCount: number;
+}
+
+export interface CollectionDetail extends CollectionSummary {
+  description?: string | null;
+  products: ProductCardItem[];
+}
+
+export interface SearchSuggestionResponse {
+  keyword: string;
+  keywordSuggestions: string[];
+  productSuggestions: ProductCardItem[];
+}
+
 export interface HomeResponse {
   mainBanners: Banner[];
   subBanners: Banner[];
   categories: CategoryNode[];
+  featuredCollections: CollectionSummary[];
   featuredProducts: ProductCardItem[];
   newArrivals: ProductCardItem[];
   latestEditorials: EditorialSummary[];
@@ -141,31 +171,29 @@ export interface OrderAddress {
 }
 
 export interface OrderItemPayload {
+  quantity: number;
   productId: string;
   variantCode: string;
-  productName: string;
-  thumbnailUrl?: string | null;
-  quantity: number;
-  unitPrice: number;
-  lineTotal: number;
 }
 
 export interface OrderPayload {
-  orderCode: string;
   customer: OrderCustomer;
   shippingAddress: OrderAddress;
   billingAddress?: OrderAddress | null;
   items: OrderItemPayload[];
-  subtotal: number;
   shippingFee?: number;
   discountAmount?: number;
-  totalAmount: number;
-  currency?: string;
-  paymentMethod?: string;
-  paymentStatus?: string;
+  paymentMethod?: "COD" | "MOMO";
   orderStatus?: string;
   note?: string | null;
-  momoPayment?: Record<string, unknown> | null;
+  momoPayment?: {
+    orderInfo?: string;
+    redirectUrl?: string;
+    ipnUrl?: string;
+    extraData?: string;
+    requestType?: string;
+    lang?: string;
+  } | null;
 }
 
 export interface OrderLookupRequest {
@@ -175,8 +203,21 @@ export interface OrderLookupRequest {
 
 export interface OrderResponse extends OrderPayload {
   id?: string;
+  orderCode?: string;
+  subtotal?: number;
+  totalAmount?: number;
+  currency?: string;
+  paymentStatus?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface CheckoutOrderResponse {
+  order: OrderResponse;
+  paymentRequired: boolean;
+  payUrl?: string | null;
+  deeplink?: string | null;
+  qrCodeUrl?: string | null;
 }
 
 export interface ShopProduct {

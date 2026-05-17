@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { storefrontApi } from '../api';
 import { CategorySection } from '../components/CategorySection';
 import { EditorialSection } from '../components/EditorialSection';
+import { FeaturedCollectionsSection } from '../components/FeaturedCollectionsSection';
 import { HeroCarousel } from '../components/HeroCarousel';
 import { PageTransition } from '../components/PageTransition';
 import { ProductGrid } from '../components/ProductGrid';
@@ -30,6 +31,7 @@ export function HomePage() {
       ) : null}
       <ProductGrid products={homeData?.newArrivals ?? []} />
       <SubBannerSection banners={homeData?.subBanners ?? []} />
+      <FeaturedCollectionsSection collections={homeData?.featuredCollections ?? []} />
       <CategorySection categories={homeData?.categories ?? []} />
       <EditorialSection editorials={homeData?.latestEditorials ?? []} />
     </PageTransition>
