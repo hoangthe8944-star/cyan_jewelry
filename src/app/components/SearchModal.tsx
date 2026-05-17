@@ -9,6 +9,14 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useShop } from '../context/ShopContext';
 import type { ProductCardItem } from '../lib/types';
 
+function formatVndCurrency(value: number) {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export function SearchModal() {
   const { isSearchOpen, setIsSearchOpen } = useShop();
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,7 +68,7 @@ export function SearchModal() {
                 <Search className="w-7 h-7 text-white flex-shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search for jewelry, collections..."
+                  placeholder="Tìm trang sức, bộ sưu tập..."
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   className="flex-1 bg-transparent outline-none text-white text-[28px] font-sterling placeholder:text-white/50"
@@ -74,7 +82,7 @@ export function SearchModal() {
                 </button>
               </div>
               <p className="text-white/70 text-sm ml-[52px]">
-                {searchQuery.trim() ? `${results.length} product suggestions` : ''}
+                {searchQuery.trim() ? `${results.length} gợi ý sản phẩm` : ''}
               </p>
             </div>
           </div>
@@ -84,16 +92,16 @@ export function SearchModal() {
               {!searchQuery.trim() ? (
                 <div className="text-center py-20">
                   <Search className="w-20 h-20 mx-auto mb-6 text-muted-foreground opacity-20" />
-                  <h2 className="font-sterling text-[32px] mb-3">Search Our Collection</h2>
+                  <h2 className="mb-3 font-sterling text-[32px]">Tìm kiếm sản phẩm</h2>
                   <p className="text-muted-foreground text-lg">
-                    Start typing to explore products and keyword suggestions from Cyan storefront
+                    Bắt đầu nhập để xem sản phẩm và từ khóa gợi ý từ storefront Oriven
                   </p>
                 </div>
               ) : results.length === 0 ? (
                 <div className="text-center py-20">
-                  <h2 className="font-sterling text-[32px] mb-3">No Results Found</h2>
+                  <h2 className="mb-3 font-sterling text-[32px]">Không tìm thấy kết quả</h2>
                   <p className="text-muted-foreground text-lg">
-                    We couldn&apos;t find any products matching &quot;{searchQuery}&quot;
+                    Không tìm thấy sản phẩm phù hợp với &quot;{searchQuery}&quot;
                   </p>
                 </div>
               ) : (
@@ -101,7 +109,7 @@ export function SearchModal() {
                   {keywordSuggestions.length > 0 ? (
                     <div>
                       <p className="mb-4 text-xs uppercase tracking-[0.25em] text-muted-foreground">
-                        Suggested keywords
+                        Từ khóa gợi ý
                       </p>
                       <div className="flex flex-wrap gap-3">
                         {keywordSuggestions.map((keyword) => (
@@ -138,7 +146,7 @@ export function SearchModal() {
                         <h3 className="mb-2 text-lg transition-colors group-hover:text-accent">
                           {product.name}
                         </h3>
-                        <p className="text-accent font-medium">{formatCurrency(product.minPrice)}</p>
+                        <p className="text-accent font-medium">{formatVndCurrency(product.minPrice)}</p>
                       </button>
                     ))}
                   </div>

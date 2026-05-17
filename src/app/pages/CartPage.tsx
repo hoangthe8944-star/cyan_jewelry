@@ -4,8 +4,15 @@ import { ArrowLeft, Minus, Plus, ShoppingBag, X } from 'lucide-react';
 
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { PageTransition } from '../components/PageTransition';
-import { formatCurrency } from '../api';
 import { useShop } from '../context/ShopContext';
+
+function formatVndCurrency(value: number) {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 export function CartPage() {
   const { cart, removeFromCart, updateQuantity, getCartTotal } = useShop();
@@ -20,21 +27,21 @@ export function CartPage() {
             className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span>Continue Shopping</span>
+            <span>Tiếp tục mua sắm</span>
           </button>
 
-          <h1 className="font-sterling text-[40px] mb-8">Shopping Bag</h1>
+          <h1 className="mb-8 font-sterling text-[40px]">Giỏ hàng</h1>
 
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <ShoppingBag className="w-20 h-20 text-muted-foreground mb-6" />
-              <h2 className="text-[24px] mb-3">Your bag is empty</h2>
-              <p className="text-muted-foreground mb-8">Add items to get started</p>
+              <h2 className="mb-3 text-[24px]">Giỏ hàng của bạn đang trống</h2>
+              <p className="mb-8 text-muted-foreground">Hãy thêm sản phẩm để bắt đầu mua sắm</p>
               <button
                 onClick={() => navigate('/')}
                 className="bg-primary text-white px-10 py-4 hover:bg-secondary transition-all duration-300"
               >
-                Explore Products
+                Khám phá sản phẩm
               </button>
             </div>
           ) : (
@@ -58,7 +65,7 @@ export function CartPage() {
                           <X className="w-5 h-5" />
                         </button>
                       </div>
-                      <p className="text-accent font-medium text-lg mb-4">{formatCurrency(item.price)}</p>
+                      <p className="mb-4 text-lg font-medium text-accent">{formatVndCurrency(item.price)}</p>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-4 border border-border">
                           <button
@@ -76,7 +83,7 @@ export function CartPage() {
                           </button>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          Total: {formatCurrency(item.price * item.quantity)}
+                          Thành tiền: {formatVndCurrency(item.price * item.quantity)}
                         </p>
                       </div>
                     </div>
@@ -86,38 +93,38 @@ export function CartPage() {
 
               <div className="lg:col-span-1">
                 <div className="bg-muted p-8 sticky top-24">
-                  <h2 className="font-sterling text-[24px] mb-6">Order Summary</h2>
+                  <h2 className="mb-6 font-sterling text-[24px]">Tóm tắt đơn hàng</h2>
 
                   <div className="space-y-4 mb-6 pb-6 border-b border-border">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span>{formatCurrency(getCartTotal())}</span>
+                      <span className="text-muted-foreground">Tạm tính</span>
+                      <span>{formatVndCurrency(getCartTotal())}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span className="text-sm text-accent">Free</span>
+                      <span className="text-muted-foreground">Vận chuyển</span>
+                      <span className="text-sm text-accent">Miễn phí</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span>Calculated at checkout</span>
+                      <span className="text-muted-foreground">Thuế</span>
+                      <span>Tính ở bước thanh toán</span>
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center mb-6 pb-6 border-b border-border">
-                    <span className="text-lg">Total</span>
+                    <span className="text-lg">Tổng cộng</span>
                     <span className="font-sterling text-[28px] text-accent">
-                      {formatCurrency(getCartTotal())}
+                      {formatVndCurrency(getCartTotal())}
                     </span>
                   </div>
 
                   <button className="w-full bg-primary text-white py-4 mb-3 hover:bg-secondary transition-all duration-300 tracking-wide">
-                    Proceed to Checkout
+                    Tiến hành thanh toán
                   </button>
                   <button
                     onClick={() => navigate('/')}
                     className="w-full border border-primary text-primary py-4 hover:bg-muted transition-all duration-300 tracking-wide"
                   >
-                    Continue Shopping
+                    Tiếp tục mua sắm
                   </button>
                 </div>
               </div>

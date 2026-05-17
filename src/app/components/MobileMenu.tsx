@@ -77,10 +77,10 @@ export function MobileMenu() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleNavigate('/products?featured=true')}
+                  onClick={() => handleNavigate('/collections')}
                   className="flex w-full items-center justify-between px-4 py-4 text-left transition-colors hover:bg-muted"
                 >
-                  <span className="tracking-wide">Sản phẩm nổi bật</span>
+                  <span className="tracking-wide">Bộ sưu tập</span>
                   <ChevronRight className="h-5 w-5 text-muted-foreground transition-colors" />
                 </button>
                 <button

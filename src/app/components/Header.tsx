@@ -84,8 +84,8 @@ export function Header() {
 
   const isHomePage = location.pathname === '/';
   const navigateToProducts = () => navigate('/products');
+  const navigateToCollections = () => navigate('/collections');
   const navigateToCategory = (slug: string) => navigate(`/products?category=${slug}`);
-  const navigateToFeatured = () => navigate('/products?featured=true');
   const navigateToAbout = () => navigate('/about');
 
   useEffect(() => {
@@ -137,10 +137,10 @@ export function Header() {
                   onNavigateCategory={navigateToCategory}
                 />
                 <button
-                  onClick={navigateToFeatured}
+                  onClick={navigateToCollections}
                   className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
-                  Sản phẩm nổi bật
+                  Bộ sưu tập
                 </button>
                 <button
                   onClick={navigateToAbout}
@@ -236,13 +236,13 @@ export function Header() {
               onNavigateCategory={navigateToCategory}
             />
             <button
-              onClick={navigateToFeatured}
+              onClick={navigateToCollections}
               className="text-xs uppercase tracking-wider text-white transition-colors hover:text-accent-light"
               style={{
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Sản phẩm nổi bật
+              Bộ sưu tập
             </button>
             <button
               onClick={navigateToAbout}

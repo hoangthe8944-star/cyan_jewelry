@@ -49,7 +49,7 @@ export function FeaturedCollectionsSection({
             <motion.button
               key={collection.id}
               type="button"
-              onClick={() => navigate('/products')}
+              onClick={() => navigate(`/collections/${collection.slug}`)}
               className="group overflow-hidden bg-white text-left"
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -64,7 +64,7 @@ export function FeaturedCollectionsSection({
                 />
               </div>
               <div className="space-y-3 py-5">
-                <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Collection</p>
+                <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Bộ sưu tập</p>
                 <h3 className="font-sterling text-[28px] leading-tight text-primary">{collection.name}</h3>
                 <p className="line-clamp-3 text-sm leading-7 text-muted-foreground">
                   {collection.summary || 'Khám phá bộ sưu tập đã được publish từ backend Cyan.'}

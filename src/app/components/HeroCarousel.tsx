@@ -122,7 +122,7 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
                     }
                   }}
                 >
-                  Explore Collection
+                  Khám phá bộ sưu tập
                 </motion.button>
               </div>
             </div>
