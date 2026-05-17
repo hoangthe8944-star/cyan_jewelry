@@ -35,6 +35,34 @@ function isNetworkError(error: unknown) {
 
 type QueryValue = string | number | boolean | null | undefined;
 
+function looksLikeUploadedMedia(value: Record<string, unknown>) {
+  return typeof value.url === "string" && typeof value.contentType === "string";
+}
+
+function toMediaPayload(value: Record<string, unknown>) {
+  const contentType = String(value.contentType ?? "");
+  const mediaType = contentType.startsWith("video/") ? "MP4" : "IMAGE";
+
+  return {
+    mediaType,
+    url: String(value.url),
+  };
+}
+
+function normalizeDateTimeValue(value: string) {
+  const isoDate = new Date(value);
+
+  if (Number.isNaN(isoDate.getTime())) {
+    return value;
+  }
+
+  const pad = (input: number) => String(input).padStart(2, "0");
+
+  return `${isoDate.getFullYear()}-${pad(isoDate.getMonth() + 1)}-${pad(isoDate.getDate())}T${pad(
+    isoDate.getHours()
+  )}:${pad(isoDate.getMinutes())}:${pad(isoDate.getSeconds())}`;
+}
+
 function sanitizeJsonPayload(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map(sanitizeJsonPayload);
@@ -44,10 +72,22 @@ function sanitizeJsonPayload(value: unknown): unknown {
     return value;
   }
 
+  if (looksLikeUploadedMedia(value as Record<string, unknown>)) {
+    return toMediaPayload(value as Record<string, unknown>);
+  }
+
   return Object.fromEntries(
     Object.entries(value).map(([key, nestedValue]) => {
       if (key === "ctaLabel" && typeof nestedValue === "string") {
         return [key, nestedValue.trim().slice(0, 80)];
+      }
+
+      if (
+        typeof nestedValue === "string" &&
+        /(publishedAt|createdAt|updatedAt|startAt|endAt)$/i.test(key) &&
+        nestedValue.includes("T")
+      ) {
+        return [key, normalizeDateTimeValue(nestedValue)];
       }
 
       return [key, sanitizeJsonPayload(nestedValue)];
