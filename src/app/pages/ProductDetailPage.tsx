@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Check, Heart, ShoppingBag } from 'lucide-react';
 import { motion } from 'motion/react';
 
-import { formatCurrency, resolveMediaUrl, storefrontApi } from '../api';
+import { resolveMediaUrl, storefrontApi } from '../api';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { PageTransition } from '../components/PageTransition';
 import { useShop } from '../context/ShopContext';
@@ -16,6 +16,14 @@ function buildSelectionMap(product: ProductDetail, variantCode?: string | null) 
   return Object.fromEntries(
     variant?.selections.map((selection) => [selection.optionType, selection.valueCode]) ?? []
   ) as Record<string, string>;
+}
+
+function formatVndCurrency(value: number) {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
 export function ProductDetailPage() {
@@ -66,7 +74,7 @@ export function ProductDetailPage() {
   }, [product, selectedOptions]);
 
   const activeVariant = availableVariant ?? selectedVariant;
-  const styleTags = product?.tags?.filter(Boolean) ?? [];
+  const tags = product?.tags?.filter(Boolean) ?? [];
   const shortDescription = product?.shortDescription?.trim() || product?.description?.trim() || 'Đang cập nhật';
 
   useEffect(() => {
@@ -142,7 +150,7 @@ export function ProductDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-[24px] mb-4">Loading product...</h2>
+          <h2 className="mb-4 text-[24px]">Đang tải sản phẩm...</h2>
         </div>
       </div>
     );
@@ -154,24 +162,24 @@ export function ProductDetailPage() {
         <div className="max-w-7xl mx-auto px-6">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+            className="mb-8 flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Products</span>
+            <ArrowLeft className="h-5 w-5" />
+            <span>Quay lại</span>
           </button>
 
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid gap-12 lg:grid-cols-2">
             <motion.div
-              className="relative aspect-square bg-muted overflow-hidden"
+              className="relative aspect-square overflow-hidden bg-muted"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.5 }} className="w-full h-full">
+              <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.5 }} className="h-full w-full">
                 <ImageWithFallback
                   src={resolveMediaUrl(activeVariant?.media[0] ?? product.gallery[0])}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               </motion.div>
               {product.featured ? (
@@ -179,9 +187,9 @@ export function ProductDetailPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="absolute top-8 left-8 bg-accent text-white px-5 py-2 text-sm tracking-wider"
+                  className="absolute left-8 top-8 bg-accent px-5 py-2 text-sm tracking-wider text-white"
                 >
-                  Featured
+                  Nổi bật
                 </motion.span>
               ) : null}
             </motion.div>
@@ -192,7 +200,7 @@ export function ProductDetailPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-sm tracking-wider text-muted-foreground mb-3 uppercase"
+                  className="mb-3 text-sm uppercase tracking-wider text-muted-foreground"
                 >
                   {product.brand || 'Oriven Jewelry'}
                 </motion.p>
@@ -200,7 +208,7 @@ export function ProductDetailPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="font-sterling text-[40px] lg:text-[48px] mb-4 leading-tight"
+                  className="mb-4 font-sterling text-[40px] leading-tight lg:text-[48px]"
                 >
                   {product.name}
                 </motion.h1>
@@ -208,15 +216,15 @@ export function ProductDetailPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-accent text-[32px] font-medium mb-8"
+                  className="mb-8 text-[32px] font-medium text-accent"
                 >
-                  {formatCurrency(activeVariant?.price ?? product.minPrice)}
+                  {formatVndCurrency(activeVariant?.price ?? product.minPrice)}
                 </motion.p>
 
-                <div className="mb-10 pb-8 border-b border-border">
+                <div className="mb-10 border-b border-border pb-8">
                   <p className="text-[15px] leading-8 text-slate-700">
                     {product.description ??
-                      'Exquisitely crafted with premium materials, this piece embodies the ethereal beauty and timeless elegance that define the Oriven Jewelry collection.'}
+                      'Sản phẩm được hoàn thiện từ chất liệu cao cấp, mang lại vẻ đẹp tinh tế và phong cách đặc trưng của bộ sưu tập.'}
                   </p>
                 </div>
 
@@ -227,7 +235,7 @@ export function ProductDetailPage() {
                         <div className="mb-4 flex items-center justify-between gap-4">
                           <label className="block text-sm tracking-wide">{option.name}</label>
                           <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            {option.values.find((value) => value.code === selectedOptions[option.type])?.label ?? 'Select'}
+                            {option.values.find((value) => value.code === selectedOptions[option.type])?.label ?? 'Chọn'}
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-3">
@@ -257,7 +265,7 @@ export function ProductDetailPage() {
                   </div>
                 ) : (
                   <div className="mb-10">
-                    <label className="block text-sm mb-4 tracking-wide">Select Variant</label>
+                    <label className="mb-4 block text-sm tracking-wide">Chọn phân loại</label>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       {product.variants.map((variant) => (
                         <button
@@ -266,7 +274,7 @@ export function ProductDetailPage() {
                             setSelectedVariantCode(variant.variantCode);
                             setSelectedOptions(buildSelectionMap(product, variant.variantCode));
                           }}
-                          className={`px-4 py-4 border transition-all duration-200 ${
+                          className={`border px-4 py-4 transition-all duration-200 ${
                             selectedVariantCode === variant.variantCode
                               ? 'border-primary bg-primary text-white'
                               : 'border-border hover:border-primary'
@@ -282,17 +290,15 @@ export function ProductDetailPage() {
                 )}
 
                 <div className="mb-10 flex flex-wrap items-center gap-4 border-y border-border py-5 text-sm">
+                  <span className="text-muted-foreground">{tags.length > 0 ? tags.join(', ') : 'Đang cập nhật'}</span>
+                  <span className="text-muted-foreground">{shortDescription}</span>
                   <span className="text-muted-foreground">
-                    Phong cách: {styleTags.length > 0 ? styleTags.join(', ') : 'Đang cập nhật'}
-                  </span>
-                  <span className="text-muted-foreground">Mô tả ngắn: {shortDescription}</span>
-                  <span className="text-muted-foreground">
-                    Availability: {activeVariant && activeVariant.stockQuantity > 0 ? `${activeVariant.stockQuantity} in stock` : 'Out of stock'}
+                    Tình trạng: {activeVariant && activeVariant.stockQuantity > 0 ? `Còn ${activeVariant.stockQuantity} sản phẩm` : 'Hết hàng'}
                   </span>
                 </div>
 
                 <motion.div
-                  className="space-y-4 mb-10"
+                  className="mb-10 space-y-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
@@ -310,11 +316,11 @@ export function ProductDetailPage() {
                     }
                     whileHover={{ scale: 1.02, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-primary text-white py-5 hover:bg-secondary transition-all duration-300 tracking-wide flex items-center justify-center gap-3 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-3 bg-primary py-5 tracking-wide text-white transition-all duration-300 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
                     disabled={!activeVariant || activeVariant.stockQuantity <= 0}
                   >
-                    <ShoppingBag className="w-5 h-5" />
-                    Add to Shopping Bag
+                    <ShoppingBag className="h-5 w-5" />
+                    Thêm vào giỏ hàng
                   </motion.button>
                   <motion.button
                     onClick={() =>
@@ -329,37 +335,37 @@ export function ProductDetailPage() {
                     }
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full border py-5 transition-all duration-300 tracking-wide flex items-center justify-center gap-3 ${
+                    className={`flex w-full items-center justify-center gap-3 border py-5 tracking-wide transition-all duration-300 ${
                       isInWishlist(product.id)
                         ? 'border-accent bg-accent text-white'
                         : 'border-primary text-primary hover:bg-muted'
                     }`}
                   >
-                    <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? 'fill-white' : ''}`} />
-                    {isInWishlist(product.id) ? 'In Wishlist' : 'Add to Wishlist'}
+                    <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-white' : ''}`} />
+                    {isInWishlist(product.id) ? 'Đã yêu thích' : 'Thêm vào yêu thích'}
                   </motion.button>
                 </motion.div>
 
-                <div className="space-y-5 text-sm border-t border-border pt-8">
+                <div className="space-y-5 border-t border-border pt-8 text-sm">
                   <div className="flex items-start gap-4">
-                    <Check className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
+                    <Check className="mt-0.5 h-6 w-6 flex-shrink-0 text-accent" />
                     <div>
-                      <p className="font-medium mb-1">Complimentary Shipping</p>
-                      <p className="text-muted-foreground">Free shipping on all orders over $500</p>
+                      <p className="mb-1 font-medium">Miễn phí vận chuyển</p>
+                      <p className="text-muted-foreground">Miễn phí giao hàng cho đơn từ 500.000đ</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <Check className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
+                    <Check className="mt-0.5 h-6 w-6 flex-shrink-0 text-accent" />
                     <div>
-                      <p className="font-medium mb-1">Lifetime Warranty</p>
-                      <p className="text-muted-foreground">Professional care and lifetime warranty included</p>
+                      <p className="mb-1 font-medium">Bảo hành trọn đời</p>
+                      <p className="text-muted-foreground">Hỗ trợ chăm sóc sản phẩm và bảo hành trọn đời</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <Check className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
+                    <Check className="mt-0.5 h-6 w-6 flex-shrink-0 text-accent" />
                     <div>
-                      <p className="font-medium mb-1">Gift Packaging</p>
-                      <p className="text-muted-foreground">Elegantly wrapped in our signature packaging</p>
+                      <p className="mb-1 font-medium">Hộp quà tặng</p>
+                      <p className="text-muted-foreground">Đóng gói chỉn chu với hộp quà đặc trưng của thương hiệu</p>
                     </div>
                   </div>
                 </div>

@@ -35,16 +35,42 @@ function isNetworkError(error: unknown) {
 
 type QueryValue = string | number | boolean | null | undefined;
 
+function sanitizeJsonPayload(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(sanitizeJsonPayload);
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, nestedValue]) => {
+      if (key === "ctaLabel" && typeof nestedValue === "string") {
+        return [key, nestedValue.trim().slice(0, 80)];
+      }
+
+      return [key, sanitizeJsonPayload(nestedValue)];
+    })
+  );
+}
+
 const API_ORIGIN = extractOrigin(API_BASE_URL);
 const FALLBACK_API_ORIGIN = extractOrigin(FALLBACK_API_BASE_URL);
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const normalizedBody =
+    typeof init?.body === "string" && (init.body.trim().startsWith("{") || init.body.trim().startsWith("["))
+      ? JSON.stringify(sanitizeJsonPayload(JSON.parse(init.body)))
+      : init?.body;
+
   const requestInit: RequestInit = {
     headers: {
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
     ...init,
+    body: normalizedBody,
   };
 
   let response: Response;
