@@ -7,7 +7,19 @@ import { resolveMediaUrl } from '../api';
 import type { CollectionSummary } from '../lib/types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
-export function FeaturedCollectionsSection({ collections }: { collections: CollectionSummary[] }) {
+interface FeaturedCollectionsSectionProps {
+  collections: CollectionSummary[];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+}
+
+export function FeaturedCollectionsSection({
+  collections,
+  eyebrow = 'Featured Collections',
+  title = 'Những bộ sưu tập nổi bật từ Cyan',
+  description = 'Dữ liệu này đang được lấy trực tiếp từ featuredCollections của backend storefront để homepage phản ánh đúng nội dung đã publish.',
+}: FeaturedCollectionsSectionProps) {
   const navigate = useNavigate();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-120px' });
@@ -26,12 +38,10 @@ export function FeaturedCollectionsSection({ collections }: { collections: Colle
           transition={{ duration: 0.6 }}
         >
           <div className="max-w-2xl">
-            <p className="mb-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">Featured Collections</p>
-            <h2 className="font-sterling text-[38px] text-primary lg:text-[46px]">Những bộ sưu tập nổi bật từ Cyan</h2>
+            <p className="mb-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">{eyebrow}</p>
+            <h2 className="font-sterling text-[38px] text-primary lg:text-[46px]">{title}</h2>
           </div>
-          <p className="max-w-xl text-sm leading-7 text-muted-foreground">
-            Dữ liệu này đang được lấy trực tiếp từ `featuredCollections` của backend storefront để homepage phản ánh đúng nội dung đã publish.
-          </p>
+          <p className="max-w-xl text-sm leading-7 text-muted-foreground">{description}</p>
         </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">

@@ -6,7 +6,19 @@ import { resolveMediaUrl } from '../api';
 import type { ProductCardItem } from '../lib/types';
 import { ProductCard } from './ProductCard';
 
-export function ProductGrid({ products }: { products: ProductCardItem[] }) {
+interface ProductGridProps {
+  products: ProductCardItem[];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+}
+
+export function ProductGrid({
+  products,
+  eyebrow,
+  title = 'Sản phẩm mới',
+  description = 'Khám phá những thiết kế mới nhất vừa có mặt tại Oriven',
+}: ProductGridProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
@@ -19,10 +31,11 @@ export function ProductGrid({ products }: { products: ProductCardItem[] }) {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="mb-3 font-sterling text-[40px]">Sản phẩm mới</h2>
-          <p className="tracking-wide text-muted-foreground">
-            Khám phá những thiết kế mới nhất vừa có mặt tại Oriven
-          </p>
+          {eyebrow ? (
+            <p className="mb-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">{eyebrow}</p>
+          ) : null}
+          <h2 className="mb-3 font-sterling text-[40px]">{title}</h2>
+          <p className="tracking-wide text-muted-foreground">{description}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">

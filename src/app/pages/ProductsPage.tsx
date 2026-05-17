@@ -6,8 +6,17 @@ import { AnimatePresence, motion } from 'motion/react';
 
 import { resolveMediaUrl, storefrontApi } from '../api';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { ProductCard } from '../components/ProductCard';
 import { PageTransition } from '../components/PageTransition';
+import { ProductCard } from '../components/ProductCard';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '../components/ui/pagination';
 import type { CategoryNode, ProductCardItem } from '../lib/types';
 
 function flattenCategories(categories: CategoryNode[]) {
@@ -25,6 +34,8 @@ const COLOR_RULES = [
   { label: 'Purple', keywords: ['purple', 'amethyst'] },
   { label: 'White', keywords: ['white', 'diamond', 'pearl', 'crystal'] },
 ] as const;
+
+const PRODUCTS_PER_PAGE = 8;
 
 function detectProductColors(product: ProductCardItem) {
   const haystack = [product.name, product.material, product.gemstone]
@@ -50,6 +61,7 @@ export function ProductsPage() {
   const minPrice = searchParams.get('minPrice') ?? '';
   const maxPrice = searchParams.get('maxPrice') ?? '';
   const featured = searchParams.get('featured') === 'true';
+  const currentPage = Math.max(1, Number(searchParams.get('page') ?? '1') || 1);
 
   const categoryLookup = useMemo(() => {
     const entries = flattenCategories(categories).map((category) => [category.slug, category.name] as const);
@@ -71,6 +83,14 @@ export function ProductsPage() {
 
     return products.filter((product) => detectProductColors(product).includes(selectedColor));
   }, [products, selectedColor]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * PRODUCTS_PER_PAGE;
+    return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+  }, [filteredProducts, safeCurrentPage]);
 
   useEffect(() => {
     storefrontApi
@@ -105,6 +125,20 @@ export function ProductsPage() {
       .finally(() => setLoading(false));
   }, [featured, maxPrice, minPrice, selectedCategorySlug]);
 
+  useEffect(() => {
+    if (currentPage !== safeCurrentPage) {
+      const nextParams = new URLSearchParams(searchParams);
+
+      if (safeCurrentPage <= 1) {
+        nextParams.delete('page');
+      } else {
+        nextParams.set('page', String(safeCurrentPage));
+      }
+
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [currentPage, safeCurrentPage, searchParams, setSearchParams]);
+
   const updateFilter = (key: string, value?: string | boolean) => {
     const nextParams = new URLSearchParams(searchParams);
 
@@ -112,6 +146,10 @@ export function ProductsPage() {
       nextParams.delete(key);
     } else {
       nextParams.set(key, String(value));
+    }
+
+    if (key !== 'page') {
+      nextParams.delete('page');
     }
 
     setSearchParams(nextParams);
@@ -122,6 +160,26 @@ export function ProductsPage() {
   };
 
   const activeCategoryLabel = selectedCategorySlug ? categoryLookup.get(selectedCategorySlug) : null;
+
+  const visiblePageNumbers = useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (safeCurrentPage <= 3) {
+      return [1, 2, 3, 4, 5];
+    }
+
+    if (safeCurrentPage >= totalPages - 2) {
+      return Array.from({ length: 5 }, (_, index) => totalPages - 4 + index);
+    }
+
+    return [safeCurrentPage - 1, safeCurrentPage, safeCurrentPage + 1];
+  }, [safeCurrentPage, totalPages]);
+
+  const goToPage = (page: number) => {
+    updateFilter('page', page <= 1 ? undefined : String(page));
+  };
 
   return (
     <PageTransition>
@@ -171,9 +229,7 @@ export function ProductsPage() {
                 type="button"
                 onClick={() => updateFilter('category')}
                 className={`group relative aspect-[4/5] overflow-hidden text-left transition-all duration-300 ${
-                  !selectedCategorySlug
-                    ? 'ring-2 ring-primary'
-                    : 'hover:-translate-y-1'
+                  !selectedCategorySlug ? 'ring-2 ring-primary' : 'hover:-translate-y-1'
                 }`}
               >
                 <div className="absolute inset-0 bg-primary" />
@@ -194,9 +250,7 @@ export function ProductsPage() {
                     type="button"
                     onClick={() => updateFilter('category', category.slug)}
                     className={`group relative aspect-[4/5] overflow-hidden text-left transition-all duration-300 ${
-                      isActive
-                        ? 'ring-2 ring-primary'
-                        : 'hover:-translate-y-1'
+                      isActive ? 'ring-2 ring-primary' : 'hover:-translate-y-1'
                     }`}
                   >
                     <div className="absolute inset-0">
@@ -398,38 +452,39 @@ export function ProductsPage() {
             ) : null}
           </AnimatePresence>
 
-          <section>
-              {error ? (
-                <div className="border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-600">
-                  Failed to load products: {error}
-                </div>
-              ) : null}
+          <section id="products">
+            {error ? (
+              <div className="border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-600">
+                Failed to load products: {error}
+              </div>
+            ) : null}
 
-              {!error && loading ? (
+            {!error && loading ? (
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="aspect-[3/4] bg-muted" />
+                    <div className="mt-4 h-3 w-24 bg-muted" />
+                    <div className="mt-3 h-4 w-3/4 bg-muted" />
+                    <div className="mt-3 h-4 w-20 bg-muted" />
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {!error && !loading && filteredProducts.length === 0 ? (
+              <div className="flex min-h-[360px] flex-col items-center justify-center border border-dashed border-border bg-muted/20 px-6 text-center">
+                <h2 className="font-sterling text-[28px]">No products found</h2>
+                <p className="mt-3 max-w-md text-sm text-muted-foreground">
+                  Try adjusting the category or price filters to explore more of the collection.
+                </p>
+              </div>
+            ) : null}
+
+            {!error && !loading && filteredProducts.length > 0 ? (
+              <>
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <div key={index} className="animate-pulse">
-                      <div className="aspect-[3/4] bg-muted" />
-                      <div className="mt-4 h-3 w-24 bg-muted" />
-                      <div className="mt-3 h-4 w-3/4 bg-muted" />
-                      <div className="mt-3 h-4 w-20 bg-muted" />
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-
-              {!error && !loading && filteredProducts.length === 0 ? (
-                <div className="flex min-h-[360px] flex-col items-center justify-center border border-dashed border-border bg-muted/20 px-6 text-center">
-                  <h2 className="font-sterling text-[28px]">No products found</h2>
-                  <p className="mt-3 max-w-md text-sm text-muted-foreground">
-                    Try adjusting the category or price filters to explore more of the collection.
-                  </p>
-                </div>
-              ) : null}
-
-              {!error && !loading && filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
-                  {filteredProducts.map((product, index) => (
+                  {paginatedProducts.map((product, index) => (
                     <ProductCard
                       key={product.id}
                       id={product.id}
@@ -443,8 +498,103 @@ export function ProductsPage() {
                     />
                   ))}
                 </div>
-              ) : null}
-            </section>
+
+                {totalPages > 1 ? (
+                  <div className="mt-12 space-y-4">
+                    <p className="text-center text-sm text-muted-foreground">
+                      Trang {safeCurrentPage} / {totalPages}
+                    </p>
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            href="#products"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              if (safeCurrentPage > 1) {
+                                goToPage(safeCurrentPage - 1);
+                              }
+                            }}
+                            className={safeCurrentPage <= 1 ? 'pointer-events-none opacity-50' : ''}
+                          />
+                        </PaginationItem>
+
+                        {visiblePageNumbers[0] > 1 ? (
+                          <>
+                            <PaginationItem>
+                              <PaginationLink
+                                href="#products"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  goToPage(1);
+                                }}
+                              >
+                                1
+                              </PaginationLink>
+                            </PaginationItem>
+                            {visiblePageNumbers[0] > 2 ? (
+                              <PaginationItem>
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            ) : null}
+                          </>
+                        ) : null}
+
+                        {visiblePageNumbers.map((pageNumber) => (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              href="#products"
+                              isActive={pageNumber === safeCurrentPage}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                goToPage(pageNumber);
+                              }}
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+
+                        {visiblePageNumbers[visiblePageNumbers.length - 1] < totalPages ? (
+                          <>
+                            {visiblePageNumbers[visiblePageNumbers.length - 1] < totalPages - 1 ? (
+                              <PaginationItem>
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            ) : null}
+                            <PaginationItem>
+                              <PaginationLink
+                                href="#products"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  goToPage(totalPages);
+                                }}
+                              >
+                                {totalPages}
+                              </PaginationLink>
+                            </PaginationItem>
+                          </>
+                        ) : null}
+
+                        <PaginationItem>
+                          <PaginationNext
+                            href="#products"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              if (safeCurrentPage < totalPages) {
+                                goToPage(safeCurrentPage + 1);
+                              }
+                            }}
+                            className={safeCurrentPage >= totalPages ? 'pointer-events-none opacity-50' : ''}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+          </section>
         </div>
       </div>
     </PageTransition>

@@ -29,9 +29,19 @@ export function HomePage() {
           Failed to load storefront data: {error}
         </div>
       ) : null}
-      <ProductGrid products={homeData?.newArrivals ?? []} />
+      <ProductGrid
+        products={homeData?.newArrivals ?? []}
+        eyebrow="New Collection"
+        title="New Collection"
+        description="Khám phá những thiết kế mới nhất vừa xuất hiện trong bộ sưu tập mới của Oriven."
+      />
       <SubBannerSection banners={homeData?.subBanners ?? []} />
-      <FeaturedCollectionsSection collections={homeData?.featuredCollections ?? []} />
+      <FeaturedCollectionsSection
+        collections={homeData?.featuredCollections ?? []}
+        eyebrow="Sản phẩm nổi bật"
+        title="Sản phẩm nổi bật"
+        description="Những bộ sưu tập và thiết kế nổi bật đang được storefront ưu tiên giới thiệu trên trang chủ."
+      />
       <CategorySection categories={homeData?.categories ?? []} />
       <EditorialSection editorials={homeData?.latestEditorials ?? []} />
     </PageTransition>
