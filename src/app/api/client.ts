@@ -63,6 +63,60 @@ function normalizeDateTimeValue(value: string) {
   )}:${pad(isoDate.getMinutes())}:${pad(isoDate.getSeconds())}`;
 }
 
+function stripWrappedQuotes(value: string) {
+  const trimmed = value.trim();
+
+  if (
+    trimmed.length >= 2 &&
+    ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+      (trimmed.startsWith("'") && trimmed.endsWith("'")))
+  ) {
+    return trimmed.slice(1, -1).trim();
+  }
+
+  return value;
+}
+
+function normalizeSlug(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function normalizeCollectionPayload(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return value;
+  }
+
+  const payload = { ...(value as Record<string, unknown>) };
+
+  if (typeof payload.slug === "string") {
+    payload.slug = normalizeSlug(payload.slug);
+  }
+
+  if (typeof payload.description === "string") {
+    payload.description = stripWrappedQuotes(payload.description);
+  }
+
+  if (typeof payload.summary === "string") {
+    payload.summary = stripWrappedQuotes(payload.summary);
+  }
+
+  if (payload.publishedAt === null) {
+    delete payload.publishedAt;
+  }
+
+  if (Array.isArray(payload.productIds)) {
+    payload.productIds = payload.productIds.filter((item): item is string => typeof item === "string");
+  }
+
+  return payload;
+}
+
 function sanitizeJsonPayload(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map(sanitizeJsonPayload);
@@ -101,7 +155,11 @@ const FALLBACK_API_ORIGIN = extractOrigin(FALLBACK_API_BASE_URL);
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const normalizedBody =
     typeof init?.body === "string" && (init.body.trim().startsWith("{") || init.body.trim().startsWith("["))
-      ? JSON.stringify(sanitizeJsonPayload(JSON.parse(init.body)))
+      ? JSON.stringify(
+          sanitizeJsonPayload(
+            path.includes("/api/admin/collections") ? normalizeCollectionPayload(JSON.parse(init.body)) : JSON.parse(init.body)
+          )
+        )
       : init?.body;
 
   const requestInit: RequestInit = {
