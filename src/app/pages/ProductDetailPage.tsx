@@ -66,6 +66,8 @@ export function ProductDetailPage() {
   }, [product, selectedOptions]);
 
   const activeVariant = availableVariant ?? selectedVariant;
+  const styleTags = product?.tags?.filter(Boolean) ?? [];
+  const shortDescription = product?.shortDescription?.trim() || product?.description?.trim() || 'Đang cập nhật';
 
   useEffect(() => {
     if (!product || !availableVariant) {
@@ -212,7 +214,7 @@ export function ProductDetailPage() {
                 </motion.p>
 
                 <div className="mb-10 pb-8 border-b border-border">
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="text-[15px] leading-8 text-slate-700">
                     {product.description ??
                       'Exquisitely crafted with premium materials, this piece embodies the ethereal beauty and timeless elegance that define the Oriven Jewelry collection.'}
                   </p>
@@ -280,7 +282,10 @@ export function ProductDetailPage() {
                 )}
 
                 <div className="mb-10 flex flex-wrap items-center gap-4 border-y border-border py-5 text-sm">
-                  <span className="text-muted-foreground">Variant code: {activeVariant?.variantCode ?? 'N/A'}</span>
+                  <span className="text-muted-foreground">
+                    Phong cách: {styleTags.length > 0 ? styleTags.join(', ') : 'Đang cập nhật'}
+                  </span>
+                  <span className="text-muted-foreground">Mô tả ngắn: {shortDescription}</span>
                   <span className="text-muted-foreground">
                     Availability: {activeVariant && activeVariant.stockQuantity > 0 ? `${activeVariant.stockQuantity} in stock` : 'Out of stock'}
                   </span>

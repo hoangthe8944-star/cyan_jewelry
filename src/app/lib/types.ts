@@ -32,6 +32,7 @@ export interface ProductCardItem {
   slug: string;
   sku: string;
   shortDescription?: string | null;
+  tags?: string[];
   brand?: string | null;
   material?: string | null;
   gemstone?: string | null;

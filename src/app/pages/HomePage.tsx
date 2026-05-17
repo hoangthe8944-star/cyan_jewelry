@@ -8,16 +8,25 @@ import { HeroCarousel } from '../components/HeroCarousel';
 import { PageTransition } from '../components/PageTransition';
 import { ProductGrid } from '../components/ProductGrid';
 import { SubBannerSection } from '../components/SubBannerSection';
-import type { HomeResponse } from '../lib/types';
+import type { CollectionSummary, HomeResponse, ProductCardItem } from '../lib/types';
 
 export function HomePage() {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
+  const [collections, setCollections] = useState<CollectionSummary[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<ProductCardItem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    storefrontApi
-      .getHome()
-      .then(setHomeData)
+    Promise.all([
+      storefrontApi.getHome(),
+      storefrontApi.getCollections(),
+      storefrontApi.getProducts({ featured: true }),
+    ])
+      .then(([homeResponse, collectionsResponse, featuredProductsResponse]) => {
+        setHomeData(homeResponse);
+        setCollections(collectionsResponse.slice(0, 4));
+        setFeaturedProducts(featuredProductsResponse.items.slice(0, 4));
+      })
       .catch((err: Error) => setError(err.message));
   }, []);
 
@@ -29,18 +38,18 @@ export function HomePage() {
           Failed to load storefront data: {error}
         </div>
       ) : null}
-      <ProductGrid
-        products={homeData?.newArrivals ?? []}
-        eyebrow="New Collection"
-        title="New Collection"
-        description="Khám phá những thiết kế mới nhất vừa xuất hiện trong bộ sưu tập mới của Oriven."
+      <FeaturedCollectionsSection
+        collections={collections}
+        eyebrow="Bộ sưu tập mới"
+        title="Bộ sưu tập mới"
+        description="Khám phá 4 bộ sưu tập mới đang được đồng bộ trực tiếp từ API collection."
       />
       <SubBannerSection banners={homeData?.subBanners ?? []} />
-      <FeaturedCollectionsSection
-        collections={homeData?.featuredCollections ?? []}
+      <ProductGrid
+        products={featuredProducts}
         eyebrow="Sản phẩm nổi bật"
         title="Sản phẩm nổi bật"
-        description="Những bộ sưu tập và thiết kế nổi bật đang được storefront ưu tiên giới thiệu trên trang chủ."
+        description="4 sản phẩm nổi bật được gọi trực tiếp từ API product như storefront đang publish."
       />
       <CategorySection categories={homeData?.categories ?? []} />
       <EditorialSection editorials={homeData?.latestEditorials ?? []} />
