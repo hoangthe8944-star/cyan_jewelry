@@ -5,4 +5,9 @@ export {
   uploadMediaToCloudinary,
 } from "./cloudinary";
 export { storefrontApi, toShopProduct } from "./storefront";
-export { formatCurrency, resolveMediaPosterUrl, resolveMediaUrl } from "./utils";
+export {
+  formatCurrency,
+  optimizeProductCardImageUrl,
+  resolveMediaPosterUrl,
+  resolveMediaUrl,
+} from "./utils";

@@ -1,10 +1,10 @@
-import { useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Heart, ShoppingBag } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
 
-import { formatCurrency } from '../api';
+import { formatCurrency, optimizeProductCardImageUrl } from '../api';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useShop } from '../context/ShopContext';
 
@@ -24,7 +24,44 @@ export function ProductCard({ id, slug, image, name, collection, price, badge, i
   const navigate = useNavigate();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const [imageFitMode, setImageFitMode] = useState<'cover' | 'contain'>('cover');
   const product = { id, slug, image, name, collection, price, badge };
+
+  useEffect(() => {
+    let isMounted = true;
+    const previewImage = new window.Image();
+
+    previewImage.onload = () => {
+      if (!isMounted || !previewImage.naturalWidth || !previewImage.naturalHeight) {
+        return;
+      }
+
+      const ratio = previewImage.naturalWidth / previewImage.naturalHeight;
+      const nextMode = ratio > 1.15 || ratio < 0.62 ? 'contain' : 'cover';
+      setImageFitMode(nextMode);
+    };
+
+    previewImage.onerror = () => {
+      if (isMounted) {
+        setImageFitMode('cover');
+      }
+    };
+
+    previewImage.src = image;
+
+    return () => {
+      isMounted = false;
+    };
+  }, [image]);
+
+  const imageSrc = useMemo(
+    () => optimizeProductCardImageUrl(image, imageFitMode),
+    [image, imageFitMode]
+  );
+  const imageClassName =
+    imageFitMode === 'contain'
+      ? 'h-full w-full object-contain p-5 md:p-6'
+      : 'h-full w-full object-cover object-center';
 
   return (
     <motion.div
@@ -41,12 +78,16 @@ export function ProductCard({ id, slug, image, name, collection, price, badge, i
       onClick={() => navigate(`/product/${slug}`)}
     >
       <motion.div
-        className="relative aspect-[3/4] overflow-hidden bg-muted"
+        className={`relative aspect-[3/4] overflow-hidden ${
+          imageFitMode === 'contain'
+            ? 'bg-[linear-gradient(180deg,#fbf8f4_0%,#f3eee7_100%)]'
+            : 'bg-muted'
+        }`}
         whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.4 }}
       >
         <motion.div whileHover={{ scale: 1.08 }} transition={{ duration: 0.7, ease: 'easeOut' }}>
-          <ImageWithFallback src={image} alt={name} className="w-full h-full object-cover" />
+          <ImageWithFallback src={imageSrc} alt={name} className={imageClassName} />
         </motion.div>
         {badge ? (
           <motion.span

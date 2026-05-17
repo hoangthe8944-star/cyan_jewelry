@@ -32,6 +32,46 @@ function normalizeMediaUrl(value?: string | null) {
   }
 }
 
+type CloudinaryCardImageMode = "cover" | "contain";
+
+function injectCloudinaryTransform(url: string, transform: string) {
+  const marker = "/upload/";
+
+  if (!url.includes("res.cloudinary.com") || !url.includes(marker)) {
+    return url;
+  }
+
+  const [prefix, suffix] = url.split(marker);
+
+  if (!suffix) {
+    return url;
+  }
+
+  return `${prefix}${marker}${transform}/${suffix}`;
+}
+
+export function optimizeProductCardImageUrl(
+  value?: string | null,
+  mode: CloudinaryCardImageMode = "cover"
+) {
+  const normalized = normalizeMediaUrl(value);
+
+  if (!normalized) {
+    return "https://placehold.co/800x1000?text=Oriven";
+  }
+
+  if (!normalized.includes("res.cloudinary.com")) {
+    return normalized;
+  }
+
+  const transform =
+    mode === "contain"
+      ? "c_pad,ar_3:4,b_white,f_auto,q_auto,w_900,h_1200"
+      : "c_fill,ar_3:4,g_auto,f_auto,q_auto,w_900,h_1200";
+
+  return injectCloudinaryTransform(normalized, transform);
+}
+
 export function resolveMediaUrl(media?: MediaAsset | null) {
   if (media?.mediaType === "MP4") {
     return (
