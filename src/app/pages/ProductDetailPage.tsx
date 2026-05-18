@@ -26,6 +26,10 @@ function formatVndCurrency(value: number) {
   }).format(value);
 }
 
+function hasMeaningfulText(value?: string | null) {
+  return Boolean(value && /\S/.test(value));
+}
+
 export function ProductDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -75,7 +79,11 @@ export function ProductDetailPage() {
 
   const activeVariant = availableVariant ?? selectedVariant;
   const tags = product?.tags?.filter(Boolean) ?? [];
-  const shortDescription = product?.shortDescription?.trim() || product?.description?.trim() || 'Đang cập nhật';
+  const shortDescription = hasMeaningfulText(product?.shortDescription)
+    ? product.shortDescription
+    : hasMeaningfulText(product?.description)
+      ? product.description
+      : 'Đang cập nhật';
 
   useEffect(() => {
     if (!product || !availableVariant) {
@@ -159,7 +167,7 @@ export function ProductDetailPage() {
   return (
     <PageTransition>
       <div className="min-h-screen bg-white pt-24 pb-20">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="mx-auto max-w-7xl px-6">
           <button
             onClick={() => navigate('/')}
             className="mb-8 flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary"
@@ -222,7 +230,7 @@ export function ProductDetailPage() {
                 </motion.p>
 
                 <div className="mb-10 border-b border-border pb-8">
-                  <p className="text-[15px] leading-8 text-slate-700">
+                  <p className="whitespace-pre-wrap text-[15px] leading-8 text-slate-700">
                     {product.description ??
                       'Sản phẩm được hoàn thiện từ chất liệu cao cấp, mang lại vẻ đẹp tinh tế và phong cách đặc trưng của bộ sưu tập.'}
                   </p>
@@ -289,9 +297,9 @@ export function ProductDetailPage() {
                   </div>
                 )}
 
-                <div className="mb-10 flex flex-wrap items-center gap-4 border-y border-border py-5 text-sm">
+                <div className="mb-10 flex flex-col gap-3 border-y border-border py-5 text-sm">
                   <span className="text-muted-foreground">{tags.length > 0 ? tags.join(', ') : 'Đang cập nhật'}</span>
-                  <span className="text-muted-foreground">{shortDescription}</span>
+                  <span className="whitespace-pre-wrap text-muted-foreground">{shortDescription}</span>
                   <span className="text-muted-foreground">
                     Tình trạng: {activeVariant && activeVariant.stockQuantity > 0 ? `Còn ${activeVariant.stockQuantity} sản phẩm` : 'Hết hàng'}
                   </span>

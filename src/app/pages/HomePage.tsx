@@ -18,9 +18,7 @@ function formatVndCurrency(value: number) {
 }
 
 function pickRandomProducts(products: ProductCardItem[], count: number) {
-  return [...products]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, count);
+  return [...products].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
 export function HomePage() {
@@ -33,10 +31,9 @@ export function HomePage() {
     Promise.all([storefrontApi.getHome(), storefrontApi.getProducts({ featured: true }), storefrontApi.getProducts()])
       .then(([homeResponse, featuredProductsResponse, productsResponse]) => {
         setHomeData(homeResponse);
+
         const randomSource = productsResponse.items.length > 0 ? productsResponse.items : homeResponse.featuredProducts;
-        setFeaturedProducts(
-          pickRandomProducts(randomSource, 4)
-        );
+        setFeaturedProducts(pickRandomProducts(randomSource, 4));
 
         const fallbackProducts =
           featuredProductsResponse.items.length > 0
