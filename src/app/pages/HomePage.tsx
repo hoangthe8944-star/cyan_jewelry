@@ -9,28 +9,43 @@ import { ProductGrid } from '../components/ProductGrid';
 import { SubBannerSection } from '../components/SubBannerSection';
 import type { HomeResponse, ProductCardItem } from '../lib/types';
 
+function formatVndCurrency(value: number) {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function pickRandomProducts(products: ProductCardItem[], count: number) {
+  return [...products]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, count);
+}
+
 export function HomePage() {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
-  const [newCollectionProducts, setNewCollectionProducts] = useState<ProductCardItem[]>([]);
+  const [bestSellingProducts, setBestSellingProducts] = useState<ProductCardItem[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<ProductCardItem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([storefrontApi.getHome(), storefrontApi.getCollections(), storefrontApi.getProducts()])
-      .then(async ([homeResponse, collectionsResponse, productsResponse]) => {
+    Promise.all([storefrontApi.getHome(), storefrontApi.getProducts({ featured: true }), storefrontApi.getProducts()])
+      .then(([homeResponse, featuredProductsResponse, productsResponse]) => {
         setHomeData(homeResponse);
+        const randomSource = productsResponse.items.length > 0 ? productsResponse.items : homeResponse.featuredProducts;
         setFeaturedProducts(
-          (productsResponse.items.length > 0 ? productsResponse.items : homeResponse.featuredProducts).slice(0, 4)
+          pickRandomProducts(randomSource, 4)
         );
 
-        const firstCollection = collectionsResponse[0];
-        if (!firstCollection) {
-          setNewCollectionProducts([]);
-          return;
-        }
+        const fallbackProducts =
+          featuredProductsResponse.items.length > 0
+            ? featuredProductsResponse.items
+            : homeResponse.featuredProducts.length > 0
+              ? homeResponse.featuredProducts
+              : productsResponse.items;
 
-        const collectionDetail = await storefrontApi.getCollectionBySlug(firstCollection.slug);
-        setNewCollectionProducts(collectionDetail.products.slice(0, 4));
+        setBestSellingProducts(fallbackProducts.slice(0, 4));
       })
       .catch((err: Error) => setError(err.message));
   }, []);
@@ -44,9 +59,11 @@ export function HomePage() {
         </div>
       ) : null}
       <ProductGrid
-        products={newCollectionProducts}
-        eyebrow="Bộ sưu tập mới"
-        title="Bộ sưu tập mới"
+        products={bestSellingProducts}
+        eyebrow="Sản phẩm bán chạy"
+        title="Sản phẩm bán chạy"
+        description="Những thiết kế được yêu thích nhiều nhất và được chọn mua thường xuyên tại Cyan."
+        priceFormatter={formatVndCurrency}
       />
       <SubBannerSection banners={homeData?.subBanners ?? []} />
       <ProductGrid

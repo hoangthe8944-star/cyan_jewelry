@@ -5,8 +5,8 @@ import { Heart, ShoppingBag } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
 
 import { formatCurrency, optimizeProductCardImageUrl } from '../api';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useShop } from '../context/ShopContext';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface ProductCardProps {
   id: string;
@@ -17,9 +17,20 @@ interface ProductCardProps {
   price: number;
   badge?: string;
   index?: number;
+  priceFormatter?: (value: number) => string;
 }
 
-export function ProductCard({ id, slug, image, name, collection, price, badge, index = 0 }: ProductCardProps) {
+export function ProductCard({
+  id,
+  slug,
+  image,
+  name,
+  collection,
+  price,
+  badge,
+  index = 0,
+  priceFormatter = formatCurrency,
+}: ProductCardProps) {
   const { toggleWishlist, isInWishlist, addToCart } = useShop();
   const navigate = useNavigate();
   const ref = useRef(null);
@@ -66,7 +77,7 @@ export function ProductCard({ id, slug, image, name, collection, price, badge, i
   return (
     <motion.div
       ref={ref}
-      className="group relative bg-white cursor-pointer"
+      className="group relative cursor-pointer bg-white"
       initial={{ opacity: 0, y: 60 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
       transition={{
@@ -94,7 +105,7 @@ export function ProductCard({ id, slug, image, name, collection, price, badge, i
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             transition={{ delay: index * 0.1 + 0.3 }}
-            className="absolute top-4 left-4 bg-accent text-white px-3 py-1 text-xs tracking-wider"
+            className="absolute left-4 top-4 bg-accent px-3 py-1 text-xs tracking-wider text-white"
           >
             {badge}
           </motion.span>
@@ -107,11 +118,11 @@ export function ProductCard({ id, slug, image, name, collection, price, badge, i
           initial={{ opacity: 0, scale: 0.8 }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className={`absolute top-4 right-4 p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ${
+          className={`absolute right-4 top-4 p-2 opacity-0 transition-all duration-300 group-hover:opacity-100 ${
             isInWishlist(id) ? 'bg-accent text-white' : 'bg-white/90 hover:bg-white'
           }`}
         >
-          <Heart className={`w-4 h-4 ${isInWishlist(id) ? 'fill-white' : ''}`} />
+          <Heart className={`h-4 w-4 ${isInWishlist(id) ? 'fill-white' : ''}`} />
         </motion.button>
         <motion.button
           onClick={(event) => {
@@ -121,9 +132,9 @@ export function ProductCard({ id, slug, image, name, collection, price, badge, i
           initial={{ opacity: 0, y: 20 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="absolute bottom-4 left-4 right-4 bg-primary text-white py-3 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-secondary flex items-center justify-center gap-2"
+          className="absolute bottom-4 left-4 right-4 flex items-center justify-center gap-2 bg-primary py-3 text-white opacity-0 transition-all duration-300 hover:bg-secondary group-hover:opacity-100"
         >
-          <ShoppingBag className="w-4 h-4" />
+          <ShoppingBag className="h-4 w-4" />
           <span className="text-sm tracking-wide">Quick Add</span>
         </motion.button>
       </motion.div>
@@ -134,13 +145,9 @@ export function ProductCard({ id, slug, image, name, collection, price, badge, i
         animate={isInView ? { opacity: 1 } : { opacity: 0 }}
         transition={{ delay: index * 0.1 + 0.2 }}
       >
-        <p className="text-xs tracking-wider text-muted-foreground mb-1 uppercase">
-          {collection}
-        </p>
-        <h3 className="text-sm mb-2 tracking-wide group-hover:text-accent transition-colors">
-          {name}
-        </h3>
-        <p className="text-accent font-medium tracking-wide">{formatCurrency(price)}</p>
+        <p className="mb-1 text-xs uppercase tracking-wider text-muted-foreground">{collection}</p>
+        <h3 className="mb-2 text-sm tracking-wide transition-colors group-hover:text-accent">{name}</h3>
+        <p className="font-medium tracking-wide text-accent">{priceFormatter(price)}</p>
       </motion.div>
     </motion.div>
   );

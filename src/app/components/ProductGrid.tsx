@@ -11,6 +11,7 @@ interface ProductGridProps {
   eyebrow?: string;
   title?: string;
   description?: string;
+  priceFormatter?: (value: number) => string;
 }
 
 export function ProductGrid({
@@ -18,6 +19,7 @@ export function ProductGrid({
   eyebrow,
   title = 'Sản phẩm mới',
   description = 'Khám phá những thiết kế mới nhất vừa có mặt tại Oriven',
+  priceFormatter,
 }: ProductGridProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
@@ -50,6 +52,7 @@ export function ProductGrid({
               price={product.minPrice}
               badge={product.featured ? 'Featured' : undefined}
               index={index}
+              priceFormatter={priceFormatter}
             />
           ))}
         </div>
