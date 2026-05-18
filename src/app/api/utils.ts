@@ -2,10 +2,9 @@ import { API_ORIGIN, FALLBACK_API_ORIGIN } from "./client";
 import type { MediaAsset } from "../lib/types";
 
 export function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("vi-VN", {
     style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
+    currency: "VND",
     maximumFractionDigits: 0,
   }).format(value);
 }

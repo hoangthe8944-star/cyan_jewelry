@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
-import { formatCurrency, resolveMediaUrl, storefrontApi } from '../api';
+import { resolveMediaUrl, storefrontApi } from '../api';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useShop } from '../context/ShopContext';
 import type { ProductCardItem } from '../lib/types';
