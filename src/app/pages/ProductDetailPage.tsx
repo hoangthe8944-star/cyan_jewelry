@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { ArrowLeft, Check, Heart, ShoppingBag } from 'lucide-react';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 
 import { resolveMediaUrl, storefrontApi } from '../api';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
@@ -79,6 +80,8 @@ export function ProductDetailPage() {
 
   const activeVariant = availableVariant ?? selectedVariant;
   const tags = product?.tags?.filter(Boolean) ?? [];
+  const activeVariantLabel =
+    activeVariant?.selections.map((selection) => selection.valueLabel).join(' / ') ?? null;
   const shortDescription = hasMeaningfulText(product?.shortDescription)
     ? product.shortDescription
     : hasMeaningfulText(product?.description)
@@ -152,6 +155,31 @@ export function ProductDetailPage() {
     if (nextVariant) {
       setSelectedVariantCode(nextVariant.variantCode);
     }
+  };
+
+  const handleAddToCart = () => {
+    if (!product) {
+      return;
+    }
+
+    addToCart({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      collection: product.brand || 'Oriven Jewelry',
+      price: activeVariant?.price ?? product.minPrice,
+      image: resolveMediaUrl(activeVariant?.media[0] ?? product.gallery[0]),
+      variantCode: activeVariant?.variantCode ?? null,
+      variantLabel: activeVariantLabel,
+    });
+
+    toast.success('Da them vao gio hang', {
+      description: activeVariantLabel ? `${product.name} - ${activeVariantLabel}` : product.name,
+      action: {
+        label: 'Xem gio',
+        onClick: () => navigate('/cart'),
+      },
+    });
   };
 
   if (!product) {
@@ -312,16 +340,7 @@ export function ProductDetailPage() {
                   transition={{ delay: 0.6 }}
                 >
                   <motion.button
-                    onClick={() =>
-                      addToCart({
-                        id: product.id,
-                        slug: product.slug,
-                        name: product.name,
-                        collection: product.brand || 'Oriven Jewelry',
-                        price: activeVariant?.price ?? product.minPrice,
-                        image: resolveMediaUrl(activeVariant?.media[0] ?? product.gallery[0]),
-                      })
-                    }
+                    onClick={handleAddToCart}
                     whileHover={{ scale: 1.02, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                     whileTap={{ scale: 0.98 }}
                     className="flex w-full items-center justify-center gap-3 bg-primary py-5 tracking-wide text-white transition-all duration-300 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"

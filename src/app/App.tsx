@@ -12,6 +12,7 @@ import { ProductDetailPage } from './pages/ProductDetailPage';
 import { ProductsPage } from './pages/ProductsPage';
 import { ScrollToTop } from './components/ScrollToTop';
 import { SearchModal } from './components/SearchModal';
+import { Toaster } from './components/ui/sonner';
 import { ShopProvider } from './context/ShopContext';
 
 export default function App() {
@@ -35,6 +36,7 @@ export default function App() {
           <Footer />
           <SearchModal />
           <MobileMenu />
+          <Toaster richColors position="top-right" />
         </div>
       </ShopProvider>
     </BrowserRouter>

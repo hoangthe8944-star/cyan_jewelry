@@ -31,7 +31,7 @@ export function ProductCard({
   index = 0,
   priceFormatter = formatCurrency,
 }: ProductCardProps) {
-  const { toggleWishlist, isInWishlist, addToCart } = useShop();
+  const { toggleWishlist, isInWishlist } = useShop();
   const navigate = useNavigate();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
@@ -127,7 +127,7 @@ export function ProductCard({
         <motion.button
           onClick={(event) => {
             event.stopPropagation();
-            addToCart(product);
+            navigate(`/product/${slug}`);
           }}
           initial={{ opacity: 0, y: 20 }}
           whileHover={{ scale: 1.02 }}
@@ -135,7 +135,7 @@ export function ProductCard({
           className="absolute bottom-4 left-4 right-4 flex items-center justify-center gap-2 bg-primary py-3 text-white opacity-0 transition-all duration-300 hover:bg-secondary group-hover:opacity-100"
         >
           <ShoppingBag className="h-4 w-4" />
-          <span className="text-sm tracking-wide">Quick Add</span>
+          <span className="text-sm tracking-wide">Chọn phiên bản</span>
         </motion.button>
       </motion.div>
 

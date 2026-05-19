@@ -12,8 +12,9 @@ interface ShopContextType {
   isSearchOpen: boolean;
   isMobileMenuOpen: boolean;
   addToCart: (product: ShopProduct) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (cartKey: string) => void;
+  updateQuantity: (cartKey: string, quantity: number) => void;
+  clearCart: () => void;
   toggleWishlist: (product: ShopProduct) => void;
   isInWishlist: (productId: string) => boolean;
   setIsSearchOpen: (open: boolean) => void;
@@ -43,6 +44,10 @@ function readCartFromSession(): CartItem[] {
   }
 }
 
+export function buildCartItemKey(product: Pick<CartItem, 'id' | 'variantCode'>) {
+  return `${product.id}::${product.variantCode ?? 'default'}`;
+}
+
 export function ShopProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>(readCartFromSession);
   const [wishlist, setWishlist] = useState<ShopProduct[]>([]);
@@ -55,28 +60,34 @@ export function ShopProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: ShopProduct) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      const existing = prev.find((item) => buildCartItemKey(item) === buildCartItemKey(product));
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          buildCartItemKey(item) === buildCartItemKey(product)
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
       return [...prev, { ...product, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== productId));
+  const removeFromCart = (cartKey: string) => {
+    setCart((prev) => prev.filter((item) => buildCartItemKey(item) !== cartKey));
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (cartKey: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(cartKey);
       return;
     }
     setCart((prev) =>
-      prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
+      prev.map((item) => (buildCartItemKey(item) === cartKey ? { ...item, quantity } : item))
     );
+  };
+
+  const clearCart = () => {
+    setCart([]);
   };
 
   const toggleWishlist = (product: ShopProduct) => {
@@ -105,6 +116,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        clearCart,
         toggleWishlist,
         isInWishlist,
         setIsSearchOpen,

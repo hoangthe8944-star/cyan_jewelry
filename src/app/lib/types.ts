@@ -229,4 +229,6 @@ export interface ShopProduct {
   collection: string;
   price: number;
   badge?: string;
+  variantCode?: string | null;
+  variantLabel?: string | null;
 }

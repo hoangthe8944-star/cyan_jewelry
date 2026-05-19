@@ -18,7 +18,7 @@ export function EditorialSection({ editorials }: { editorials: EditorialSummary[
   const featuredEditorial = editorials[0];
 
   return (
-    <section ref={ref} className="py-20 bg-white overflow-hidden">
+    <section ref={ref} className="relative overflow-hidden bg-white py-20">
       <div className="max-w-[1800px] mx-auto px-6">
         <motion.div
           className="relative h-[500px] lg:h-[600px] overflow-hidden rounded-sm"

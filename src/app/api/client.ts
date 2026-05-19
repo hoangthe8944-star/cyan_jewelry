@@ -131,7 +131,9 @@ function sanitizeJsonPayload(value: unknown): unknown {
   }
 
   return Object.fromEntries(
-    Object.entries(value).map(([key, nestedValue]) => {
+    Object.entries(value)
+      .filter(([, nestedValue]) => nestedValue !== undefined && nestedValue !== null && nestedValue !== "")
+      .map(([key, nestedValue]) => {
       if (key === "ctaLabel" && typeof nestedValue === "string") {
         return [key, nestedValue.trim().slice(0, 80)];
       }
@@ -145,8 +147,41 @@ function sanitizeJsonPayload(value: unknown): unknown {
       }
 
       return [key, sanitizeJsonPayload(nestedValue)];
-    })
+      })
   );
+}
+
+async function extractErrorMessage(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    try {
+      const payload = await response.json();
+
+      if (typeof payload === "string" && payload.trim()) {
+        return payload;
+      }
+
+      if (Array.isArray(payload?.message)) {
+        return payload.message.join(", ");
+      }
+
+      if (typeof payload?.message === "string" && payload.message.trim()) {
+        return payload.message;
+      }
+
+      if (typeof payload?.error === "string" && payload.error.trim()) {
+        return payload.error;
+      }
+
+      return JSON.stringify(payload);
+    } catch {
+      return `Request failed: ${response.status}`;
+    }
+  }
+
+  const text = await response.text();
+  return text || `Request failed: ${response.status}`;
 }
 
 const API_ORIGIN = extractOrigin(API_BASE_URL);
@@ -187,8 +222,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Request failed: ${response.status}`);
+    throw new Error(await extractErrorMessage(response));
   }
 
   return response.json() as Promise<T>;
