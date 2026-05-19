@@ -8,6 +8,8 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { MobileMenu } from './components/MobileMenu';
+import { NewsDetailPage } from './pages/NewsDetailPage';
+import { NewsPage } from './pages/NewsPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { ProductsPage } from './pages/ProductsPage';
 import { ScrollToTop } from './components/ScrollToTop';
@@ -26,6 +28,8 @@ export default function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutUsPage />} />
+              <Route path="/news" element={<NewsPage />} />
+              <Route path="/news/:slug" element={<NewsDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/collections" element={<CollectionsPage />} />
               <Route path="/collections/:slug" element={<CollectionDetailPage />} />

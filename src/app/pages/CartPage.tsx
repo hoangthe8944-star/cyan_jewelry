@@ -7,6 +7,7 @@ import { API_BASE_URL, storefrontApi } from '../api';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { PageTransition } from '../components/PageTransition';
 import { buildCartItemKey, useShop } from '../context/ShopContext';
+import { saveRecentOrder } from '../lib/orderHistory';
 import type { OrderAddress, OrderCustomer, OrderPayload } from '../lib/types';
 
 function formatVndCurrency(value: number) {
@@ -123,6 +124,7 @@ export function CartPage() {
       };
 
       const response = await storefrontApi.createOrder(payload);
+      saveRecentOrder(response.order);
 
       if (paymentMethod === 'MOMO' && response.payUrl) {
         window.location.href = response.payUrl;
