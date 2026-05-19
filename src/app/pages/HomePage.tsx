@@ -7,7 +7,7 @@ import { HeroCarousel } from '../components/HeroCarousel';
 import { PageTransition } from '../components/PageTransition';
 import { ProductGrid } from '../components/ProductGrid';
 import { SubBannerSection } from '../components/SubBannerSection';
-import type { HomeResponse, ProductCardItem } from '../lib/types';
+import type { CollectionSummary, HomeResponse, ProductCardItem } from '../lib/types';
 
 function formatVndCurrency(value: number) {
   return new Intl.NumberFormat('vi-VN', {
@@ -21,28 +21,63 @@ function pickRandomProducts(products: ProductCardItem[], count: number) {
   return [...products].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
+function sortLatestCollections(collections: CollectionSummary[]) {
+  return [...collections].sort((left, right) => {
+    const rightTime = right.publishedAt ? new Date(right.publishedAt).getTime() : 0;
+    const leftTime = left.publishedAt ? new Date(left.publishedAt).getTime() : 0;
+
+    if (rightTime !== leftTime) {
+      return rightTime - leftTime;
+    }
+
+    return right.displayOrder - left.displayOrder;
+  });
+}
+
 export function HomePage() {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
-  const [bestSellingProducts, setBestSellingProducts] = useState<ProductCardItem[]>([]);
+  const [latestCollectionProducts, setLatestCollectionProducts] = useState<ProductCardItem[]>([]);
+  const [latestCollectionName, setLatestCollectionName] = useState('Bộ sưu tập mới nhất');
   const [featuredProducts, setFeaturedProducts] = useState<ProductCardItem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([storefrontApi.getHome(), storefrontApi.getProducts({ featured: true }), storefrontApi.getProducts()])
-      .then(([homeResponse, featuredProductsResponse, productsResponse]) => {
+    Promise.all([storefrontApi.getHome(), storefrontApi.getProducts(), storefrontApi.getCollections()])
+      .then(async ([homeResponse, productsResponse, collectionsResponse]) => {
         setHomeData(homeResponse);
 
-        const randomSource = productsResponse.items.length > 0 ? productsResponse.items : homeResponse.featuredProducts;
-        setFeaturedProducts(pickRandomProducts(randomSource, 4));
+        const featuredSource =
+          homeResponse.featuredProducts.length > 0 ? homeResponse.featuredProducts : productsResponse.items;
+        setFeaturedProducts(pickRandomProducts(featuredSource, 4));
+
+        const collectionSource =
+          collectionsResponse.length > 0
+            ? collectionsResponse
+            : homeResponse.featuredCollections.length > 0
+              ? homeResponse.featuredCollections
+              : [];
+
+        const latestCollection = sortLatestCollections(collectionSource)[0];
+
+        if (latestCollection) {
+          try {
+            const collectionDetail = await storefrontApi.getCollectionBySlug(latestCollection.slug);
+            setLatestCollectionProducts(collectionDetail.products.slice(0, 4));
+            setLatestCollectionName(collectionDetail.name || 'Bộ sưu tập mới nhất');
+            return;
+          } catch {
+            setLatestCollectionName(latestCollection.name || 'Bộ sưu tập mới nhất');
+          }
+        }
 
         const fallbackProducts =
-          featuredProductsResponse.items.length > 0
-            ? featuredProductsResponse.items
-            : homeResponse.featuredProducts.length > 0
-              ? homeResponse.featuredProducts
-              : productsResponse.items;
+          homeResponse.newArrivals.length > 0
+            ? homeResponse.newArrivals
+            : productsResponse.items.length > 0
+              ? productsResponse.items
+              : homeResponse.featuredProducts;
 
-        setBestSellingProducts(fallbackProducts.slice(0, 4));
+        setLatestCollectionProducts(fallbackProducts.slice(0, 4));
       })
       .catch((err: Error) => setError(err.message));
   }, []);
@@ -56,10 +91,9 @@ export function HomePage() {
         </div>
       ) : null}
       <ProductGrid
-        products={bestSellingProducts}
-        eyebrow="Sản phẩm bán chạy"
-        title="Sản phẩm bán chạy"
-        description="Những thiết kế được yêu thích nhiều nhất và được chọn mua thường xuyên tại Cyan."
+        products={latestCollectionProducts}
+        eyebrow="Bộ sưu tập mới nhất"
+        title={latestCollectionName}
         priceFormatter={formatVndCurrency}
       />
       <SubBannerSection banners={homeData?.subBanners ?? []} />
@@ -67,6 +101,8 @@ export function HomePage() {
         products={featuredProducts}
         eyebrow="Sản phẩm nổi bật"
         title="Sản phẩm nổi bật"
+        description="Khám phá những thiết kế nổi bật đang đại diện cho tinh thần thẩm mỹ hiện tại của Oriven Jewelry."
+        priceFormatter={formatVndCurrency}
       />
       <CategorySection categories={homeData?.categories ?? []} />
       <EditorialSection editorials={homeData?.latestEditorials ?? []} />

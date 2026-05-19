@@ -75,6 +75,45 @@ function ProductsDropdown({
   );
 }
 
+function AccountDropdown({ compact }: { compact: boolean }) {
+  const navigate = useNavigate();
+
+  const buttonClass = compact
+    ? 'hidden text-white transition-colors hover:text-accent-light md:block'
+    : 'hidden text-white transition-colors hover:text-accent-light md:block';
+
+  const iconClass = compact ? 'h-5 w-5' : 'h-4 w-4';
+
+  return (
+    <div className="group relative hidden md:block">
+      <button
+        className={buttonClass}
+        aria-label="Tài khoản"
+        style={!compact ? { filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))' } : undefined}
+      >
+        <User className={iconClass} />
+      </button>
+      <div className="pointer-events-none absolute right-0 top-full h-6 w-56 group-hover:pointer-events-auto" />
+      <div className="invisible absolute right-0 top-full z-[70] mt-4 min-w-[240px] translate-y-2 border border-[rgba(163,107,49,0.24)] bg-white/98 p-2 opacity-0 shadow-[0_24px_60px_rgba(17,33,45,0.18)] backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+        <button
+          type="button"
+          onClick={() => navigate('/account')}
+          className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
+        >
+          Thông tin tài khoản
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/my-orders')}
+          className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
+        >
+          Đơn hàng của tôi
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [categories, setCategories] = useState<CategoryNode[]>([]);
@@ -113,7 +152,7 @@ export function Header() {
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="text-white transition-colors hover:text-accent-light lg:hidden"
-                aria-label="Open menu"
+                aria-label="Mở menu"
               >
                 <Menu className="h-6 w-6" />
               </button>
@@ -155,17 +194,12 @@ export function Header() {
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="text-white transition-colors hover:text-accent-light"
-                aria-label="Search"
+                aria-label="Tìm kiếm"
               >
                 <Search className="h-5 w-5" />
               </button>
-              <button
-                className="hidden text-white transition-colors hover:text-accent-light md:block"
-                aria-label="Account"
-              >
-                <User className="h-5 w-5" />
-              </button>
-              <button className="relative text-white transition-colors hover:text-accent-light" aria-label="Wishlist">
+              <AccountDropdown compact />
+              <button className="relative text-white transition-colors hover:text-accent-light" aria-label="Yêu thích">
                 <Heart className="h-5 w-5" />
                 {wishlist.length > 0 ? (
                   <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs text-white">
@@ -176,7 +210,7 @@ export function Header() {
               <button
                 onClick={() => navigate('/cart')}
                 className="relative text-white transition-colors hover:text-accent-light"
-                aria-label="Shopping bag"
+                aria-label="Giỏ hàng"
               >
                 <ShoppingBag className="h-5 w-5" />
                 {getCartCount() > 0 ? (
@@ -211,7 +245,7 @@ export function Header() {
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="text-white transition-colors hover:text-accent-light lg:hidden"
-            aria-label="Open menu"
+            aria-label="Mở menu"
             style={{
               filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
             }}
@@ -261,25 +295,17 @@ export function Header() {
             <button
               onClick={() => setIsSearchOpen(true)}
               className="text-white transition-colors hover:text-accent-light"
-              aria-label="Search"
+              aria-label="Tìm kiếm"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
             >
               <Search className="h-4 w-4" />
             </button>
-            <button
-              className="hidden text-white transition-colors hover:text-accent-light md:block"
-              aria-label="Account"
-              style={{
-                filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
-              }}
-            >
-              <User className="h-4 w-4" />
-            </button>
+            <AccountDropdown compact={false} />
             <button
               className="relative text-white transition-colors hover:text-accent-light"
-              aria-label="Wishlist"
+              aria-label="Yêu thích"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
@@ -294,7 +320,7 @@ export function Header() {
             <button
               onClick={() => navigate('/cart')}
               className="relative text-white transition-colors hover:text-accent-light"
-              aria-label="Shopping bag"
+              aria-label="Giỏ hàng"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}

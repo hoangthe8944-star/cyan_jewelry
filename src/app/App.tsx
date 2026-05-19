@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import { AccountInfoPage } from './pages/AccountInfoPage';
 import { AboutUsPage } from './pages/AboutUsPage';
 import { CartPage } from './pages/CartPage';
 import { CollectionDetailPage } from './pages/CollectionDetailPage';
@@ -8,6 +9,7 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { MobileMenu } from './components/MobileMenu';
+import { MyOrdersPage } from './pages/MyOrdersPage';
 import { NewsDetailPage } from './pages/NewsDetailPage';
 import { NewsPage } from './pages/NewsPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
@@ -28,6 +30,8 @@ export default function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutUsPage />} />
+              <Route path="/account" element={<AccountInfoPage />} />
+              <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/news/:slug" element={<NewsDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />

@@ -61,7 +61,7 @@ export function MyOrdersPage() {
       setOrder(response);
     } catch (lookupError) {
       setOrder(null);
-      setError(lookupError instanceof Error ? lookupError.message : 'Khong the tra cuu don hang.');
+      setError(lookupError instanceof Error ? lookupError.message : 'Không thể tra cứu đơn hàng.');
     } finally {
       setLoading(false);
     }
@@ -79,11 +79,11 @@ export function MyOrdersPage() {
           <div className="max-w-3xl">
             <p className="mb-4 text-sm uppercase tracking-[0.35em] text-foreground/65">My Orders</p>
             <h1 className="font-sterling text-[40px] leading-tight text-primary lg:text-[54px]">
-              Theo doi cac don hang cua ban
+              Theo dõi các đơn hàng của bạn
             </h1>
             <p className="mt-5 text-base leading-8 text-foreground/82">
-              Nhap ma don hang va so dien thoai da dat de xem trang thai thanh toan, thong tin giao nhan va danh sach san
-              pham trong don.
+              Nhập mã đơn hàng và số điện thoại đã đặt để xem trạng thái thanh toán, thông tin giao nhận và danh sách sản
+              phẩm trong đơn.
             </p>
           </div>
 
@@ -91,9 +91,9 @@ export function MyOrdersPage() {
             <div className="space-y-6">
               <form onSubmit={handleLookup} className="space-y-4 border border-border bg-muted/20 p-8">
                 <div>
-                  <h2 className="font-sterling text-[28px] text-primary">Tra cuu don hang</h2>
+                  <h2 className="font-sterling text-[28px] text-primary">Tra cứu đơn hàng</h2>
                   <p className="mt-2 text-sm text-foreground/72">
-                    Dung thong tin ban da su dung khi dat hang tren website.
+                    Dùng thông tin bạn đã sử dụng khi đặt hàng trên website.
                   </p>
                 </div>
 
@@ -101,14 +101,14 @@ export function MyOrdersPage() {
                   required
                   value={orderCode}
                   onChange={(event) => setOrderCode(event.target.value)}
-                  placeholder="Ma don hang"
+                  placeholder="Mã đơn hàng"
                   className="w-full border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                 />
                 <input
                   required
                   value={phoneNumber}
                   onChange={(event) => setPhoneNumber(event.target.value)}
-                  placeholder="So dien thoai"
+                  placeholder="Số điện thoại"
                   className="w-full border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                 />
 
@@ -122,16 +122,16 @@ export function MyOrdersPage() {
                   className="flex w-full items-center justify-center gap-3 bg-primary py-4 text-white transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
-                  <span>{loading ? 'Dang tra cuu...' : 'Xem don hang'}</span>
+                  <span>{loading ? 'Đang tra cứu...' : 'Xem đơn hàng'}</span>
                 </button>
               </form>
 
               {recentOrders.length > 0 ? (
                 <div className="border border-border bg-white p-8">
                   <div className="mb-5">
-                    <h2 className="font-sterling text-[26px] text-primary">Don hang gan day</h2>
+                    <h2 className="font-sterling text-[26px] text-primary">Đơn hàng gần đây</h2>
                     <p className="mt-2 text-sm text-foreground/70">
-                      Nhung don da duoc tao tren thiet bi nay de ban mo lai nhanh hon.
+                      Những đơn đã được tạo trên thiết bị này để bạn mở lại nhanh hơn.
                     </p>
                   </div>
 
@@ -166,9 +166,9 @@ export function MyOrdersPage() {
               {!order ? (
                 <div className="flex min-h-[420px] items-center justify-center text-center">
                   <div>
-                    <h2 className="font-sterling text-[30px] text-primary">Chua co don hang nao duoc mo</h2>
+                    <h2 className="font-sterling text-[30px] text-primary">Chưa có đơn hàng nào được mở</h2>
                     <p className="mt-3 max-w-md text-sm leading-7 text-foreground/70">
-                      Sau khi tra cuu thanh cong, thong tin don hang cua ban se hien thi tai day.
+                      Sau khi tra cứu thành công, thông tin đơn hàng của bạn sẽ hiển thị tại đây.
                     </p>
                   </div>
                 </div>
@@ -179,33 +179,30 @@ export function MyOrdersPage() {
                     <h2 className="mt-3 font-sterling text-[34px] text-primary">{order.orderCode}</h2>
                     <div className="mt-5 grid gap-4 sm:grid-cols-2">
                       <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Khach hang</p>
+                        <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Khách hàng</p>
                         <p className="mt-2 text-sm text-foreground">{order.customer.fullName}</p>
                         <p className="mt-1 text-sm text-foreground/72">{order.customer.phoneNumber}</p>
                         {order.customer.email ? <p className="mt-1 text-sm text-foreground/72">{order.customer.email}</p> : null}
                       </div>
                       <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Trang thai</p>
-                        <p className="mt-2 text-sm text-foreground">Thanh toan: {order.paymentStatus || '-'}</p>
-                        <p className="mt-1 text-sm text-foreground/72">Phuong thuc: {order.paymentMethod || '-'}</p>
-                        <p className="mt-1 text-sm text-foreground/72">Ngay tao: {formatDate(order.createdAt)}</p>
+                        <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Trạng thái</p>
+                        <p className="mt-2 text-sm text-foreground">Thanh toán: {order.paymentStatus || '-'}</p>
+                        <p className="mt-1 text-sm text-foreground/72">Phương thức: {order.paymentMethod || '-'}</p>
+                        <p className="mt-1 text-sm text-foreground/72">Ngày tạo: {formatDate(order.createdAt)}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="font-sterling text-[26px] text-primary">San pham trong don</h3>
+                    <h3 className="font-sterling text-[26px] text-primary">Sản phẩm trong đơn</h3>
                     {order.items.map((item, index) => (
                       <div key={`${item.productId}-${item.variantCode}-${index}`} className="border border-border p-5">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h4 className="text-base text-foreground">{item.productId}</h4>
-                            <p className="mt-2 text-sm text-foreground/72">Variant: {item.variantCode}</p>
-                            <p className="mt-1 text-sm text-foreground/72">So luong: {item.quantity}</p>
+                            <h4 className="text-base text-foreground">Mã sản phẩm: {item.productId}</h4>
+                            <p className="mt-2 text-sm text-foreground/72">Biến thể: {item.variantCode}</p>
+                            <p className="mt-1 text-sm text-foreground/72">Số lượng: {item.quantity}</p>
                           </div>
-                          <span className="text-sm text-accent">
-                            {formatVndCurrency(typeof item.quantity === 'number' && order.totalAmount ? undefined : undefined)}
-                          </span>
                         </div>
                       </div>
                     ))}
@@ -213,7 +210,7 @@ export function MyOrdersPage() {
 
                   <div className="grid gap-4 border-t border-border pt-6 sm:grid-cols-2">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Dia chi giao hang</p>
+                      <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Địa chỉ giao hàng</p>
                       <p className="mt-2 text-sm leading-7 text-foreground/78">
                         {[
                           order.shippingAddress.line1,
@@ -227,12 +224,12 @@ export function MyOrdersPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Tong ket</p>
+                      <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Tổng kết</p>
                       <div className="mt-2 space-y-2 text-sm text-foreground/78">
-                        <p>Tam tinh: {formatVndCurrency(order.subtotal)}</p>
-                        <p>Van chuyen: {formatVndCurrency(order.shippingFee)}</p>
-                        <p>Giam gia: {formatVndCurrency(order.discountAmount)}</p>
-                        <p className="font-medium text-primary">Tong cong: {formatVndCurrency(order.totalAmount)}</p>
+                        <p>Tạm tính: {formatVndCurrency(order.subtotal)}</p>
+                        <p>Vận chuyển: {formatVndCurrency(order.shippingFee)}</p>
+                        <p>Giảm giá: {formatVndCurrency(order.discountAmount)}</p>
+                        <p className="font-medium text-primary">Tổng cộng: {formatVndCurrency(order.totalAmount)}</p>
                       </div>
                     </div>
                   </div>
