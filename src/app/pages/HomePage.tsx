@@ -96,7 +96,7 @@ export function HomePage() {
         title={latestCollectionName}
         priceFormatter={formatVndCurrency}
       />
-      <SubBannerSection banners={homeData?.subBanners ?? []} />
+      {/* <SubBannerSection banners={homeData?.subBanners ?? []} /> */}
       <ProductGrid
         products={featuredProducts}
         eyebrow="Sản phẩm nổi bật"

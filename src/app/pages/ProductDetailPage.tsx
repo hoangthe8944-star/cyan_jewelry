@@ -8,8 +8,9 @@ import { toast } from 'sonner';
 import { resolveMediaUrl, storefrontApi } from '../api';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { PageTransition } from '../components/PageTransition';
+import { ProductGrid } from '../components/ProductGrid';
 import { useShop } from '../context/ShopContext';
-import type { ProductDetail } from '../lib/types';
+import type { CategoryNode, ProductCardItem, ProductDetail } from '../lib/types';
 
 function buildSelectionMap(product: ProductDetail, variantCode?: string | null) {
   const variant = product.variants.find((item) => item.variantCode === variantCode) ?? product.variants[0];
@@ -31,11 +32,38 @@ function hasMeaningfulText(value?: string | null) {
   return Boolean(value && /\S/.test(value));
 }
 
+function pickRandomSuggestedProducts(products: ProductCardItem[], currentProductId?: string, count = 4) {
+  return [...products]
+    .filter((item) => item.id !== currentProductId)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, count);
+}
+
+function findCategorySlugById(categories: CategoryNode[], categoryId?: string | null): string | null {
+  if (!categoryId) {
+    return null;
+  }
+
+  for (const category of categories) {
+    if (category.id === categoryId) {
+      return category.slug;
+    }
+
+    const childMatch = findCategorySlugById(category.children, categoryId);
+    if (childMatch) {
+      return childMatch;
+    }
+  }
+
+  return null;
+}
+
 export function ProductDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addToCart, toggleWishlist, isInWishlist } = useShop();
   const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [suggestedProducts, setSuggestedProducts] = useState<ProductCardItem[]>([]);
   const [selectedVariantCode, setSelectedVariantCode] = useState<string | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
@@ -44,11 +72,37 @@ export function ProductDetailPage() {
       return;
     }
 
-    storefrontApi.getProductBySlug(slug).then((value) => {
-      setProduct(value);
-      setSelectedVariantCode(value.variants[0]?.variantCode ?? null);
-      setSelectedOptions(buildSelectionMap(value, value.variants[0]?.variantCode));
-    });
+    storefrontApi
+      .getProductBySlug(slug)
+      .then(async (value) => {
+        setProduct(value);
+        setSelectedVariantCode(value.variants[0]?.variantCode ?? null);
+        setSelectedOptions(buildSelectionMap(value, value.variants[0]?.variantCode));
+
+        try {
+          const categories = await storefrontApi.getCategories();
+          const primaryCategoryId = value.primaryCategoryId ?? value.categoryIds?.[0] ?? null;
+          const categorySlug = findCategorySlugById(categories, primaryCategoryId);
+
+          if (categorySlug) {
+            const response = await storefrontApi.getCategoryProducts(categorySlug);
+            setSuggestedProducts(pickRandomSuggestedProducts(response.items, value.id, 4));
+            return;
+          }
+        } catch {
+          // Fall through to the generic product fallback below.
+        }
+
+        storefrontApi
+          .getProducts()
+          .then((response) => {
+            setSuggestedProducts(pickRandomSuggestedProducts(response.items, value.id, 4));
+          })
+          .catch(() => setSuggestedProducts([]));
+      })
+      .catch(() => {
+        setSuggestedProducts([]);
+      });
   }, [slug]);
 
   const selectedVariant = useMemo(
@@ -399,6 +453,18 @@ export function ProductDetailPage() {
               </div>
             </div>
           </div>
+
+          {suggestedProducts.length > 0 ? (
+            <div className="mt-20">
+              <ProductGrid
+                products={suggestedProducts}
+                eyebrow="Gợi ý cho bạn"
+                title="Có thể bạn sẽ thích"
+                description="Những sản phẩm cùng danh mục được chọn ngẫu nhiên để bạn tiếp tục khám phá ngay từ trang chi tiết."
+                priceFormatter={formatVndCurrency}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </PageTransition>

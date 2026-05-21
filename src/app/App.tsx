@@ -1,23 +1,25 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { AccountInfoPage } from './pages/AccountInfoPage';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { MobileMenu } from './components/MobileMenu';
+import { ScrollToTop } from './components/ScrollToTop';
+import { SearchModal } from './components/SearchModal';
+import { Toaster } from './components/ui/sonner';
+import { ShopProvider } from './context/ShopContext';
 import { AboutUsPage } from './pages/AboutUsPage';
+import { AccountInfoPage } from './pages/AccountInfoPage';
 import { CartPage } from './pages/CartPage';
 import { CollectionDetailPage } from './pages/CollectionDetailPage';
 import { CollectionsPage } from './pages/CollectionsPage';
-import { Footer } from './components/Footer';
-import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
-import { MobileMenu } from './components/MobileMenu';
+import { LandingPage } from './pages/LandingPage';
 import { MyOrdersPage } from './pages/MyOrdersPage';
 import { NewsDetailPage } from './pages/NewsDetailPage';
 import { NewsPage } from './pages/NewsPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { ProductsPage } from './pages/ProductsPage';
-import { ScrollToTop } from './components/ScrollToTop';
-import { SearchModal } from './components/SearchModal';
-import { Toaster } from './components/ui/sonner';
-import { ShopProvider } from './context/ShopContext';
+import { WishlistPage } from './pages/WishlistPage';
 
 export default function App() {
   return (
@@ -28,7 +30,8 @@ export default function App() {
           <Header />
           <main>
             <Routes>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/home" element={<HomePage />} />
               <Route path="/about" element={<AboutUsPage />} />
               <Route path="/account" element={<AccountInfoPage />} />
               <Route path="/my-orders" element={<MyOrdersPage />} />
@@ -38,6 +41,7 @@ export default function App() {
               <Route path="/collections" element={<CollectionsPage />} />
               <Route path="/collections/:slug" element={<CollectionDetailPage />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/product/:slug" element={<ProductDetailPage />} />
             </Routes>
           </main>

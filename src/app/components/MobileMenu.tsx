@@ -61,7 +61,7 @@ export function MobileMenu() {
               <div className="space-y-1 border-b border-border pb-6">
                 <button
                   type="button"
-                  onClick={() => handleNavigate('/')}
+                  onClick={() => handleNavigate('/home')}
                   className="flex w-full items-center justify-between px-4 py-4 text-left transition-colors hover:bg-muted"
                 >
                   <span className="tracking-wide">Trang chủ</span>

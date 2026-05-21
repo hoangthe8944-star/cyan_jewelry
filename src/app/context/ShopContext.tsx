@@ -25,6 +25,7 @@ interface ShopContextType {
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 const CART_STORAGE_KEY = 'Oriven-cart';
+const WISHLIST_STORAGE_KEY = 'Oriven-wishlist';
 
 function readCartFromSession(): CartItem[] {
   if (typeof window === 'undefined') {
@@ -44,19 +45,41 @@ function readCartFromSession(): CartItem[] {
   }
 }
 
+function readWishlistFromSession(): ShopProduct[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const value = window.sessionStorage.getItem(WISHLIST_STORAGE_KEY);
+    if (!value) {
+      return [];
+    }
+
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export function buildCartItemKey(product: Pick<CartItem, 'id' | 'variantCode'>) {
   return `${product.id}::${product.variantCode ?? 'default'}`;
 }
 
 export function ShopProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>(readCartFromSession);
-  const [wishlist, setWishlist] = useState<ShopProduct[]>([]);
+  const [wishlist, setWishlist] = useState<ShopProduct[]>(readWishlistFromSession);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     window.sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
+  }, [wishlist]);
 
   const addToCart = (product: ShopProduct) => {
     setCart((prev) => {

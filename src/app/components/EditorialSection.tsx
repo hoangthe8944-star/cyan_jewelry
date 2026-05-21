@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { motion, useInView, useScroll, useTransform } from 'motion/react';
 
@@ -8,6 +9,7 @@ import type { EditorialSummary } from '../lib/types';
 
 export function EditorialSection({ editorials }: { editorials: EditorialSummary[] }) {
   const ref = useRef(null);
+  const navigate = useNavigate();
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -29,7 +31,7 @@ export function EditorialSection({ editorials }: { editorials: EditorialSummary[
           <motion.div style={{ y }} className="w-full h-[120%]">
             <ImageWithFallback
               src={resolveMediaUrl(featuredEditorial?.coverMedia)}
-              alt={featuredEditorial?.title ?? 'Discover More'}
+              alt={featuredEditorial?.title ?? 'Khám phá thêm'}
               className="w-full h-full object-cover"
             />
           </motion.div>
@@ -45,7 +47,7 @@ export function EditorialSection({ editorials }: { editorials: EditorialSummary[
                 animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
-                {featuredEditorial?.title ?? 'The Art of Luxury'}
+                {featuredEditorial?.title ?? 'Nghệ thuật của vẻ đẹp tinh tế'}
               </motion.h2>
               <motion.p
                 className="text-white/90 text-lg mb-8 tracking-wide leading-relaxed"
@@ -54,10 +56,11 @@ export function EditorialSection({ editorials }: { editorials: EditorialSummary[
                 transition={{ duration: 0.8, delay: 0.5 }}
               >
                 {featuredEditorial?.summary ??
-                  'Experience the ethereal beauty of handcrafted jewelry. Each piece tells a story of elegance, precision, and timeless design.'}
+                  'Khám phá câu chuyện đằng sau những thiết kế trang sức được chế tác tỉ mỉ, nơi vẻ đẹp, cảm xúc và giá trị bền lâu cùng hiện diện.'}
               </motion.p>
               <motion.button
                 className="bg-accent text-white px-10 py-4 hover:bg-accent-light hover:text-primary transition-all duration-300 tracking-wide"
+                onClick={() => navigate('/news')}
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.8, delay: 0.7 }}
@@ -67,7 +70,7 @@ export function EditorialSection({ editorials }: { editorials: EditorialSummary[
                 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Discover More
+                Khám phá thêm
               </motion.button>
             </div>
           </div>

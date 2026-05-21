@@ -10,6 +10,7 @@ export interface Banner {
   title: string;
   slug: string;
   placement: "MAIN" | "SUB";
+  displayOrder?: number;
   media: MediaAsset;
   redirectUrl?: string | null;
   ctaLabel?: string | null;
@@ -66,6 +67,8 @@ export interface ProductVariant {
 
 export interface ProductDetail extends ProductCardItem {
   description?: string | null;
+  primaryCategoryId?: string | null;
+  categoryIds?: string[];
   options: {
     type: string;
     name: string;
@@ -89,9 +92,11 @@ export interface EditorialSummary {
 }
 
 export interface EditorialSectionBlock {
+  displayOrder?: number;
   heading?: string | null;
   body?: string | null;
-  media?: MediaAsset | null;
+  content?: string | null;
+  media?: MediaAsset | MediaAsset[] | null;
 }
 
 export interface EditorialDetail extends EditorialSummary {

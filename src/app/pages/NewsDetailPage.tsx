@@ -6,10 +6,64 @@ import { ArrowLeft } from 'lucide-react';
 import { resolveMediaUrl, storefrontApi } from '../api';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { PageTransition } from '../components/PageTransition';
-import type { EditorialDetail } from '../lib/types';
+import type { EditorialDetail, EditorialSectionBlock, MediaAsset } from '../lib/types';
 
 function hasText(value?: string | null) {
   return Boolean(value && /\S/.test(value));
+}
+
+function getSectionText(section: EditorialSectionBlock) {
+  return section.content ?? section.body ?? '';
+}
+
+function getSectionMedia(section: EditorialSectionBlock) {
+  if (!section.media) {
+    return [];
+  }
+
+  return Array.isArray(section.media) ? section.media : [section.media];
+}
+
+function sortSections(sections: EditorialSectionBlock[]) {
+  return [...sections].sort((left, right) => (left.displayOrder ?? 999) - (right.displayOrder ?? 999));
+}
+
+function SectionMediaGallery({
+  items,
+  altFallback,
+}: {
+  items: MediaAsset[];
+  altFallback: string;
+}) {
+  if (items.length === 0) {
+    return null;
+  }
+
+  if (items.length === 1) {
+    return (
+      <div className="overflow-hidden rounded-sm bg-muted">
+        <ImageWithFallback
+          src={resolveMediaUrl(items[0])}
+          alt={altFallback}
+          className="max-h-[560px] w-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      {items.map((media, index) => (
+        <div key={`${media.url}-${index}`} className="overflow-hidden rounded-sm bg-muted">
+          <ImageWithFallback
+            src={resolveMediaUrl(media)}
+            alt={`${altFallback} ${index + 1}`}
+            className="h-full min-h-[240px] w-full object-cover"
+          />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function NewsDetailPage() {
@@ -97,29 +151,29 @@ export function NewsDetailPage() {
                   </div>
                 ) : null}
 
-                {editorial.sections.map((section, index) => (
-                  <section key={`${section.heading ?? 'section'}-${index}`} className="space-y-5">
-                    {hasText(section.heading) ? (
-                      <h2 className="font-sterling text-[30px] text-primary lg:text-[38px]">{section.heading}</h2>
-                    ) : null}
+                {sortSections(editorial.sections).map((section, index) => {
+                  const sectionText = getSectionText(section);
+                  const sectionMedia = getSectionMedia(section);
 
-                    {section.media ? (
-                      <div className="overflow-hidden rounded-sm bg-muted">
-                        <ImageWithFallback
-                          src={resolveMediaUrl(section.media)}
-                          alt={section.heading ?? editorial.title}
-                          className="max-h-[560px] w-full object-cover"
-                        />
-                      </div>
-                    ) : null}
+                  return (
+                    <section key={`${section.heading ?? 'section'}-${index}`} className="space-y-5">
+                      {hasText(section.heading) ? (
+                        <h2 className="font-sterling text-[30px] text-primary lg:text-[38px]">{section.heading}</h2>
+                      ) : null}
 
-                    {hasText(section.body) ? (
-                      <div className="whitespace-pre-wrap text-[16px] leading-8 text-foreground/84">
-                        {section.body}
-                      </div>
-                    ) : null}
-                  </section>
-                ))}
+                      <SectionMediaGallery
+                        items={sectionMedia}
+                        altFallback={section.heading ?? editorial.title}
+                      />
+
+                      {hasText(sectionText) ? (
+                        <div className="whitespace-pre-wrap text-[16px] leading-8 text-foreground/84">
+                          {sectionText}
+                        </div>
+                      ) : null}
+                    </section>
+                  );
+                })}
               </div>
             </article>
           ) : null}

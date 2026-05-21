@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { resolveMediaPosterUrl, resolveMediaUrl } from '../api';
 import type { Banner } from '../lib/types';
@@ -49,6 +50,7 @@ function HeroMedia({ slide, title }: { slide: HeroSlide; title: string }) {
 
 export function HeroCarousel({ banners }: { banners: Banner[] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
 
   const heroSlides = banners.map(mapBannerToSlide);
 
@@ -119,7 +121,10 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
                   onClick={() => {
                     if (activeSlide.redirectUrl) {
                       window.location.href = activeSlide.redirectUrl;
+                      return;
                     }
+
+                    navigate('/collections');
                   }}
                 >
                   Khám phá bộ sưu tập
