@@ -9,6 +9,7 @@ import { Toaster } from './components/ui/sonner';
 import { ShopProvider } from './context/ShopContext';
 import { AboutUsPage } from './pages/AboutUsPage';
 import { AccountInfoPage } from './pages/AccountInfoPage';
+import { AuthPage } from './pages/AuthPage';
 import { CartPage } from './pages/CartPage';
 import { CollectionDetailPage } from './pages/CollectionDetailPage';
 import { CollectionsPage } from './pages/CollectionsPage';
@@ -33,6 +34,8 @@ export default function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/home" element={<HomePage />} />
               <Route path="/about" element={<AboutUsPage />} />
+              <Route path="/login" element={<AuthPage />} />
+              <Route path="/register" element={<AuthPage />} />
               <Route path="/account" element={<AccountInfoPage />} />
               <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="/news" element={<NewsPage />} />

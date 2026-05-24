@@ -134,15 +134,15 @@ export function CartPage() {
       clearCart();
       setCheckoutSuccess(
         paymentMethod === 'COD'
-          ? `Da dat hang COD thanh cong${response.order.orderCode ? `, ma don ${response.order.orderCode}` : ''}.`
-          : `Da tao don hang${response.order.orderCode ? ` ${response.order.orderCode}` : ''} nhung backend chua tra ve payUrl cho MoMo.`
+          ? `Đã đặt hàng COD thành công${response.order.orderCode ? `, mã đơn ${response.order.orderCode}` : ''}.`
+          : `Đã tạo đơn hàng${response.order.orderCode ? ` ${response.order.orderCode}` : ''} nhưng backend chưa trả về payUrl cho MoMo.`
       );
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Khong the khoi tao thanh toan.';
+      const message = error instanceof Error ? error.message : 'Không thể khởi tạo thanh toán.';
 
       if (paymentMethod === 'MOMO' && /MoMo payment is not enabled/i.test(message)) {
         setPaymentMethod('COD');
-        setCheckoutError('Backend Cyan chua bat MoMo. Minh da chuyen sang COD de ban co the tiep tuc dat hang.');
+        setCheckoutError('Backend Cyan chưa bật MoMo. Mình đã chuyển sang COD để bạn có thể tiếp tục đặt hàng.');
       } else {
         setCheckoutError(message);
       }
@@ -156,25 +156,25 @@ export function CartPage() {
       <div className="min-h-screen bg-white pb-20 pt-24">
         <div className="mx-auto max-w-6xl px-6">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
             className="mb-8 flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span>Tiep tuc mua sam</span>
+            <span>Tiếp tục mua sắm</span>
           </button>
 
-          <h1 className="mb-8 font-sterling text-[40px]">Gio hang</h1>
+          <h1 className="mb-8 font-sterling text-[40px]">Giỏ hàng</h1>
 
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <ShoppingBag className="mb-6 h-20 w-20 text-muted-foreground" />
-              <h2 className="mb-3 text-[24px]">Gio hang cua ban dang trong</h2>
-              <p className="mb-8 text-muted-foreground">Hay them san pham de bat dau mua sam</p>
+              <h2 className="mb-3 text-[24px]">Giỏ hàng của bạn đang trống</h2>
+              <p className="mb-8 text-muted-foreground">Hãy thêm sản phẩm để bắt đầu mua sắm</p>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
                 className="bg-primary px-10 py-4 text-white transition-all duration-300 hover:bg-secondary"
               >
-                Kham pha san pham
+                Khám phá sản phẩm
               </button>
             </div>
           ) : (
@@ -182,8 +182,8 @@ export function CartPage() {
               <div className="space-y-6 lg:col-span-2">
                 {invalidCartItems.length > 0 ? (
                   <div className="border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-                    Co {invalidCartItems.length} san pham duoc them tu danh sach nhung chua co bien the hop le.
-                    Vui long mo chi tiet san pham va chon phien ban truoc khi thanh toan MoMo.
+                    Có {invalidCartItems.length} sản phẩm được thêm từ danh sách nhưng chưa có biến thể hợp lệ. Vui
+                    lòng mở chi tiết sản phẩm và chọn phiên bản trước khi thanh toán MoMo.
                   </div>
                 ) : null}
 
@@ -200,8 +200,28 @@ export function CartPage() {
                           <div>
                             <h3 className="text-lg">{item.name}</h3>
                             <p className="text-sm text-muted-foreground">{item.collection}</p>
+                            {item.productType ? (
+                              <p className="mt-1 text-sm text-muted-foreground">Kiểu sản phẩm: {item.productType}</p>
+                            ) : null}
+                            {item.productTypeCode ? (
+                              <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                                Mã kiểu: {item.productTypeCode}
+                              </p>
+                            ) : null}
                             {item.variantLabel ? (
-                              <p className="mt-1 text-sm text-muted-foreground">Phien ban: {item.variantLabel}</p>
+                              <p className="mt-1 text-sm text-muted-foreground">Phiên bản: {item.variantLabel}</p>
+                            ) : null}
+                            {item.variantId ? (
+                              <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                                Mã biến thể: {item.variantId}
+                              </p>
+                            ) : null}
+                            {item.variantStyleCode || item.variantModelCode ? (
+                              <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                                {item.variantStyleCode ? `Style: ${item.variantStyleCode}` : ''}
+                                {item.variantStyleCode && item.variantModelCode ? ' · ' : ''}
+                                {item.variantModelCode ? `Model: ${item.variantModelCode}` : ''}
+                              </p>
                             ) : null}
                           </div>
                           <button
@@ -229,7 +249,7 @@ export function CartPage() {
                             </button>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            Thanh tien: {formatVndCurrency(item.price * item.quantity)}
+                            Thành tiền: {formatVndCurrency(item.price * item.quantity)}
                           </p>
                         </div>
                       </div>
@@ -241,14 +261,14 @@ export function CartPage() {
               <div className="lg:col-span-1">
                 <form onSubmit={handleCheckout} className="sticky top-24 space-y-6 bg-muted p-8">
                   <div>
-                    <h2 className="font-sterling text-[24px]">Thanh toan</h2>
+                    <h2 className="font-sterling text-[24px]">Thanh toán</h2>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Dien thong tin nhan hang va chon phuong thuc thanh toan phu hop.
+                      Điền thông tin nhận hàng và chọn phương thức thanh toán phù hợp.
                     </p>
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Phuong thuc thanh toan</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Phương thức thanh toán</p>
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
@@ -275,8 +295,8 @@ export function CartPage() {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {paymentMethod === 'MOMO'
-                        ? 'Neu backend da bat MoMo, he thong se chuyen ban sang cong thanh toan.'
-                        : 'Thanh toan khi nhan hang, khong can chuyen sang cong thanh toan.'}
+                        ? 'Nếu backend đã bật MoMo, hệ thống sẽ chuyển bạn sang cổng thanh toán.'
+                        : 'Thanh toán khi nhận hàng, không cần chuyển sang cổng thanh toán.'}
                     </p>
                   </div>
 
@@ -285,14 +305,14 @@ export function CartPage() {
                       required
                       value={form.fullName}
                       onChange={(event) => handleInputChange('fullName', event.target.value)}
-                      placeholder="Ho va ten"
+                      placeholder="Họ và tên"
                       className="w-full border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                     />
                     <input
                       required
                       value={form.phoneNumber}
                       onChange={(event) => handleInputChange('phoneNumber', event.target.value)}
-                      placeholder="So dien thoai"
+                      placeholder="Số điện thoại"
                       className="w-full border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                     />
                     <input
@@ -306,20 +326,20 @@ export function CartPage() {
                       required
                       value={form.line1}
                       onChange={(event) => handleInputChange('line1', event.target.value)}
-                      placeholder="Dia chi cu the"
+                      placeholder="Địa chỉ cụ thể"
                       className="w-full border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                     />
                     <div className="grid grid-cols-2 gap-3">
                       <input
                         value={form.ward}
                         onChange={(event) => handleInputChange('ward', event.target.value)}
-                        placeholder="Phuong / Xa"
+                        placeholder="Phường / Xã"
                         className="w-full border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                       />
                       <input
                         value={form.district}
                         onChange={(event) => handleInputChange('district', event.target.value)}
-                        placeholder="Quan / Huyen"
+                        placeholder="Quận / Huyện"
                         className="w-full border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                       />
                     </div>
@@ -327,13 +347,13 @@ export function CartPage() {
                       required
                       value={form.province}
                       onChange={(event) => handleInputChange('province', event.target.value)}
-                      placeholder="Tinh / Thanh pho"
+                      placeholder="Tỉnh / Thành phố"
                       className="w-full border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                     />
                     <textarea
                       value={form.note}
                       onChange={(event) => handleInputChange('note', event.target.value)}
-                      placeholder="Ghi chu don hang"
+                      placeholder="Ghi chú đơn hàng"
                       rows={3}
                       className="w-full resize-none border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                     />
@@ -341,21 +361,21 @@ export function CartPage() {
 
                   <div className="space-y-4 border-b border-t border-border py-6">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tam tinh</span>
+                      <span className="text-muted-foreground">Tạm tính</span>
                       <span>{formatVndCurrency(cartSubtotal)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Van chuyen</span>
-                      <span className="text-sm text-accent">Mien phi</span>
+                      <span className="text-muted-foreground">Vận chuyển</span>
+                      <span className="text-sm text-accent">Miễn phí</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Phuong thuc</span>
+                      <span className="text-muted-foreground">Phương thức</span>
                       <span>{paymentMethod}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-lg">Tong cong</span>
+                    <span className="text-lg">Tổng cộng</span>
                     <span className="font-sterling text-[28px] text-accent">
                       {formatVndCurrency(cartSubtotal)}
                     </span>
@@ -381,19 +401,19 @@ export function CartPage() {
                     {submitting ? <LoaderCircle className="h-5 w-5 animate-spin" /> : null}
                     <span>
                       {submitting
-                        ? 'Dang xu ly don hang...'
+                        ? 'Đang xử lý đơn hàng...'
                         : paymentMethod === 'MOMO'
-                          ? 'Thanh toan voi MoMo'
-                          : 'Dat hang COD'}
+                          ? 'Thanh toán với MoMo'
+                          : 'Đặt hàng COD'}
                     </span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/home')}
                     className="w-full border border-primary py-4 text-primary transition-all duration-300 hover:bg-muted"
                   >
-                    Tiep tuc mua sam
+                    Tiếp tục mua sắm
                   </button>
                 </form>
               </div>

@@ -36,23 +36,23 @@ export function EditorialSection({ editorials }: { editorials: EditorialSummary[
             />
           </motion.div>
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-primary/60 to-transparent"
+            className="absolute inset-0 bg-gradient-to-l from-primary/70 via-primary/35 to-transparent"
             style={{ opacity }}
           />
-          <div className="absolute inset-0 flex items-center px-12 lg:px-20">
-            <div className="max-w-2xl">
+          <div className="absolute inset-0 flex items-center justify-end px-6 sm:px-12 lg:px-20">
+            <div className="max-w-2xl text-right">
               <motion.h2
                 className="font-sterling text-white text-[48px] lg:text-[56px] mb-4 leading-tight"
-                initial={{ opacity: 0, x: -50 }}
-                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
+                initial={{ opacity: 0, x: 50 }}
+                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
                 {featuredEditorial?.title ?? 'Nghệ thuật của vẻ đẹp tinh tế'}
               </motion.h2>
               <motion.p
                 className="text-white/90 text-lg mb-8 tracking-wide leading-relaxed"
-                initial={{ opacity: 0, x: -50 }}
-                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
+                initial={{ opacity: 0, x: 50 }}
+                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
               >
                 {featuredEditorial?.summary ??

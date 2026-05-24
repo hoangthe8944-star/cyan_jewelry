@@ -60,47 +60,47 @@ export function SearchModal() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-white z-50 flex flex-col"
+          className="fixed inset-0 z-50 flex flex-col bg-white"
         >
-          <div className="bg-primary/80 backdrop-blur-[15px] border-b border-accent">
-            <div className="max-w-4xl mx-auto px-6 py-8">
-              <div className="flex items-center gap-6 mb-2">
-                <Search className="w-7 h-7 text-white flex-shrink-0" />
+          <div className="border-b border-accent bg-primary/80 backdrop-blur-[15px]">
+            <div className="mx-auto max-w-4xl px-6 py-8">
+              <div className="mb-2 flex items-center gap-6">
+                <Search className="h-7 w-7 flex-shrink-0 text-white" />
                 <input
                   type="text"
                   placeholder="Tìm trang sức, bộ sưu tập..."
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  className="flex-1 bg-transparent outline-none text-white text-[28px] font-sterling placeholder:text-white/50"
+                  className="flex-1 bg-transparent text-[28px] font-sterling text-white outline-none placeholder:text-white/50"
                   autoFocus
                 />
                 <button
                   onClick={() => setIsSearchOpen(false)}
-                  className="text-white hover:text-accent-light transition-colors flex-shrink-0"
+                  className="flex-shrink-0 text-white transition-colors hover:text-accent-light"
                 >
-                  <X className="w-8 h-8" />
+                  <X className="h-8 w-8" />
                 </button>
               </div>
-              <p className="text-white/70 text-sm ml-[52px]">
+              <p className="ml-[52px] text-sm text-white/70">
                 {searchQuery.trim() ? `${results.length} gợi ý sản phẩm` : ''}
               </p>
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-6xl mx-auto px-6 py-12">
+            <div className="mx-auto max-w-6xl px-6 py-12">
               {!searchQuery.trim() ? (
-                <div className="text-center py-20">
-                  <Search className="w-20 h-20 mx-auto mb-6 text-muted-foreground opacity-20" />
+                <div className="py-20 text-center">
+                  <Search className="mx-auto mb-6 h-20 w-20 text-muted-foreground opacity-20" />
                   <h2 className="mb-3 font-sterling text-[32px]">Tìm kiếm sản phẩm</h2>
-                  <p className="text-muted-foreground text-lg">
+                  <p className="text-lg text-muted-foreground">
                     Bắt đầu nhập để xem sản phẩm và từ khóa gợi ý từ storefront Oriven
                   </p>
                 </div>
               ) : results.length === 0 ? (
-                <div className="text-center py-20">
+                <div className="py-20 text-center">
                   <h2 className="mb-3 font-sterling text-[32px]">Không tìm thấy kết quả</h2>
-                  <p className="text-muted-foreground text-lg">
+                  <p className="text-lg text-muted-foreground">
                     Không tìm thấy sản phẩm phù hợp với &quot;{searchQuery}&quot;
                   </p>
                 </div>
@@ -146,7 +146,7 @@ export function SearchModal() {
                         <h3 className="mb-2 text-lg transition-colors group-hover:text-accent">
                           {product.name}
                         </h3>
-                        <p className="text-accent font-medium">{formatVndCurrency(product.minPrice)}</p>
+                        <p className="font-medium text-accent">{formatVndCurrency(product.minPrice)}</p>
                       </button>
                     ))}
                   </div>

@@ -1,6 +1,10 @@
+import { useNavigate } from 'react-router-dom';
+
 import { PageTransition } from '../components/PageTransition';
 
 export function AccountInfoPage() {
+  const navigate = useNavigate();
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-white pb-20 pt-28 lg:pt-32">
@@ -14,6 +18,23 @@ export function AccountInfoPage() {
               Khu vực tài khoản đang được hoàn thiện để đồng bộ với hệ thống đăng nhập và dữ liệu khách hàng của
               Oriven Jewelry.
             </p>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-4">
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="rounded-full bg-primary px-6 py-3 text-sm uppercase tracking-[0.22em] text-white transition-colors hover:bg-secondary"
+            >
+              Đăng nhập
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
+              className="rounded-full border border-primary px-6 py-3 text-sm uppercase tracking-[0.22em] text-primary transition-colors hover:bg-muted"
+            >
+              Tạo tài khoản
+            </button>
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">

@@ -234,6 +234,11 @@ export interface ShopProduct {
   collection: string;
   price: number;
   badge?: string;
+  productType?: string | null;
+  productTypeCode?: string | null;
+  variantId?: string | null;
   variantCode?: string | null;
   variantLabel?: string | null;
+  variantStyleCode?: string | null;
+  variantModelCode?: string | null;
 }

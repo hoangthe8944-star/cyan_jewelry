@@ -132,7 +132,7 @@ function LandingHeader({ isScrolled }: { isScrolled: boolean }) {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/account')}
+              onClick={() => navigate('/login')}
               className="rounded-full border border-white/16 bg-white/6 px-5 py-2.5 text-xs uppercase tracking-[0.24em] text-white backdrop-blur transition-colors duration-300 hover:bg-white/12"
             >
               Đăng nhập

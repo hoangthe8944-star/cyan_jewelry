@@ -66,6 +66,7 @@ export function ProductDetailPage() {
   const [suggestedProducts, setSuggestedProducts] = useState<ProductCardItem[]>([]);
   const [selectedVariantCode, setSelectedVariantCode] = useState<string | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [selectedMediaUrl, setSelectedMediaUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!slug) {
@@ -124,8 +125,7 @@ export function ProductDetailPage() {
           }
 
           return variant.selections.some(
-            (selection) =>
-              selection.optionType === option.type && selection.valueCode === selectedValue
+            (selection) => selection.optionType === option.type && selection.valueCode === selectedValue
           );
         })
       ) ?? null
@@ -134,8 +134,19 @@ export function ProductDetailPage() {
 
   const activeVariant = availableVariant ?? selectedVariant;
   const tags = product?.tags?.filter(Boolean) ?? [];
+  const modelSelection = activeVariant?.selections.find((selection) => selection.optionType === 'MODEL') ?? null;
+  const styleSelection = activeVariant?.selections.find((selection) => selection.optionType === 'STYLE') ?? null;
   const activeVariantLabel =
     activeVariant?.selections.map((selection) => selection.valueLabel).join(' / ') ?? null;
+  const activeMedia = activeVariant?.media?.length ? activeVariant.media : product?.gallery ?? [];
+  const activePrimaryMedia = activeMedia[0] ?? product?.gallery[0];
+  const resolvedSelectedMediaUrl = selectedMediaUrl ?? resolveMediaUrl(activePrimaryMedia);
+  const variantPreviewItems =
+    product?.variants.map((variant) => ({
+      variantCode: variant.variantCode,
+      label: variant.selections.map((selection) => selection.valueLabel).join(' / '),
+      media: variant.media[0] ?? product.gallery[0],
+    })) ?? [];
   const shortDescription = hasMeaningfulText(product?.shortDescription)
     ? product.shortDescription
     : hasMeaningfulText(product?.description)
@@ -152,6 +163,15 @@ export function ProductDetailPage() {
     }
   }, [availableVariant, product, selectedVariantCode]);
 
+  useEffect(() => {
+    if (!activePrimaryMedia) {
+      setSelectedMediaUrl(null);
+      return;
+    }
+
+    setSelectedMediaUrl(resolveMediaUrl(activePrimaryMedia));
+  }, [activePrimaryMedia]);
+
   const isValueAvailable = (optionType: string, valueCode: string) => {
     if (!product) {
       return false;
@@ -164,8 +184,7 @@ export function ProductDetailPage() {
         }
 
         return variant.selections.some(
-          (selection) =>
-            selection.optionType === selectedType && selection.valueCode === selectedValue
+          (selection) => selection.optionType === selectedType && selection.valueCode === selectedValue
         );
       });
 
@@ -174,8 +193,7 @@ export function ProductDetailPage() {
       }
 
       return variant.selections.some(
-        (selection) =>
-          selection.optionType === optionType && selection.valueCode === valueCode
+        (selection) => selection.optionType === optionType && selection.valueCode === valueCode
       );
     });
   };
@@ -200,14 +218,29 @@ export function ProductDetailPage() {
         }
 
         return variant.selections.some(
-          (selection) =>
-            selection.optionType === option.type && selection.valueCode === selectedValue
+          (selection) => selection.optionType === option.type && selection.valueCode === selectedValue
         );
       })
     );
 
     if (nextVariant) {
       setSelectedVariantCode(nextVariant.variantCode);
+      setSelectedMediaUrl(resolveMediaUrl(nextVariant.media[0] ?? product.gallery[0]));
+    }
+  };
+
+  const handleVariantSelect = (variantCode: string) => {
+    if (!product) {
+      return;
+    }
+
+    const nextVariant = product.variants.find((variant) => variant.variantCode === variantCode);
+
+    setSelectedVariantCode(variantCode);
+    setSelectedOptions(buildSelectionMap(product, variantCode));
+
+    if (nextVariant) {
+      setSelectedMediaUrl(resolveMediaUrl(nextVariant.media[0] ?? product.gallery[0]));
     }
   };
 
@@ -222,15 +255,20 @@ export function ProductDetailPage() {
       name: product.name,
       collection: product.brand || 'Oriven Jewelry',
       price: activeVariant?.price ?? product.minPrice,
-      image: resolveMediaUrl(activeVariant?.media[0] ?? product.gallery[0]),
+      image: resolveMediaUrl(activePrimaryMedia),
+      productType: styleSelection?.valueLabel ?? activeVariant?.styleCode ?? null,
+      productTypeCode: styleSelection?.valueCode ?? activeVariant?.styleCode ?? null,
+      variantId: modelSelection?.valueCode ?? activeVariant?.modelCode ?? activeVariant?.variantCode ?? null,
       variantCode: activeVariant?.variantCode ?? null,
       variantLabel: activeVariantLabel,
+      variantStyleCode: activeVariant?.styleCode ?? null,
+      variantModelCode: activeVariant?.modelCode ?? null,
     });
 
-    toast.success('Da them vao gio hang', {
+    toast.success('Đã thêm vào giỏ hàng', {
       description: activeVariantLabel ? `${product.name} - ${activeVariantLabel}` : product.name,
       action: {
-        label: 'Xem gio',
+        label: 'Xem giỏ',
         onClick: () => navigate('/cart'),
       },
     });
@@ -238,7 +276,7 @@ export function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <h2 className="mb-4 text-[24px]">Đang tải sản phẩm...</h2>
         </div>
@@ -248,10 +286,10 @@ export function ProductDetailPage() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-white pt-24 pb-20">
+      <div className="min-h-screen bg-white pb-20 pt-24">
         <div className="mx-auto max-w-7xl px-6">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
             className="mb-8 flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -259,30 +297,94 @@ export function ProductDetailPage() {
           </button>
 
           <div className="grid gap-12 lg:grid-cols-2">
-            <motion.div
-              className="relative aspect-square overflow-hidden bg-muted"
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.5 }} className="h-full w-full">
-                <ImageWithFallback
-                  src={resolveMediaUrl(activeVariant?.media[0] ?? product.gallery[0])}
-                  alt={product.name}
-                  className="h-full w-full object-cover"
-                />
+            <div className="space-y-5">
+              <motion.div
+                className="relative aspect-square overflow-hidden bg-muted"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.5 }} className="h-full w-full">
+                  <ImageWithFallback
+                    src={resolvedSelectedMediaUrl}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
+                </motion.div>
+                {product.featured ? (
+                  <motion.span
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="absolute left-8 top-8 bg-accent px-5 py-2 text-sm tracking-wider text-white"
+                  >
+                    Nổi bật
+                  </motion.span>
+                ) : null}
               </motion.div>
-              {product.featured ? (
-                <motion.span
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="absolute left-8 top-8 bg-accent px-5 py-2 text-sm tracking-wider text-white"
-                >
-                  Nổi bật
-                </motion.span>
+
+              {activeMedia.length > 1 ? (
+                <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+                  {activeMedia.map((media, index) => {
+                    const mediaUrl = resolveMediaUrl(media);
+                    const isActive = mediaUrl === resolvedSelectedMediaUrl;
+
+                    return (
+                      <button
+                        key={`${media.url}-${index}`}
+                        type="button"
+                        onClick={() => setSelectedMediaUrl(mediaUrl)}
+                        className={`overflow-hidden border bg-muted transition-all ${
+                          isActive ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-primary'
+                        }`}
+                      >
+                        <ImageWithFallback
+                          src={mediaUrl}
+                          alt={media.altText ?? `${product.name} ${index + 1}`}
+                          className="aspect-square h-full w-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
               ) : null}
-            </motion.div>
+
+              {variantPreviewItems.length > 1 ? (
+                <div className="space-y-3 border-t border-border pt-5">
+                  <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground">Hình ảnh phiên bản</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {variantPreviewItems.map((variant) => {
+                      const isActive = variant.variantCode === activeVariant?.variantCode;
+
+                      return (
+                        <button
+                          key={variant.variantCode}
+                          type="button"
+                          onClick={() => handleVariantSelect(variant.variantCode)}
+                          className={`flex items-center gap-4 border p-3 text-left transition-all ${
+                            isActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'
+                          }`}
+                        >
+                          <div className="h-20 w-20 flex-shrink-0 overflow-hidden bg-muted">
+                            <ImageWithFallback
+                              src={resolveMediaUrl(variant.media)}
+                              alt={variant.label || product.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{variant.label || product.name}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              {isActive ? 'Đang chọn' : 'Chọn phiên bản'}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
 
             <div className="flex flex-col">
               <div className="flex-1">
@@ -325,7 +427,8 @@ export function ProductDetailPage() {
                         <div className="mb-4 flex items-center justify-between gap-4">
                           <label className="block text-sm tracking-wide">{option.name}</label>
                           <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            {option.values.find((value) => value.code === selectedOptions[option.type])?.label ?? 'Chọn'}
+                            {option.values.find((value) => value.code === selectedOptions[option.type])?.label ??
+                              'Chọn'}
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-3">
@@ -360,10 +463,7 @@ export function ProductDetailPage() {
                       {product.variants.map((variant) => (
                         <button
                           key={variant.variantCode}
-                          onClick={() => {
-                            setSelectedVariantCode(variant.variantCode);
-                            setSelectedOptions(buildSelectionMap(product, variant.variantCode));
-                          }}
+                          onClick={() => handleVariantSelect(variant.variantCode)}
                           className={`border px-4 py-4 transition-all duration-200 ${
                             selectedVariantCode === variant.variantCode
                               ? 'border-primary bg-primary text-white'
@@ -383,7 +483,10 @@ export function ProductDetailPage() {
                   <span className="text-muted-foreground">{tags.length > 0 ? tags.join(', ') : 'Đang cập nhật'}</span>
                   <span className="whitespace-pre-wrap text-muted-foreground">{shortDescription}</span>
                   <span className="text-muted-foreground">
-                    Tình trạng: {activeVariant && activeVariant.stockQuantity > 0 ? `Còn ${activeVariant.stockQuantity} sản phẩm` : 'Hết hàng'}
+                    Tình trạng:{' '}
+                    {activeVariant && activeVariant.stockQuantity > 0
+                      ? `Còn ${activeVariant.stockQuantity} sản phẩm`
+                      : 'Hết hàng'}
                   </span>
                 </div>
 
