@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-
+import sitemap from "vite-plugin-sitemap";
 
 function figmaAssetResolver() {
   return {
@@ -19,6 +19,9 @@ function figmaAssetResolver() {
 export default defineConfig({
   plugins: [
     figmaAssetResolver(),
+    sitemap({
+      hostname: 'https://orivenjewelry.shop'
+    }),
     // The React and Tailwind plugins are both required for Make, even if
     // Tailwind is not being actively used – do not remove them
     react(),
