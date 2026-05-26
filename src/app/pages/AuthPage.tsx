@@ -5,6 +5,7 @@ import { Check, Shield, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { PageTransition } from '../components/PageTransition';
+import { createAuthUserId, saveAuthUser } from '../lib/auth';
 
 type AuthMode = 'login' | 'register';
 
@@ -84,8 +85,25 @@ export function AuthPage() {
       }
     );
 
+    const normalizedEmail = form.email.trim().toLowerCase();
+    const nextUser = {
+      id: createAuthUserId(normalizedEmail),
+      fullName: isRegister ? form.fullName.trim() : normalizedEmail.split('@')[0] || 'Khach hang',
+      email: normalizedEmail,
+    };
+
+    saveAuthUser(nextUser);
     setIsSubmitting(false);
-    navigate('/account');
+
+    const redirectTo =
+      typeof location.state === 'object' &&
+      location.state !== null &&
+      'redirectTo' in location.state &&
+      typeof location.state.redirectTo === 'string'
+        ? location.state.redirectTo
+        : '/account';
+
+    navigate(redirectTo);
   };
 
   return (

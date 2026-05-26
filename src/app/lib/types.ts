@@ -53,6 +53,8 @@ export interface VariantSelection {
 
 export interface ProductVariant {
   variantCode: string;
+  productName?: string | null;
+  fullDescription?: string | null;
   modelCode: string;
   styleCode: string;
   price: number;

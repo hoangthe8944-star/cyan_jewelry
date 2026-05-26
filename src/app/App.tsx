@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import { ChatWidget } from './components/ChatWidget';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { MobileMenu } from './components/MobileMenu';
@@ -49,6 +50,7 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
+          <ChatWidget />
           <SearchModal />
           <MobileMenu />
           <Toaster richColors position="top-right" />

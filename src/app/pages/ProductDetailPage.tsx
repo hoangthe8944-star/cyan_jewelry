@@ -32,6 +32,18 @@ function hasMeaningfulText(value?: string | null) {
   return Boolean(value && /\S/.test(value));
 }
 
+function getStyleLabel(product: ProductDetail, styleCode?: string | null) {
+  if (!styleCode) {
+    return null;
+  }
+
+  const normalizedStyleCode = styleCode.trim().toUpperCase();
+  const styleOption = product.options.find((option) => option.type === 'STYLE');
+  const matchingStyleValue = styleOption?.values.find((value) => value.code.trim().toUpperCase() === normalizedStyleCode);
+
+  return matchingStyleValue?.label ?? null;
+}
+
 function pickRandomSuggestedProducts(products: ProductCardItem[], currentProductId?: string, count = 4) {
   return [...products]
     .filter((item) => item.id !== currentProductId)
@@ -134,25 +146,59 @@ export function ProductDetailPage() {
 
   const activeVariant = availableVariant ?? selectedVariant;
   const tags = product?.tags?.filter(Boolean) ?? [];
+  const visibleOptions = product?.options.filter((option) => option.type !== 'MODEL' && option.type !== 'STYLE') ?? [];
   const modelSelection = activeVariant?.selections.find((selection) => selection.optionType === 'MODEL') ?? null;
   const styleSelection = activeVariant?.selections.find((selection) => selection.optionType === 'STYLE') ?? null;
+  const activeStyleLabel =
+    (product && getStyleLabel(product, activeVariant?.styleCode)) ??
+    styleSelection?.valueLabel ??
+    activeVariant?.styleCode ??
+    null;
+  const activeProductName = activeVariant?.productName ?? product?.name ?? 'San pham';
   const activeVariantLabel =
     activeVariant?.selections.map((selection) => selection.valueLabel).join(' / ') ?? null;
   const activeMedia = activeVariant?.media?.length ? activeVariant.media : product?.gallery ?? [];
   const activePrimaryMedia = activeMedia[0] ?? product?.gallery[0];
   const resolvedSelectedMediaUrl = selectedMediaUrl ?? resolveMediaUrl(activePrimaryMedia);
+  const productSku = product?.sku ?? null;
+  const productTypeOptions = useMemo(() => {
+    if (!product) {
+      return [];
+    }
+
+    return Array.from(
+      new Map(
+        product.variants.map((variant) => {
+          const styleValue = variant.selections.find((selection) => selection.optionType === 'STYLE');
+          return [
+            variant.styleCode,
+            {
+              code: variant.styleCode,
+              label: styleValue?.valueLabel ?? variant.styleCode,
+            },
+          ];
+        })
+      ).values()
+    );
+  }, [product]);
   const variantPreviewItems =
     product?.variants.map((variant) => ({
       variantCode: variant.variantCode,
       label: variant.selections.map((selection) => selection.valueLabel).join(' / '),
       media: variant.media[0] ?? product.gallery[0],
     })) ?? [];
-  const shortDescription = hasMeaningfulText(product?.shortDescription)
-    ? product.shortDescription
+  const activeDescription = hasMeaningfulText(activeVariant?.fullDescription)
+    ? activeVariant.fullDescription
     : hasMeaningfulText(product?.description)
       ? product.description
-      : 'Đang cập nhật';
-
+      : null;
+  const shortDescription = hasMeaningfulText(product?.shortDescription)
+    ? product.shortDescription
+    : hasMeaningfulText(activeVariant?.fullDescription)
+      ? activeVariant.fullDescription
+      : hasMeaningfulText(product?.description)
+        ? product.description
+        : 'Dang cap nhat';
   useEffect(() => {
     if (!product || !availableVariant) {
       return;
@@ -244,6 +290,37 @@ export function ProductDetailPage() {
     }
   };
 
+  const handleProductTypeSelect = (styleCode: string) => {
+    if (!product) {
+      return;
+    }
+
+    const nextVariant =
+      product.variants.find((variant) => {
+        if (variant.styleCode !== styleCode) {
+          return false;
+        }
+
+        return Object.entries(selectedOptions).every(([selectedType, selectedValue]) => {
+          if (selectedType === 'STYLE' || selectedType === 'MODEL') {
+            return true;
+          }
+
+          return variant.selections.some(
+            (selection) => selection.optionType === selectedType && selection.valueCode === selectedValue
+          );
+        });
+      }) ?? product.variants.find((variant) => variant.styleCode === styleCode);
+
+    if (!nextVariant) {
+      return;
+    }
+
+    setSelectedVariantCode(nextVariant.variantCode);
+    setSelectedOptions(buildSelectionMap(product, nextVariant.variantCode));
+    setSelectedMediaUrl(resolveMediaUrl(nextVariant.media[0] ?? product.gallery[0]));
+  };
+
   const handleAddToCart = () => {
     if (!product) {
       return;
@@ -252,11 +329,11 @@ export function ProductDetailPage() {
     addToCart({
       id: product.id,
       slug: product.slug,
-      name: product.name,
+      name: activeProductName,
       collection: product.brand || 'Oriven Jewelry',
       price: activeVariant?.price ?? product.minPrice,
       image: resolveMediaUrl(activePrimaryMedia),
-      productType: styleSelection?.valueLabel ?? activeVariant?.styleCode ?? null,
+      productType: activeStyleLabel,
       productTypeCode: styleSelection?.valueCode ?? activeVariant?.styleCode ?? null,
       variantId: modelSelection?.valueCode ?? activeVariant?.modelCode ?? activeVariant?.variantCode ?? null,
       variantCode: activeVariant?.variantCode ?? null,
@@ -266,7 +343,7 @@ export function ProductDetailPage() {
     });
 
     toast.success('Đã thêm vào giỏ hàng', {
-      description: activeVariantLabel ? `${product.name} - ${activeVariantLabel}` : product.name,
+      description: activeVariantLabel ? `${activeProductName} - ${activeVariantLabel}` : activeProductName,
       action: {
         label: 'Xem giỏ',
         onClick: () => navigate('/cart'),
@@ -307,7 +384,7 @@ export function ProductDetailPage() {
                 <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.5 }} className="h-full w-full">
                   <ImageWithFallback
                     src={resolvedSelectedMediaUrl}
-                    alt={product.name}
+                    alt={activeProductName}
                     className="h-full w-full object-cover"
                   />
                 </motion.div>
@@ -340,7 +417,7 @@ export function ProductDetailPage() {
                       >
                         <ImageWithFallback
                           src={mediaUrl}
-                          alt={media.altText ?? `${product.name} ${index + 1}`}
+                          alt={media.altText ?? `${activeProductName} ${index + 1}`}
                           className="aspect-square h-full w-full object-cover"
                         />
                       </button>
@@ -368,12 +445,12 @@ export function ProductDetailPage() {
                           <div className="h-20 w-20 flex-shrink-0 overflow-hidden bg-muted">
                             <ImageWithFallback
                               src={resolveMediaUrl(variant.media)}
-                              alt={variant.label || product.name}
+                              alt={variant.label || activeProductName}
                               className="h-full w-full object-cover"
                             />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-foreground">{variant.label || product.name}</p>
+                            <p className="text-sm font-medium text-foreground">{variant.label || activeProductName}</p>
                             <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
                               {isActive ? 'Đang chọn' : 'Chọn phiên bản'}
                             </p>
@@ -402,7 +479,7 @@ export function ProductDetailPage() {
                   transition={{ delay: 0.3 }}
                   className="mb-4 font-sterling text-[40px] leading-tight lg:text-[48px]"
                 >
-                  {product.name}
+                  {activeProductName}
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
@@ -415,14 +492,54 @@ export function ProductDetailPage() {
 
                 <div className="mb-10 border-b border-border pb-8">
                   <p className="whitespace-pre-wrap text-[15px] leading-8 text-slate-700">
-                    {product.description ??
+                    {activeDescription ??
                       'Sản phẩm được hoàn thiện từ chất liệu cao cấp, mang lại vẻ đẹp tinh tế và phong cách đặc trưng của bộ sưu tập.'}
                   </p>
                 </div>
 
-                {product.options.length > 0 ? (
+                <div className="mb-10 text-sm">
+                  <div className="border border-primary/18 bg-white">
+                    <p className="bg-primary px-5 py-3 text-xs uppercase tracking-[0.24em] text-white">Mã sản phẩm</p>
+                    <p className="px-5 py-4 text-base font-medium tracking-[0.04em] text-foreground">
+                      {productSku ?? 'Đang cập nhật'}
+                    </p>
+                  </div>
+                </div>
+
+                {productTypeOptions.length > 0 || visibleOptions.length > 0 ? (
                   <div className="mb-10 space-y-8">
-                    {product.options.map((option) => (
+                    {productTypeOptions.length > 0 ? (
+                      <div>
+                        <div className="mb-4 flex items-center justify-between gap-4">
+                          <label className="block text-sm tracking-wide">Loại sản phẩm</label>
+                          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            {productTypeOptions.find((option) => option.code === activeVariant?.styleCode)?.label ?? 'Chọn'}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                          {productTypeOptions.map((option) => {
+                            const isSelected = activeVariant?.styleCode === option.code;
+
+                            return (
+                              <button
+                                key={option.code}
+                                type="button"
+                                onClick={() => handleProductTypeSelect(option.code)}
+                                className={`min-w-[92px] border px-4 py-3 text-sm transition-all duration-200 ${
+                                  isSelected
+                                    ? 'border-primary bg-primary text-white'
+                                    : 'border-border bg-white text-foreground hover:border-primary'
+                                } ${productTypeOptions.length === 1 ? 'cursor-default' : ''}`}
+                              >
+                                {option.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {visibleOptions.map((option) => (
                       <div key={option.type}>
                         <div className="mb-4 flex items-center justify-between gap-4">
                           <label className="block text-sm tracking-wide">{option.name}</label>
@@ -456,7 +573,7 @@ export function ProductDetailPage() {
                       </div>
                     ))}
                   </div>
-                ) : (
+                ) : product.variants.length > 1 ? (
                   <div className="mb-10">
                     <label className="mb-4 block text-sm tracking-wide">Chọn phân loại</label>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -477,7 +594,7 @@ export function ProductDetailPage() {
                       ))}
                     </div>
                   </div>
-                )}
+                ) : null}
 
                 <div className="mb-10 flex flex-col gap-3 border-y border-border py-5 text-sm">
                   <span className="text-muted-foreground">{tags.length > 0 ? tags.join(', ') : 'Đang cập nhật'}</span>
@@ -573,3 +690,7 @@ export function ProductDetailPage() {
     </PageTransition>
   );
 }
+
+
+
+

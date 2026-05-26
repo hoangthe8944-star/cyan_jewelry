@@ -1,3 +1,4 @@
+export { sendChatMessage } from "./chat";
 export { API_BASE_URL } from "./client";
 export {
   buildCloudinaryVideoThumbnail,
