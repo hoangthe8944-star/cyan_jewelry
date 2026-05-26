@@ -184,7 +184,7 @@ export function ProductDetailPage() {
   const variantPreviewItems =
     product?.variants.map((variant) => ({
       variantCode: variant.variantCode,
-      label: variant.selections.map((selection) => selection.valueLabel).join(' / '),
+      label: variant.selections.filter((selection) => selection.optionType !== 'MODEL').map((selection) => selection.valueLabel).join(' / '),
       media: variant.media[0] ?? product.gallery[0],
     })) ?? [];
   const activeDescription = hasMeaningfulText(activeVariant?.fullDescription)
@@ -690,6 +690,7 @@ export function ProductDetailPage() {
     </PageTransition>
   );
 }
+
 
 
 
