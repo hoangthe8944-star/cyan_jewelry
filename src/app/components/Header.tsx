@@ -30,14 +30,14 @@ function ProductsDropdown({
   return (
     <div className="group relative">
       <button className={`relative z-[60] ${linkClass}`} type="button" onClick={onNavigateProducts}>
-        San pham
+        Sản phẩm
       </button>
       <div className="pointer-events-none fixed left-1/2 top-0 h-[320px] w-screen -translate-x-1/2 group-hover:pointer-events-auto" />
       <div
         className={`invisible absolute opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`}
       >
         {categories.length === 0 ? (
-          <div className="py-6 text-center text-sm text-white/70">Dang tai danh muc...</div>
+          <div className="py-6 text-center text-sm text-white/70">Đang tải danh mục...</div>
         ) : (
           <div className="mx-auto max-w-[1800px] px-6">
             <div className="grid grid-cols-3 gap-6">
@@ -64,7 +64,7 @@ function ProductsDropdown({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-white/55">Kham pha bo suu tap nay</p>
+                    <p className="text-sm text-white/55">Khám phá bộ sưu tập này</p>
                   )}
                 </div>
               ))}
@@ -92,7 +92,7 @@ function AccountDropdown({
     <div className="group relative hidden md:block">
       <button
         className="hidden text-white transition-colors hover:text-accent-light md:block"
-        aria-label="Tai khoan"
+        aria-label="Tài khoản"
         style={!compact ? { filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))' } : undefined}
       >
         <User className={iconClass} />
@@ -110,21 +110,21 @@ function AccountDropdown({
               onClick={() => navigate('/account')}
               className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
             >
-              Thong tin tai khoan
+              Thông tin tài khoản
             </button>
             <button
               type="button"
               onClick={() => navigate('/my-orders')}
               className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
             >
-              Don hang cua toi
+              Đơn hàng của tôi
             </button>
             <button
               type="button"
               onClick={onLogout}
               className="block w-full px-4 py-3 text-left text-sm text-destructive transition-colors hover:bg-muted"
             >
-              Dang xuat
+              Đăng xuất
             </button>
           </>
         ) : (
@@ -134,14 +134,14 @@ function AccountDropdown({
               onClick={() => navigate('/login')}
               className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
             >
-              Dang nhap
+              Đăng nhập
             </button>
             <button
               type="button"
               onClick={() => navigate('/register')}
               className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
             >
-              Tao tai khoan
+              Tạo tài khoản
             </button>
           </>
         )}
@@ -169,14 +169,14 @@ function LandingHeader({ isScrolled, authUser }: { isScrolled: boolean; authUser
               onClick={() => navigate('/home')}
               className="rounded-full bg-[#f2e2cf] px-5 py-2.5 text-xs uppercase tracking-[0.24em] text-[#1b130f] transition-transform duration-300 hover:-translate-y-0.5"
             >
-              Bat dau
+              Bắt đầu
             </button>
             <button
               type="button"
               onClick={() => navigate(authUser ? '/account' : '/login')}
               className="rounded-full border border-white/16 bg-white/6 px-5 py-2.5 text-xs uppercase tracking-[0.24em] text-white backdrop-blur transition-colors duration-300 hover:bg-white/12"
             >
-              {authUser ? 'Tai khoan' : 'Dang nhap'}
+              {authUser ? 'Tài khoản' : 'Đăng nhập'}
             </button>
           </div>
         </div>
@@ -265,7 +265,7 @@ export function Header() {
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="text-white transition-colors hover:text-accent-light lg:hidden"
-                aria-label="Mo menu"
+                aria-label="Mở menu"
               >
                 <Menu className="h-6 w-6" />
               </button>
@@ -280,7 +280,7 @@ export function Header() {
                   onClick={navigateToStoreHome}
                   className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
-                  Trang chu
+                  Trang chủ
                 </button>
                 <ProductsDropdown
                   categories={categories}
@@ -292,13 +292,13 @@ export function Header() {
                   onClick={navigateToCollections}
                   className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
-                  Bo suu tap
+                  Bộ sưu tập
                 </button>
                 <button
                   onClick={navigateToAbout}
                   className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
-                  Ve chung toi
+                  Về chúng tôi
                 </button>
               </nav>
             </div>
@@ -307,7 +307,7 @@ export function Header() {
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="text-white transition-colors hover:text-accent-light"
-                aria-label="Tim kiem"
+                aria-label="Tìm kiếm"
               >
                 <Search className="h-5 w-5" />
               </button>
@@ -315,7 +315,7 @@ export function Header() {
               <button
                 onClick={() => navigate('/wishlist')}
                 className="relative text-white transition-colors hover:text-accent-light"
-                aria-label="Yeu thich"
+                aria-label="Yêu thích"
               >
                 <Heart className="h-5 w-5" />
                 {wishlist.length > 0 ? (
@@ -327,7 +327,7 @@ export function Header() {
               <button
                 onClick={() => navigate('/cart')}
                 className="relative text-white transition-colors hover:text-accent-light"
-                aria-label="Gio hang"
+                aria-label="Giỏ hàng"
               >
                 <ShoppingBag className="h-5 w-5" />
                 {getCartCount() > 0 ? (
@@ -362,7 +362,7 @@ export function Header() {
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="text-white transition-colors hover:text-accent-light lg:hidden"
-            aria-label="Mo menu"
+            aria-label="Mở menu"
             style={{
               filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
             }}
@@ -378,7 +378,7 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Trang chu
+              Trang chủ
             </button>
             <ProductsDropdown
               categories={categories}
@@ -393,7 +393,7 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Bo suu tap
+              Bộ sưu tập
             </button>
             <button
               onClick={navigateToAbout}
@@ -402,7 +402,7 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Ve chung toi
+              Về chúng tôi
             </button>
           </nav>
 
@@ -412,7 +412,7 @@ export function Header() {
             <button
               onClick={() => setIsSearchOpen(true)}
               className="text-white transition-colors hover:text-accent-light"
-              aria-label="Tim kiem"
+              aria-label="Tìm kiếm"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
@@ -423,7 +423,7 @@ export function Header() {
             <button
               onClick={() => navigate('/wishlist')}
               className="relative text-white transition-colors hover:text-accent-light"
-              aria-label="Yeu thich"
+              aria-label="Yêu thích"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
@@ -438,7 +438,7 @@ export function Header() {
             <button
               onClick={() => navigate('/cart')}
               className="relative text-white transition-colors hover:text-accent-light"
-              aria-label="Gio hang"
+              aria-label="Giỏ hàng"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}

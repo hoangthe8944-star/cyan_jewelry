@@ -25,9 +25,9 @@ const INITIAL_FORM: AuthFormState = {
 };
 
 const BENEFITS = [
-  'Luu thong tin giao hang de dat hang nhanh hon.',
-  'Theo doi lich su don hang va cac lan mua gan day.',
-  'Nhan cap nhat som ve bo suu tap va editorial moi.',
+  'Lưu thông tin giao hàng để đặt hàng nhanh hơn.',
+  'Theo dõi lịch sử đơn hàng và các lần mua gần đây.',
+  'Nhận cập nhật sớm về bộ sưu tập và editorial mới.',
 ];
 
 export function AuthPage() {
@@ -39,22 +39,22 @@ export function AuthPage() {
   const mode: AuthMode = location.pathname === '/register' ? 'register' : 'login';
   const isRegister = mode === 'register';
 
-  const heading = isRegister ? 'Tao tai khoan Oriven' : 'Dang nhap vao Oriven';
+  const heading = isRegister ? 'Tạo tài khoản Oriven' : 'Đăng nhập vào Oriven';
   const description = isRegister
-    ? 'Tao tai khoan de luu thong tin mua sam, theo doi don hang va nhan uu dai som tu Oriven Jewelry.'
-    : 'Dang nhap de tiep tuc mua sam, xem don hang gan day va quan ly thong tin ca nhan cua ban.';
+    ? 'Tạo tài khoản để lưu thông tin mua sắm, theo dõi đơn hàng và nhận ưu đãi sớm từ Oriven Jewelry.'
+    : 'Đăng nhập để tiếp tục mua sắm, xem đơn hàng gần đây và quản lý thông tin cá nhân của bạn.';
 
   const alternateAction = useMemo(
     () =>
       isRegister
         ? {
-            label: 'Da co tai khoan?',
-            cta: 'Dang nhap',
+            label: 'Đã có tài khoản?',
+            cta: 'Đăng nhập',
             href: '/login',
           }
         : {
-            label: 'Chua co tai khoan?',
-            cta: 'Dang ky',
+            label: 'Chưa có tài khoản?',
+            cta: 'Đăng ký',
             href: '/register',
           },
     [isRegister]
@@ -71,7 +71,7 @@ export function AuthPage() {
     event.preventDefault();
 
     if (isRegister && form.password !== form.confirmPassword) {
-      toast.error('Mat khau xac nhan chua khop.');
+      toast.error('Mật khẩu xác nhận chưa khớp.');
       return;
     }
 
@@ -96,7 +96,7 @@ export function AuthPage() {
         email: nextUser.email,
       });
 
-      toast.success(isRegister ? 'Dang ky thanh cong.' : 'Dang nhap thanh cong.');
+      toast.success(isRegister ? 'Đăng ký thành công.' : 'Đăng nhập thành công.');
 
       const redirectTo =
         typeof location.state === 'object' &&
@@ -108,7 +108,7 @@ export function AuthPage() {
 
       navigate(redirectTo);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Khong the xu ly yeu cau luc nay.');
+      toast.error(error instanceof Error ? error.message : 'Không thể xử lý yêu cầu lúc này.');
     } finally {
       setIsSubmitting(false);
     }
@@ -134,9 +134,9 @@ export function AuthPage() {
                     <Shield className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm uppercase tracking-[0.24em] text-white/60">Quyen loi tai khoan</p>
+                    <p className="text-sm uppercase tracking-[0.24em] text-white/60">Quyền lợi tài khoản</p>
                     <p className="mt-1 text-sm text-white/78">
-                      Mot lan dang nhap, trai nghiem lien mach tren toan bo storefront.
+                      Một lần đăng nhập, trải nghiệm liền mạch trên toàn bộ storefront.
                     </p>
                   </div>
                 </div>
@@ -162,7 +162,7 @@ export function AuthPage() {
                   !isRegister ? 'bg-white text-primary shadow-sm' : 'text-foreground/70 hover:text-primary'
                 }`}
               >
-                Dang nhap
+                Đăng nhập
               </button>
               <button
                 type="button"
@@ -171,28 +171,28 @@ export function AuthPage() {
                   isRegister ? 'bg-white text-primary shadow-sm' : 'text-foreground/70 hover:text-primary'
                 }`}
               >
-                Dang ky
+                Đăng ký
               </button>
             </div>
 
             <div className="mt-8">
               <p className="text-sm uppercase tracking-[0.28em] text-foreground/55">
-                {isRegister ? 'Tai khoan moi' : 'Chao mung tro lai'}
+                {isRegister ? 'Tài khoản mới' : 'Chào mừng trở lại'}
               </p>
               <h2 className="mt-3 font-sterling text-[34px] leading-tight text-primary">
-                {isRegister ? 'Thiet lap ho so cua ban' : 'Tiep tuc hanh trinh mua sam'}
+                {isRegister ? 'Thiết lập hồ sơ của bạn' : 'Tiếp tục hành trình mua sắm'}
               </h2>
             </div>
 
             <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
               {isRegister ? (
                 <label className="block">
-                  <span className="mb-2 block text-sm text-foreground/78">Ho va ten</span>
+                  <span className="mb-2 block text-sm text-foreground/78">Họ và tên</span>
                   <input
                     required
                     value={form.fullName}
                     onChange={(event) => handleChange('fullName', event.target.value)}
-                    placeholder="Nguyen Ngoc A"
+                    placeholder="Nguyễn Ngọc A"
                     className="w-full rounded-[18px] border border-border bg-[#fffdfa] px-4 py-3.5 text-sm outline-none transition-colors focus:border-primary"
                   />
                 </label>
@@ -211,26 +211,26 @@ export function AuthPage() {
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm text-foreground/78">Mat khau</span>
+                <span className="mb-2 block text-sm text-foreground/78">Mật khẩu</span>
                 <input
                   required
                   type="password"
                   value={form.password}
                   onChange={(event) => handleChange('password', event.target.value)}
-                  placeholder="Nhap mat khau"
+                  placeholder="Nhập mật khẩu"
                   className="w-full rounded-[18px] border border-border bg-[#fffdfa] px-4 py-3.5 text-sm outline-none transition-colors focus:border-primary"
                 />
               </label>
 
               {isRegister ? (
                 <label className="block">
-                  <span className="mb-2 block text-sm text-foreground/78">Xac nhan mat khau</span>
+                  <span className="mb-2 block text-sm text-foreground/78">Xác nhận mật khẩu</span>
                   <input
                     required
                     type="password"
                     value={form.confirmPassword}
                     onChange={(event) => handleChange('confirmPassword', event.target.value)}
-                    placeholder="Nhap lai mat khau"
+                    placeholder="Nhập lại mật khẩu"
                     className="w-full rounded-[18px] border border-border bg-[#fffdfa] px-4 py-3.5 text-sm outline-none transition-colors focus:border-primary"
                   />
                 </label>
@@ -240,10 +240,10 @@ export function AuthPage() {
                 <div className="flex items-center justify-between gap-4 text-sm">
                   <label className="flex items-center gap-2 text-foreground/72">
                     <input type="checkbox" className="h-4 w-4 rounded border-border accent-primary" />
-                    Ghi nho tai khoan
+                    Ghi nhớ tài khoản
                   </label>
                   <button type="button" className="text-primary transition-colors hover:text-accent">
-                    Quen mat khau?
+                    Quên mật khẩu?
                   </button>
                 </div>
               ) : null}
@@ -253,7 +253,7 @@ export function AuthPage() {
                 disabled={isSubmitting}
                 className="w-full rounded-full bg-primary px-6 py-4 text-sm uppercase tracking-[0.24em] text-white transition-all duration-300 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? 'Dang xu ly...' : isRegister ? 'Tao tai khoan' : 'Dang nhap'}
+                {isSubmitting ? 'Đang xử lý...' : isRegister ? 'Tạo tài khoản' : 'Đăng nhập'}
               </button>
             </form>
 
