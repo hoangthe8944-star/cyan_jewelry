@@ -5,6 +5,7 @@ import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
 
 import { storefrontApi } from '../api';
 import { useShop } from '../context/ShopContext';
+import { clearAuthUser, getAuthUser, type AuthUser } from '../lib/auth';
 import type { CategoryNode } from '../lib/types';
 
 function ProductsDropdown({
@@ -29,14 +30,14 @@ function ProductsDropdown({
   return (
     <div className="group relative">
       <button className={`relative z-[60] ${linkClass}`} type="button" onClick={onNavigateProducts}>
-        Sản phẩm
+        San pham
       </button>
       <div className="pointer-events-none fixed left-1/2 top-0 h-[320px] w-screen -translate-x-1/2 group-hover:pointer-events-auto" />
       <div
         className={`invisible absolute opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`}
       >
         {categories.length === 0 ? (
-          <div className="py-6 text-center text-sm text-white/70">Đang tải danh mục...</div>
+          <div className="py-6 text-center text-sm text-white/70">Dang tai danh muc...</div>
         ) : (
           <div className="mx-auto max-w-[1800px] px-6">
             <div className="grid grid-cols-3 gap-6">
@@ -63,7 +64,7 @@ function ProductsDropdown({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-white/55">Khám phá bộ sưu tập này</p>
+                    <p className="text-sm text-white/55">Kham pha bo suu tap nay</p>
                   )}
                 </div>
               ))}
@@ -75,7 +76,15 @@ function ProductsDropdown({
   );
 }
 
-function AccountDropdown({ compact }: { compact: boolean }) {
+function AccountDropdown({
+  compact,
+  authUser,
+  onLogout,
+}: {
+  compact: boolean;
+  authUser: AuthUser | null;
+  onLogout: () => void;
+}) {
   const navigate = useNavigate();
   const iconClass = compact ? 'h-5 w-5' : 'h-4 w-4';
 
@@ -83,33 +92,65 @@ function AccountDropdown({ compact }: { compact: boolean }) {
     <div className="group relative hidden md:block">
       <button
         className="hidden text-white transition-colors hover:text-accent-light md:block"
-        aria-label="Tài khoản"
+        aria-label="Tai khoan"
         style={!compact ? { filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))' } : undefined}
       >
         <User className={iconClass} />
       </button>
       <div className="pointer-events-none absolute right-0 top-full h-6 w-56 group-hover:pointer-events-auto" />
       <div className="invisible absolute right-0 top-full z-[70] mt-4 min-w-[240px] translate-y-2 border border-[rgba(163,107,49,0.24)] bg-white/98 p-2 opacity-0 shadow-[0_24px_60px_rgba(17,33,45,0.18)] backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-        <button
-          type="button"
-          onClick={() => navigate('/account')}
-          className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
-        >
-          Thông tin tài khoản
-        </button>
-        <button
-          type="button"
-          onClick={() => navigate('/my-orders')}
-          className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
-        >
-          Đơn hàng của tôi
-        </button>
+        {authUser ? (
+          <>
+            <div className="border-b border-[rgba(163,107,49,0.16)] px-4 py-3">
+              <p className="text-sm font-medium text-foreground">{authUser.fullName}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{authUser.email}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/account')}
+              className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
+            >
+              Thong tin tai khoan
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/my-orders')}
+              className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
+            >
+              Don hang cua toi
+            </button>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="block w-full px-4 py-3 text-left text-sm text-destructive transition-colors hover:bg-muted"
+            >
+              Dang xuat
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
+            >
+              Dang nhap
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
+              className="block w-full px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted hover:text-primary"
+            >
+              Tao tai khoan
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-function LandingHeader({ isScrolled }: { isScrolled: boolean }) {
+function LandingHeader({ isScrolled, authUser }: { isScrolled: boolean; authUser: AuthUser | null }) {
   const navigate = useNavigate();
 
   if (isScrolled) {
@@ -128,14 +169,14 @@ function LandingHeader({ isScrolled }: { isScrolled: boolean }) {
               onClick={() => navigate('/home')}
               className="rounded-full bg-[#f2e2cf] px-5 py-2.5 text-xs uppercase tracking-[0.24em] text-[#1b130f] transition-transform duration-300 hover:-translate-y-0.5"
             >
-              Bắt đầu
+              Bat dau
             </button>
             <button
               type="button"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate(authUser ? '/account' : '/login')}
               className="rounded-full border border-white/16 bg-white/6 px-5 py-2.5 text-xs uppercase tracking-[0.24em] text-white backdrop-blur transition-colors duration-300 hover:bg-white/12"
             >
-              Đăng nhập
+              {authUser ? 'Tai khoan' : 'Dang nhap'}
             </button>
           </div>
         </div>
@@ -163,6 +204,7 @@ function LandingHeader({ isScrolled }: { isScrolled: boolean }) {
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [categories, setCategories] = useState<CategoryNode[]>([]);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(getAuthUser());
   const navigate = useNavigate();
   const location = useLocation();
   const { setIsSearchOpen, setIsMobileMenuOpen, wishlist, getCartCount } = useShop();
@@ -191,8 +233,27 @@ export function Header() {
       .catch(() => setCategories([]));
   }, []);
 
+  useEffect(() => {
+    const syncAuthUser = () => setAuthUser(getAuthUser());
+
+    syncAuthUser();
+    window.addEventListener('storage', syncAuthUser);
+    window.addEventListener('focus', syncAuthUser);
+
+    return () => {
+      window.removeEventListener('storage', syncAuthUser);
+      window.removeEventListener('focus', syncAuthUser);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    clearAuthUser();
+    setAuthUser(null);
+    navigate('/login');
+  };
+
   if (isLandingPage) {
-    return <LandingHeader isScrolled={isScrolled} />;
+    return <LandingHeader isScrolled={isScrolled} authUser={authUser} />;
   }
 
   if (isScrolled || !isHomeHeroPage) {
@@ -204,7 +265,7 @@ export function Header() {
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="text-white transition-colors hover:text-accent-light lg:hidden"
-                aria-label="Mở menu"
+                aria-label="Mo menu"
               >
                 <Menu className="h-6 w-6" />
               </button>
@@ -219,7 +280,7 @@ export function Header() {
                   onClick={navigateToStoreHome}
                   className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
-                  Trang chủ
+                  Trang chu
                 </button>
                 <ProductsDropdown
                   categories={categories}
@@ -231,13 +292,13 @@ export function Header() {
                   onClick={navigateToCollections}
                   className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
-                  Bộ sưu tập
+                  Bo suu tap
                 </button>
                 <button
                   onClick={navigateToAbout}
                   className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
                 >
-                  Về chúng tôi
+                  Ve chung toi
                 </button>
               </nav>
             </div>
@@ -246,15 +307,15 @@ export function Header() {
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="text-white transition-colors hover:text-accent-light"
-                aria-label="Tìm kiếm"
+                aria-label="Tim kiem"
               >
                 <Search className="h-5 w-5" />
               </button>
-              <AccountDropdown compact />
+              <AccountDropdown compact authUser={authUser} onLogout={handleLogout} />
               <button
                 onClick={() => navigate('/wishlist')}
                 className="relative text-white transition-colors hover:text-accent-light"
-                aria-label="Yêu thích"
+                aria-label="Yeu thich"
               >
                 <Heart className="h-5 w-5" />
                 {wishlist.length > 0 ? (
@@ -266,7 +327,7 @@ export function Header() {
               <button
                 onClick={() => navigate('/cart')}
                 className="relative text-white transition-colors hover:text-accent-light"
-                aria-label="Giỏ hàng"
+                aria-label="Gio hang"
               >
                 <ShoppingBag className="h-5 w-5" />
                 {getCartCount() > 0 ? (
@@ -301,7 +362,7 @@ export function Header() {
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="text-white transition-colors hover:text-accent-light lg:hidden"
-            aria-label="Mở menu"
+            aria-label="Mo menu"
             style={{
               filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
             }}
@@ -317,7 +378,7 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Trang chủ
+              Trang chu
             </button>
             <ProductsDropdown
               categories={categories}
@@ -332,7 +393,7 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Bộ sưu tập
+              Bo suu tap
             </button>
             <button
               onClick={navigateToAbout}
@@ -341,7 +402,7 @@ export function Header() {
                 textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Về chúng tôi
+              Ve chung toi
             </button>
           </nav>
 
@@ -351,18 +412,18 @@ export function Header() {
             <button
               onClick={() => setIsSearchOpen(true)}
               className="text-white transition-colors hover:text-accent-light"
-              aria-label="Tìm kiếm"
+              aria-label="Tim kiem"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
             >
               <Search className="h-4 w-4" />
             </button>
-            <AccountDropdown compact={false} />
+            <AccountDropdown compact={false} authUser={authUser} onLogout={handleLogout} />
             <button
               onClick={() => navigate('/wishlist')}
               className="relative text-white transition-colors hover:text-accent-light"
-              aria-label="Yêu thích"
+              aria-label="Yeu thich"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
@@ -377,7 +438,7 @@ export function Header() {
             <button
               onClick={() => navigate('/cart')}
               className="relative text-white transition-colors hover:text-accent-light"
-              aria-label="Giỏ hàng"
+              aria-label="Gio hang"
               style={{
                 filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
               }}
