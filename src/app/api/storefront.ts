@@ -111,6 +111,6 @@ export function toShopProduct(product: ProductDetail | ProductCatalogResponse["i
     collection: product.brand || "Oriven Jewelry",
     price: product.minPrice,
     image: resolveMediaUrl(product.gallery[0]),
-    badge: product.featured ? "Featured" : undefined,
+    badge: product.featured ? "Nổi bật" : undefined,
   };
 }

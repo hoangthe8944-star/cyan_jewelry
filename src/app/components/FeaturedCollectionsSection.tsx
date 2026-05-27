@@ -16,9 +16,9 @@ interface FeaturedCollectionsSectionProps {
 
 export function FeaturedCollectionsSection({
   collections,
-  eyebrow = 'Featured Collections',
-  title = 'Những bộ sưu tập nổi bật',
-  description = 'Các bộ sưu tập được xuất bản từ storefront sẽ xuất hiện tại đây để phản ánh đúng nội dung đang có trên hệ thống.',
+  eyebrow = 'Bộ sưu tập nổi bật',
+  title = 'Những bộ sưu tập được chọn lọc',
+  description = 'Các bộ sưu tập đã xuất bản từ storefront sẽ hiển thị tại đây để phản ánh đúng nội dung đang có trên hệ thống.',
 }: FeaturedCollectionsSectionProps) {
   const navigate = useNavigate();
   const ref = useRef(null);
@@ -44,8 +44,8 @@ export function FeaturedCollectionsSection({
           <div className="border border-dashed border-border bg-white px-6 py-14 text-center">
             <h3 className="font-sterling text-[30px] text-primary">Chưa có bộ sưu tập để hiển thị</h3>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-foreground/72">
-              Section này đã được nối với API collections. Nếu hiện vẫn trống, khả năng cao là backend chưa có bộ sưu
-              tập nào ở trạng thái publish hoặc endpoint đang trả về rỗng.
+              Khu vực này đã được kết nối với API bộ sưu tập. Nếu vẫn đang trống, rất có thể backend chưa có bộ
+              sưu tập ở trạng thái xuất bản hoặc endpoint đang trả về dữ liệu rỗng.
             </p>
           </div>
         ) : (

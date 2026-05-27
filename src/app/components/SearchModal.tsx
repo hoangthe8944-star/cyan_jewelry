@@ -5,9 +5,9 @@ import { Search, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { resolveMediaUrl, storefrontApi } from '../api';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useShop } from '../context/ShopContext';
 import type { ProductCardItem } from '../lib/types';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 function formatVndCurrency(value: number) {
   return new Intl.NumberFormat('vi-VN', {
@@ -143,9 +143,7 @@ export function SearchModal() {
                         <p className="mb-1 text-xs uppercase tracking-wider text-muted-foreground">
                           {product.brand || 'Oriven Jewelry'}
                         </p>
-                        <h3 className="mb-2 text-lg transition-colors group-hover:text-accent">
-                          {product.name}
-                        </h3>
+                        <h3 className="mb-2 text-lg transition-colors group-hover:text-accent">{product.name}</h3>
                         <p className="font-medium text-accent">{formatVndCurrency(product.minPrice)}</p>
                       </button>
                     ))}

@@ -50,7 +50,7 @@ export function ProductGrid({
               name={product.name}
               collection={product.brand || 'Oriven Jewelry'}
               price={product.minPrice}
-              badge={product.featured ? 'Featured' : undefined}
+              badge={product.featured ? 'Nổi bật' : undefined}
               index={index}
               priceFormatter={priceFormatter}
             />

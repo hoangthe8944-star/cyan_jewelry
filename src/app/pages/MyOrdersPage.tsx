@@ -77,13 +77,13 @@ export function MyOrdersPage() {
       <div className="min-h-screen bg-white pb-20 pt-28 lg:pt-32">
         <div className="mx-auto max-w-6xl px-6">
           <div className="max-w-3xl">
-            <p className="mb-4 text-sm uppercase tracking-[0.35em] text-foreground/65">My Orders</p>
+            <p className="mb-4 text-sm uppercase tracking-[0.35em] text-foreground/65">Đơn hàng của tôi</p>
             <h1 className="font-sterling text-[40px] leading-tight text-primary lg:text-[54px]">
               Theo dõi các đơn hàng của bạn
             </h1>
             <p className="mt-5 text-base leading-8 text-foreground/82">
-              Nhập mã đơn hàng và số điện thoại đã đặt để xem trạng thái thanh toán, thông tin giao nhận và danh sách sản
-              phẩm trong đơn.
+              Nhập mã đơn hàng và số điện thoại đã đặt để xem trạng thái thanh toán, thông tin giao nhận và danh sách
+              sản phẩm trong đơn.
             </p>
           </div>
 
@@ -175,7 +175,7 @@ export function MyOrdersPage() {
               ) : (
                 <div className="space-y-8">
                   <div className="border-b border-border pb-6">
-                    <p className="text-xs uppercase tracking-[0.24em] text-foreground/60">Order Detail</p>
+                    <p className="text-xs uppercase tracking-[0.24em] text-foreground/60">Chi tiết đơn hàng</p>
                     <h2 className="mt-3 font-sterling text-[34px] text-primary">{order.orderCode}</h2>
                     <div className="mt-5 grid gap-4 sm:grid-cols-2">
                       <div>

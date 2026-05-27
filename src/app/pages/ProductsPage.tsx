@@ -24,15 +24,15 @@ function flattenCategories(categories: CategoryNode[]) {
 }
 
 const COLOR_RULES = [
-  { label: 'Gold', keywords: ['gold', 'yellow gold'] },
-  { label: 'Silver', keywords: ['silver', 'white gold', 'platinum'] },
-  { label: 'Rose Gold', keywords: ['rose gold', 'pink gold'] },
-  { label: 'Black', keywords: ['black', 'onyx'] },
-  { label: 'Blue', keywords: ['blue', 'sapphire', 'topaz', 'aquamarine'] },
-  { label: 'Green', keywords: ['green', 'emerald'] },
-  { label: 'Red', keywords: ['red', 'ruby', 'garnet'] },
-  { label: 'Purple', keywords: ['purple', 'amethyst'] },
-  { label: 'White', keywords: ['white', 'diamond', 'pearl', 'crystal'] },
+  { label: 'Vàng', keywords: ['gold', 'yellow gold'] },
+  { label: 'Bạc', keywords: ['silver', 'white gold', 'platinum'] },
+  { label: 'Vàng hồng', keywords: ['rose gold', 'pink gold'] },
+  { label: 'Đen', keywords: ['black', 'onyx'] },
+  { label: 'Xanh dương', keywords: ['blue', 'sapphire', 'topaz', 'aquamarine'] },
+  { label: 'Xanh lá', keywords: ['green', 'emerald'] },
+  { label: 'Đỏ', keywords: ['red', 'ruby', 'garnet'] },
+  { label: 'Tím', keywords: ['purple', 'amethyst'] },
+  { label: 'Trắng', keywords: ['white', 'diamond', 'pearl', 'crystal'] },
 ] as const;
 
 const PRODUCTS_PER_PAGE = 8;
@@ -187,12 +187,12 @@ export function ProductsPage() {
         <div className="mx-auto max-w-[1800px] px-6">
           <div className="mb-10 flex flex-col gap-4 border-b border-border pb-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="mb-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">Storefront</p>
+              <p className="mb-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">Cửa hàng</p>
               <h1 className="font-sterling text-[36px] lg:text-[48px]">
-                {activeCategoryLabel ? activeCategoryLabel : 'All Products'}
+                {activeCategoryLabel ? activeCategoryLabel : 'Tất cả sản phẩm'}
               </h1>
               <p className="mt-3 max-w-2xl text-sm tracking-wide text-muted-foreground">
-                Explore Oriven Jewelry collections with live filters by category, price, and featured pieces.
+                Khám phá các bộ sưu tập Oriven Jewelry với bộ lọc trực tiếp theo danh mục, giá và sản phẩm nổi bật.
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -202,24 +202,24 @@ export function ProductsPage() {
                 className="inline-flex items-center gap-3 border border-border px-4 py-2 text-sm uppercase tracking-[0.22em] transition-colors hover:border-primary hover:text-primary"
               >
                 <Filter className="h-4 w-4" />
-                Filter
+                Lọc
               </button>
               <div className="text-sm text-muted-foreground">
-                {loading ? 'Loading products...' : `${filteredProducts.length} products found`}
+                {loading ? 'Đang tải sản phẩm...' : `${filteredProducts.length} sản phẩm`}
               </div>
             </div>
           </div>
 
           <div className="mb-10">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Shop By Category</h2>
+              <h2 className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Mua sắm theo danh mục</h2>
               {selectedCategorySlug ? (
                 <button
                   type="button"
                   onClick={() => updateFilter('category')}
                   className="text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-primary"
                 >
-                  View All
+                  Xem tất cả
                 </button>
               ) : null}
             </div>
@@ -236,8 +236,8 @@ export function ProductsPage() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.2),_transparent_55%)]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-primary/20" />
                 <div className="absolute inset-0 flex flex-col justify-end p-5 text-white">
-                  <p className="text-xs uppercase tracking-[0.25em] text-white/70">All</p>
-                  <h3 className="mt-3 font-sterling text-[22px]">All Products</h3>
+                  <p className="text-xs uppercase tracking-[0.25em] text-white/70">Tất cả</p>
+                  <h3 className="mt-3 font-sterling text-[22px]">Tất cả sản phẩm</h3>
                 </div>
               </button>
 
@@ -262,12 +262,12 @@ export function ProductsPage() {
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/35 to-transparent" />
                     <div className="absolute inset-0 flex flex-col justify-end p-5 text-white">
-                      <p className="text-xs uppercase tracking-[0.25em] text-white/70">Category</p>
+                      <p className="text-xs uppercase tracking-[0.25em] text-white/70">Danh mục</p>
                       <h3 className="mt-3 font-sterling text-[22px] leading-tight">{category.name}</h3>
                       <p className="mt-3 text-sm text-white/80">
                         {category.children.length > 0
-                          ? `${category.children.length} collections`
-                          : 'Explore collection'}
+                          ? `${category.children.length} bộ sưu tập`
+                          : 'Khám phá danh mục'}
                       </p>
                     </div>
                   </button>
@@ -286,7 +286,7 @@ export function ProductsPage() {
                   exit={{ opacity: 0 }}
                   onClick={() => setIsFilterOpen(false)}
                   className="fixed inset-0 z-40 bg-black/35"
-                  aria-label="Close filters"
+                  aria-label="Đóng bộ lọc"
                 />
                 <motion.aside
                   initial={{ x: '-100%' }}
@@ -298,13 +298,13 @@ export function ProductsPage() {
                   <div className="mb-6 flex items-center justify-between border-b border-border pb-5">
                     <div className="flex items-center gap-3">
                       <Filter className="h-4 w-4" />
-                      <h2 className="text-sm uppercase tracking-[0.25em]">Filters</h2>
+                      <h2 className="text-sm uppercase tracking-[0.25em]">Bộ lọc</h2>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsFilterOpen(false)}
                       className="transition-colors hover:text-primary"
-                      aria-label="Close filters"
+                      aria-label="Đóng bộ lọc"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -312,20 +312,18 @@ export function ProductsPage() {
 
                   <div className="space-y-8">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                        Refine selection
-                      </span>
+                      <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Tinh chỉnh lựa chọn</span>
                       <button
                         type="button"
                         onClick={clearFilters}
                         className="text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-primary"
                       >
-                        Reset
+                        Đặt lại
                       </button>
                     </div>
 
                     <div>
-                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Categories</h3>
+                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Danh mục</h3>
                       <div className="space-y-2">
                         <button
                           type="button"
@@ -334,7 +332,7 @@ export function ProductsPage() {
                             !selectedCategorySlug ? 'text-primary' : 'text-muted-foreground hover:text-primary'
                           }`}
                         >
-                          All Products
+                          Tất cả sản phẩm
                         </button>
                         {categories.map((category) => (
                           <div key={category.id} className="space-y-2">
@@ -373,13 +371,13 @@ export function ProductsPage() {
                     </div>
 
                     <div>
-                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Color</h3>
+                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Màu sắc</h3>
                       <select
                         value={selectedColor}
                         onChange={(event) => updateFilter('color', event.target.value)}
                         className="w-full border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary"
                       >
-                        <option value="">All Colors</option>
+                        <option value="">Tất cả màu sắc</option>
                         {colorOptions.map((color) => (
                           <option key={color} value={color}>
                             {color}
@@ -389,10 +387,10 @@ export function ProductsPage() {
                     </div>
 
                     <div>
-                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Price Range</h3>
+                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Khoảng giá</h3>
                       <div className="grid grid-cols-2 gap-3">
                         <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                          Min
+                          Tối thiểu
                           <input
                             type="number"
                             min="0"
@@ -403,7 +401,7 @@ export function ProductsPage() {
                           />
                         </label>
                         <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                          Max
+                          Tối đa
                           <input
                             type="number"
                             min="0"
@@ -417,7 +415,7 @@ export function ProductsPage() {
                     </div>
 
                     <div>
-                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Collection Type</h3>
+                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Loại hiển thị</h3>
                       <label className="flex cursor-pointer items-center gap-3 text-sm text-muted-foreground">
                         <input
                           type="checkbox"
@@ -425,7 +423,7 @@ export function ProductsPage() {
                           onChange={(event) => updateFilter('featured', event.target.checked)}
                           className="h-4 w-4 border-border text-primary focus:ring-primary"
                         />
-                        Featured products only
+                        Chỉ hiện sản phẩm nổi bật
                       </label>
                     </div>
 
@@ -436,14 +434,14 @@ export function ProductsPage() {
                         className="flex items-center gap-2 border border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:text-primary"
                       >
                         <RefreshCcw className="h-4 w-4" />
-                        Clear all filters
+                        Xóa toàn bộ bộ lọc
                       </button>
                       <button
                         type="button"
                         onClick={() => setIsFilterOpen(false)}
                         className="bg-primary px-5 py-3 text-sm uppercase tracking-[0.2em] text-white transition-colors hover:bg-secondary"
                       >
-                        Apply
+                        Áp dụng
                       </button>
                     </div>
                   </div>
@@ -455,7 +453,7 @@ export function ProductsPage() {
           <section id="products">
             {error ? (
               <div className="border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-600">
-                Failed to load products: {error}
+                Không thể tải sản phẩm: {error}
               </div>
             ) : null}
 
@@ -474,9 +472,9 @@ export function ProductsPage() {
 
             {!error && !loading && filteredProducts.length === 0 ? (
               <div className="flex min-h-[360px] flex-col items-center justify-center border border-dashed border-border bg-muted/20 px-6 text-center">
-                <h2 className="font-sterling text-[28px]">No products found</h2>
+                <h2 className="font-sterling text-[28px]">Không tìm thấy sản phẩm</h2>
                 <p className="mt-3 max-w-md text-sm text-muted-foreground">
-                  Try adjusting the category or price filters to explore more of the collection.
+                  Hãy thử điều chỉnh danh mục hoặc bộ lọc giá để khám phá thêm sản phẩm phù hợp.
                 </p>
               </div>
             ) : null}
@@ -493,7 +491,7 @@ export function ProductsPage() {
                       name={product.name}
                       collection={product.brand || 'Oriven Jewelry'}
                       price={product.minPrice}
-                      badge={product.featured ? 'Featured' : undefined}
+                      badge={product.featured ? 'Nổi bật' : undefined}
                       index={index}
                     />
                   ))}

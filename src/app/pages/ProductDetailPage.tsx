@@ -103,7 +103,7 @@ export function ProductDetailPage() {
             return;
           }
         } catch {
-          // Fall through to the generic product fallback below.
+          // Fallback sang danh sách sản phẩm chung nếu không tìm được danh mục.
         }
 
         storefrontApi
@@ -154,9 +154,8 @@ export function ProductDetailPage() {
     styleSelection?.valueLabel ??
     activeVariant?.styleCode ??
     null;
-  const activeProductName = activeVariant?.productName ?? product?.name ?? 'San pham';
-  const activeVariantLabel =
-    activeVariant?.selections.map((selection) => selection.valueLabel).join(' / ') ?? null;
+  const activeProductName = activeVariant?.productName ?? product?.name ?? 'Sản phẩm';
+  const activeVariantLabel = activeVariant?.selections.map((selection) => selection.valueLabel).join(' / ') ?? null;
   const activeMedia = activeVariant?.media?.length ? activeVariant.media : product?.gallery ?? [];
   const activePrimaryMedia = activeMedia[0] ?? product?.gallery[0];
   const resolvedSelectedMediaUrl = selectedMediaUrl ?? resolveMediaUrl(activePrimaryMedia);
@@ -184,7 +183,10 @@ export function ProductDetailPage() {
   const variantPreviewItems =
     product?.variants.map((variant) => ({
       variantCode: variant.variantCode,
-      label: variant.selections.filter((selection) => selection.optionType !== 'MODEL').map((selection) => selection.valueLabel).join(' / '),
+      label: variant.selections
+        .filter((selection) => selection.optionType !== 'MODEL')
+        .map((selection) => selection.valueLabel)
+        .join(' / '),
       media: variant.media[0] ?? product.gallery[0],
     })) ?? [];
   const activeDescription = hasMeaningfulText(activeVariant?.fullDescription)
@@ -198,7 +200,8 @@ export function ProductDetailPage() {
       ? activeVariant.fullDescription
       : hasMeaningfulText(product?.description)
         ? product.description
-        : 'Dang cap nhat';
+        : 'Đang cập nhật';
+
   useEffect(() => {
     if (!product || !availableVariant) {
       return;
@@ -544,8 +547,7 @@ export function ProductDetailPage() {
                         <div className="mb-4 flex items-center justify-between gap-4">
                           <label className="block text-sm tracking-wide">{option.name}</label>
                           <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            {option.values.find((value) => value.code === selectedOptions[option.type])?.label ??
-                              'Chọn'}
+                            {option.values.find((value) => value.code === selectedOptions[option.type])?.label ?? 'Chọn'}
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-3">
@@ -600,10 +602,7 @@ export function ProductDetailPage() {
                   <span className="text-muted-foreground">{tags.length > 0 ? tags.join(', ') : 'Đang cập nhật'}</span>
                   <span className="whitespace-pre-wrap text-muted-foreground">{shortDescription}</span>
                   <span className="text-muted-foreground">
-                    Tình trạng:{' '}
-                    {activeVariant && activeVariant.stockQuantity > 0
-                      ? `Còn ${activeVariant.stockQuantity} sản phẩm`
-                      : 'Hết hàng'}
+                    Tình trạng: {activeVariant && activeVariant.stockQuantity > 0 ? `Còn ${activeVariant.stockQuantity} sản phẩm` : 'Hết hàng'}
                   </span>
                 </div>
 
@@ -690,8 +689,3 @@ export function ProductDetailPage() {
     </PageTransition>
   );
 }
-
-
-
-
-

@@ -94,8 +94,8 @@ export function AboutUsPage() {
               </h2>
             </div>
             <p className="max-w-xl text-sm leading-7 text-foreground/82">
-              Mỗi lần ra mắt đều được dẫn dắt bởi sự tiết chế, cảm nhận tinh tế về chất liệu và mong muốn tạo nên những
-              thiết kế xứng đáng nằm trong bộ sưu tập cá nhân của khách hàng.
+              Mỗi lần ra mắt đều được dẫn dắt bởi sự tiết chế, cảm nhận tinh tế về chất liệu và mong muốn tạo nên
+              những thiết kế xứng đáng nằm trong bộ sưu tập cá nhân của khách hàng.
             </p>
           </div>
 
@@ -115,9 +115,7 @@ export function AboutUsPage() {
             <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="mb-3 text-sm uppercase tracking-[0.3em] text-foreground/65">Câu chuyện mới nhất</p>
-                <h2 className="font-sterling text-[32px] text-primary lg:text-[48px]">
-                  Những câu chuyện mới nhất từ Oriven
-                </h2>
+                <h2 className="font-sterling text-[32px] text-primary lg:text-[48px]">Những câu chuyện mới nhất từ Oriven</h2>
               </div>
               <p className="max-w-xl text-sm leading-7 text-foreground/82">
                 Nơi Oriven chia sẻ những cảm hứng thiết kế, câu chuyện bộ sưu tập và góc nhìn mới xoay quanh vẻ đẹp
@@ -127,7 +125,7 @@ export function AboutUsPage() {
 
             {error ? (
               <div className="border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-600">
-                Không thể tải nội dung editorial: {error}
+                Không thể tải nội dung biên tập: {error}
               </div>
             ) : null}
 
@@ -149,7 +147,7 @@ export function AboutUsPage() {
 
             {!error && !isLoading && editorials.length === 0 ? (
               <div className="border border-dashed border-border bg-white px-6 py-12 text-center">
-                <h3 className="font-sterling text-[28px] text-primary">Chưa có câu chuyện editorial</h3>
+                <h3 className="font-sterling text-[28px] text-primary">Chưa có câu chuyện biên tập</h3>
                 <p className="mt-3 text-sm text-foreground/72">
                   Khi có bài viết mới, những câu chuyện từ Oriven sẽ xuất hiện tại đây để bạn tiếp tục khám phá thêm về
                   thương hiệu.
@@ -162,7 +160,7 @@ export function AboutUsPage() {
                 <article className="group relative min-h-[420px] overflow-hidden rounded-sm bg-primary text-white">
                   <ImageWithFallback
                     src={resolveMediaUrl(featuredStory?.coverMedia)}
-                    alt={featuredStory?.title ?? 'Editorial nổi bật'}
+                    alt={featuredStory?.title ?? 'Bài viết nổi bật'}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/75 to-primary/20" />
@@ -194,11 +192,11 @@ export function AboutUsPage() {
                       className="block border border-border bg-white p-6 transition-colors hover:border-primary/40"
                     >
                       <p className="text-xs uppercase tracking-[0.22em] text-foreground/60">
-                        {editorial.topics[0] ?? 'Editorial'}
+                        {editorial.topics[0] ?? 'Biên tập'}
                       </p>
                       <h3 className="mt-3 font-sterling text-[26px] leading-tight text-primary">{editorial.title}</h3>
                       <p className="mt-3 text-sm leading-7 text-foreground/78">
-                        {editorial.summary || 'Một câu chuyện thương hiệu mới từ kho nội dung editorial của Oriven.'}
+                        {editorial.summary || 'Một câu chuyện thương hiệu mới từ kho nội dung biên tập của Oriven.'}
                       </p>
                       <span className="mt-5 inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-primary">
                         Xem nội dung
@@ -215,7 +213,7 @@ export function AboutUsPage() {
                 to="/news"
                 className="inline-flex items-center gap-2 border border-primary px-5 py-3 text-xs uppercase tracking-[0.24em] text-primary transition-colors hover:bg-primary hover:text-white"
               >
-                Xem tất cả news
+                Xem tất cả tin tức
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

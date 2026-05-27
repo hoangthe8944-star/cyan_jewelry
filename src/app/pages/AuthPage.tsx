@@ -27,7 +27,7 @@ const INITIAL_FORM: AuthFormState = {
 const BENEFITS = [
   'Lưu thông tin giao hàng để đặt hàng nhanh hơn.',
   'Theo dõi lịch sử đơn hàng và các lần mua gần đây.',
-  'Nhận cập nhật sớm về bộ sưu tập và editorial mới.',
+  'Nhận cập nhật sớm về bộ sưu tập và bài biên tập mới.',
 ];
 
 export function AuthPage() {
@@ -205,7 +205,7 @@ export function AuthPage() {
                   type="email"
                   value={form.email}
                   onChange={(event) => handleChange('email', event.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="ban@example.com"
                   className="w-full rounded-[18px] border border-border bg-[#fffdfa] px-4 py-3.5 text-sm outline-none transition-colors focus:border-primary"
                 />
               </label>

@@ -99,7 +99,7 @@ export function NewsDetailPage() {
             className="mb-8 inline-flex items-center gap-2 text-sm text-foreground/70 transition-colors hover:text-primary"
           >
             <ArrowLeft className="h-4 w-4" />
-            Quay lại News
+            Quay lại tin tức
           </Link>
 
           {error ? (
@@ -124,7 +124,7 @@ export function NewsDetailPage() {
             <article>
               <div className="border-b border-border pb-10">
                 <p className="mb-4 text-sm uppercase tracking-[0.3em] text-foreground/60">
-                  {editorial.topics[0] ?? 'Editorial'}
+                  {editorial.topics[0] ?? 'Biên tập'}
                 </p>
                 <h1 className="max-w-4xl font-sterling text-[40px] leading-tight text-primary lg:text-[58px]">
                   {editorial.title}
@@ -161,10 +161,7 @@ export function NewsDetailPage() {
                         <h2 className="font-sterling text-[30px] text-primary lg:text-[38px]">{section.heading}</h2>
                       ) : null}
 
-                      <SectionMediaGallery
-                        items={sectionMedia}
-                        altFallback={section.heading ?? editorial.title}
-                      />
+                      <SectionMediaGallery items={sectionMedia} altFallback={section.heading ?? editorial.title} />
 
                       {hasText(sectionText) ? (
                         <div className="whitespace-pre-wrap text-[16px] leading-8 text-foreground/84">

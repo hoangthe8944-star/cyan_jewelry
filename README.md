@@ -1,40 +1,39 @@
+# Bộ Nhận Diện Thương Hiệu Và Phong Cách Thị Giác
 
-  # Brand Identity and Visual Style
+Đây là gói mã nguồn của dự án `Brand Identity and Visual Style`. Bản thiết kế gốc có tại:
+https://www.figma.com/design/EUSviOc72i84nV89quNKli/Brand-Identity-and-Visual-Style
 
-  This is a code bundle for Brand Identity and Visual Style. The original project is available at https://www.figma.com/design/EUSviOc72i84nV89quNKli/Brand-Identity-and-Visual-Style.
+## Chạy dự án
 
-  ## Running the code
+Chạy `npm i` để cài đặt các phụ thuộc.
 
-  Run `npm i` to install the dependencies.
+Chạy `npm run dev` để khởi động máy chủ phát triển.
 
-  Run `npm run dev` to start the development server.
+## Tải banner MP4 lên Cloudinary
 
-  ## Cloudinary upload for MP4 banners
+Thêm các biến môi trường sau:
 
-  Add these env vars:
+- `VITE_CLOUDINARY_CLOUD_NAME`
+- `VITE_CLOUDINARY_UPLOAD_PRESET`
 
-  - `VITE_CLOUDINARY_CLOUD_NAME`
-  - `VITE_CLOUDINARY_UPLOAD_PRESET`
+Dự án hiện đã có sẵn `uploadMediaToCloudinary()` và `toMediaAsset()` trong `src/app/api/cloudinary.ts`.
 
-  The project now includes `uploadMediaToCloudinary()` and `toMediaAsset()` in `src/app/api/cloudinary.ts`.
+Ví dụ luồng xử lý cho biểu mẫu quản trị:
 
-  Example flow for an admin form:
+```ts
+import { toMediaAsset, uploadMediaToCloudinary } from "./src/app/api";
 
-  ```ts
-  import { toMediaAsset, uploadMediaToCloudinary } from "./src/app/api";
+const upload = await uploadMediaToCloudinary(file, {
+  folder: "Oriven/banners",
+  tags: ["banner", "hero"],
+});
 
-  const upload = await uploadMediaToCloudinary(file, {
-    folder: "Oriven/banners",
-    tags: ["banner", "hero"],
-  });
+const media = toMediaAsset(upload);
 
-  const media = toMediaAsset(upload);
-
-  // Save `media` into your banner payload / database
-  // {
-  //   mediaType: "MP4",
-  //   url: "...cloudinary secure url...",
-  //   thumbnailUrl: "...cloudinary generated poster..."
-  // }
-  ```
-  
+// Lưu `media` vào payload banner / cơ sở dữ liệu
+// {
+//   mediaType: "MP4",
+//   url: "...cloudinary secure url...",
+//   thumbnailUrl: "...cloudinary generated poster..."
+// }
+```

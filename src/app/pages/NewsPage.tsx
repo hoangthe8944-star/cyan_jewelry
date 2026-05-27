@@ -32,13 +32,13 @@ export function NewsPage() {
       <div className="min-h-screen bg-white pb-20 pt-28 lg:pt-32">
         <section className="border-b border-border bg-[linear-gradient(180deg,rgba(18,42,66,0.05),rgba(255,255,255,0.98))]">
           <div className="mx-auto max-w-[1800px] px-6 py-16 lg:py-24">
-            <p className="mb-4 text-sm uppercase tracking-[0.35em] text-foreground/65">News</p>
+            <p className="mb-4 text-sm uppercase tracking-[0.35em] text-foreground/65">Tin tức</p>
             <h1 className="max-w-4xl font-sterling text-[42px] leading-tight text-primary lg:text-[58px]">
               Những câu chuyện, cảm hứng thiết kế và góc nhìn mới nhất từ Oriven Jewelry.
             </h1>
             <p className="mt-6 max-w-3xl text-base leading-8 text-foreground/85 lg:text-lg">
-              Tại đây, toàn bộ nội dung tin tức và editorial của thương hiệu được tập hợp để bạn theo dõi các bộ sưu
-              tập, cảm hứng sáng tạo và những câu chuyện phía sau từng thiết kế.
+              Tại đây, toàn bộ nội dung tin tức và bài biên tập của thương hiệu được tập hợp để bạn theo dõi các bộ
+              sưu tập, cảm hứng sáng tạo và những câu chuyện phía sau từng thiết kế.
             </p>
           </div>
         </section>
@@ -110,7 +110,7 @@ export function NewsPage() {
                     className="group border border-border bg-white p-6 transition-colors hover:border-primary/45"
                   >
                     <p className="text-xs uppercase tracking-[0.22em] text-foreground/60">
-                      {editorial.topics[0] ?? 'Editorial'}
+                      {editorial.topics[0] ?? 'Biên tập'}
                     </p>
                     <h3 className="mt-3 font-sterling text-[26px] leading-tight text-primary transition-colors group-hover:text-accent">
                       {editorial.title}

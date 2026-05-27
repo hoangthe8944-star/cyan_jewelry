@@ -182,8 +182,8 @@ export function CartPage() {
               <div className="space-y-6 lg:col-span-2">
                 {invalidCartItems.length > 0 ? (
                   <div className="border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-                    Có {invalidCartItems.length} sản phẩm được thêm từ danh sách nhưng chưa có biến thể hợp lệ. Vui
-                    lòng mở chi tiết sản phẩm và chọn phiên bản trước khi thanh toán MoMo.
+                    Có {invalidCartItems.length} sản phẩm được thêm từ danh sách nhưng chưa có biến thể hợp lệ. Vui lòng
+                    mở chi tiết sản phẩm và chọn phiên bản trước khi thanh toán MoMo.
                   </div>
                 ) : null}
 
@@ -376,9 +376,7 @@ export function CartPage() {
 
                   <div className="flex items-center justify-between">
                     <span className="text-lg">Tổng cộng</span>
-                    <span className="font-sterling text-[28px] text-accent">
-                      {formatVndCurrency(cartSubtotal)}
-                    </span>
+                    <span className="font-sterling text-[28px] text-accent">{formatVndCurrency(cartSubtotal)}</span>
                   </div>
 
                   {checkoutSuccess ? (

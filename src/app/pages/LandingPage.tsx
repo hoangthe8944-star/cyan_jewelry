@@ -147,7 +147,7 @@ export function LandingPage() {
                 onClick={() => navigate('/home')}
                 className="inline-flex items-center justify-center gap-3 rounded-full bg-[#f2e2cf] px-8 py-4 text-sm uppercase tracking-[0.28em] text-[#1b130f] transition-transform duration-300 hover:-translate-y-0.5"
               >
-                Vào Home
+                Vào trang chủ
                 <ArrowRight className="h-4 w-4" />
               </button>
               <button

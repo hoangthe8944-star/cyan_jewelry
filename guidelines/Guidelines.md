@@ -1,61 +1,60 @@
-**Add your own guidelines here**
+**Thêm hướng dẫn của bạn tại đây**
 <!--
 
-System Guidelines
+Hướng dẫn hệ thống
 
-Use this file to provide the AI with rules and guidelines you want it to follow.
-This template outlines a few examples of things you can add. You can add your own sections and format it to suit your needs
+Dùng tệp này để cung cấp cho AI các quy tắc và hướng dẫn mà bạn muốn nó tuân theo.
+Mẫu này đưa ra một vài ví dụ về những nội dung bạn có thể thêm vào. Bạn có thể tự tạo các mục riêng và định dạng lại cho phù hợp với nhu cầu của mình.
 
-TIP: More context isn't always better. It can confuse the LLM. Try and add the most important rules you need
+LƯU Ý: Nhiều ngữ cảnh hơn không phải lúc nào cũng tốt hơn. Nó có thể làm LLM bị rối. Hãy ưu tiên các quy tắc quan trọng nhất mà bạn thật sự cần.
 
-# General guidelines
+# Hướng dẫn chung
 
-Any general rules you want the AI to follow.
-For example:
+Bất kỳ quy tắc tổng quát nào bạn muốn AI làm theo.
+Ví dụ:
 
-* Only use absolute positioning when necessary. Opt for responsive and well structured layouts that use flexbox and grid by default
-* Refactor code as you go to keep code clean
-* Keep file sizes small and put helper functions and components in their own files.
+* Chỉ dùng `absolute positioning` khi thật sự cần thiết. Ưu tiên bố cục phản hồi tốt, có cấu trúc rõ ràng, mặc định dùng `flexbox` và `grid`.
+* Refactor dần trong quá trình làm để giữ mã nguồn sạch sẽ.
+* Giữ kích thước file gọn và tách các hàm hỗ trợ hoặc component riêng ra file phù hợp.
 
 --------------
 
-# Design system guidelines
-Rules for how the AI should make generations look like your company's design system
+# Hướng dẫn hệ thống thiết kế
+Các quy tắc về cách AI nên tạo giao diện theo đúng hệ thống thiết kế của công ty bạn.
 
-Additionally, if you select a design system to use in the prompt box, you can reference
-your design system's components, tokens, variables and components.
-For example:
+Ngoài ra, nếu bạn chọn một hệ thống thiết kế trong ô prompt, bạn có thể tham chiếu đến
+các component, token, biến và quy ước trong hệ thống thiết kế đó.
+Ví dụ:
 
-* Use a base font-size of 14px
-* Date formats should always be in the format “Jun 10”
-* The bottom toolbar should only ever have a maximum of 4 items
-* Never use the floating action button with the bottom toolbar
-* Chips should always come in sets of 3 or more
-* Don't use a dropdown if there are 2 or fewer options
+* Dùng cỡ chữ cơ sở là `14px`
+* Định dạng ngày luôn theo kiểu `10 Thg 6`
+* Thanh công cụ phía dưới chỉ nên có tối đa 4 mục
+* Không dùng nút hành động nổi cùng với thanh công cụ phía dưới
+* `Chip` nên xuất hiện theo nhóm từ 3 mục trở lên
+* Không dùng `dropdown` nếu chỉ có 2 lựa chọn hoặc ít hơn
 
-You can also create sub sections and add more specific details
-For example:
+Bạn cũng có thể tạo các mục con và bổ sung chi tiết cụ thể hơn.
+Ví dụ:
 
+## Nút bấm
+Component Button là một thành phần tương tác cốt lõi trong hệ thống thiết kế, dùng để kích hoạt hành động hoặc điều hướng
+người dùng trong ứng dụng. Nó cung cấp phản hồi trực quan và tín hiệu rõ ràng để cải thiện trải nghiệm sử dụng.
 
-## Button
-The Button component is a fundamental interactive element in our design system, designed to trigger actions or navigate
-users through the application. It provides visual feedback and clear affordances to enhance user experience.
+### Cách sử dụng
+Nút bấm nên được dùng cho các hành động quan trọng mà người dùng cần thực hiện, như gửi biểu mẫu, xác nhận lựa chọn
+hoặc bắt đầu một quy trình. Nhãn nút cần rõ ràng và định hướng hành động.
 
-### Usage
-Buttons should be used for important actions that users need to take, such as form submissions, confirming choices,
-or initiating processes. They communicate interactivity and should have clear, action-oriented labels.
-
-### Variants
-* Primary Button
-  * Purpose : Used for the main action in a section or page
-  * Visual Style : Bold, filled with the primary brand color
-  * Usage : One primary button per section to guide users toward the most important action
-* Secondary Button
-  * Purpose : Used for alternative or supporting actions
-  * Visual Style : Outlined with the primary color, transparent background
-  * Usage : Can appear alongside a primary button for less important actions
-* Tertiary Button
-  * Purpose : Used for the least important actions
-  * Visual Style : Text-only with no border, using primary color
-  * Usage : For actions that should be available but not emphasized
+### Biến thể
+* Nút chính
+  * Mục đích: Dùng cho hành động quan trọng nhất trong một khu vực hoặc một trang
+  * Kiểu hiển thị: Nổi bật, nền đặc với màu thương hiệu chính
+  * Cách dùng: Mỗi khu vực nên chỉ có một nút chính để dẫn hướng người dùng tới hành động ưu tiên nhất
+* Nút phụ
+  * Mục đích: Dùng cho các hành động thay thế hoặc hỗ trợ
+  * Kiểu hiển thị: Viền màu chính, nền trong suốt
+  * Cách dùng: Có thể đi kèm nút chính cho các hành động ít quan trọng hơn
+* Nút cấp ba
+  * Mục đích: Dùng cho các hành động ít quan trọng nhất
+  * Kiểu hiển thị: Chỉ có chữ, không viền, dùng màu chính
+  * Cách dùng: Dành cho các hành động vẫn cần hiển thị nhưng không nên được nhấn mạnh
 -->
