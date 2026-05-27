@@ -1,6 +1,7 @@
 import { API_BASE_URL, FALLBACK_API_BASE_URL } from "./client";
 
 const DEFAULT_CHAT_API_PATH = "/api/chat/conversations";
+const DEFAULT_CHAT_CUSTOMER_NAME = "Khach hang website";
 
 export interface ChatMessagePayload {
   role: "user" | "assistant";
@@ -8,12 +9,16 @@ export interface ChatMessagePayload {
 }
 
 export interface ChatResponse {
-  text: string;
+  text?: string | null;
   sessionId?: string | null;
   conversationCode?: string | null;
 }
 
-const DEFAULT_CHAT_CUSTOMER_NAME = "Khách hàng website";
+export interface ChatConversation {
+  id: string;
+  conversationCode: string | null;
+  messages: ChatMessagePayload[];
+}
 
 function buildUrl(baseUrl: string, path: string) {
   return `${baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
@@ -34,6 +39,15 @@ function isAssistantRole(value: unknown) {
 
   const normalizedValue = value.trim().toUpperCase();
   return ["ASSISTANT", "AI", "BOT", "SYSTEM", "ADMIN", "STAFF"].includes(normalizedValue);
+}
+
+function isUserRole(value: unknown) {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const normalizedValue = value.trim().toUpperCase();
+  return ["USER", "CUSTOMER", "CLIENT", "BUYER", "GUEST"].includes(normalizedValue);
 }
 
 function readRecord(value: unknown) {
@@ -87,7 +101,13 @@ function readConversationCode(value: unknown): string | null {
   }
 
   const nestedConversation = readRecord(record.conversation);
-  const candidate = record.conversationCode ?? record.code ?? nestedConversation?.conversationCode ?? nestedConversation?.code ?? null;
+  const candidate =
+    record.conversationCode ??
+    record.code ??
+    nestedConversation?.conversationCode ??
+    nestedConversation?.code ??
+    null;
+
   return typeof candidate === "string" && candidate.trim() ? candidate.trim() : null;
 }
 
@@ -102,37 +122,89 @@ function readAssistantReply(value: unknown): string | null {
     return directText;
   }
 
-  const messageCollections = [record.messages, record.items, record.content];
+  const messages = readMessages(value);
+  const assistantMessage = [...messages].reverse().find((message) => message.role === "assistant");
+  return assistantMessage?.content ?? null;
+}
 
-  for (const collection of messageCollections) {
-    if (!Array.isArray(collection)) {
-      continue;
-    }
+function readDirectReply(value: unknown): string | null {
+  const record = readRecord(value);
+  if (!record) {
+    return typeof value === "string" && value.trim() ? value.trim() : null;
+  }
 
-    const assistantMessage = [...collection]
-      .reverse()
-      .find((item) => {
-        const messageRecord = readRecord(item);
-        if (!messageRecord) {
-          return false;
-        }
+  const directKeys = ["reply", "response", "answer"];
 
-        return isAssistantRole(
-          messageRecord.role ??
-            messageRecord.senderRole ??
-            messageRecord.senderType ??
-            messageRecord.authorRole ??
-            messageRecord.authorType
-        );
-      });
-
-    const assistantText = readTextFromUnknown(assistantMessage);
-    if (assistantText) {
-      return assistantText;
+  for (const key of directKeys) {
+    const nestedValue = record[key];
+    if (typeof nestedValue === "string" && nestedValue.trim()) {
+      return nestedValue.trim();
     }
   }
 
   return null;
+}
+
+function readMessageRole(value: unknown): ChatMessagePayload["role"] | null {
+  const record = readRecord(value);
+  if (!record) {
+    return null;
+  }
+
+  const rawRole =
+    record.role ??
+    record.senderRole ??
+    record.senderType ??
+    record.authorRole ??
+    record.authorType ??
+    record.messageRole;
+
+  if (isAssistantRole(rawRole)) {
+    return "assistant";
+  }
+
+  if (isUserRole(rawRole)) {
+    return "user";
+  }
+
+  return null;
+}
+
+function readMessages(value: unknown): ChatMessagePayload[] {
+  const record = readRecord(value);
+  if (!record) {
+    return [];
+  }
+
+  const collections = [record.messages, record.items, record.content];
+
+  for (const collection of collections) {
+    if (!Array.isArray(collection)) {
+      continue;
+    }
+
+    const messages = collection
+      .map((item) => {
+        const role = readMessageRole(item);
+        const content = readTextFromUnknown(item);
+
+        if (!role || !content) {
+          return null;
+        }
+
+        return {
+          role,
+          content,
+        } satisfies ChatMessagePayload;
+      })
+      .filter((message): message is ChatMessagePayload => Boolean(message));
+
+    if (messages.length) {
+      return messages;
+    }
+  }
+
+  return [];
 }
 
 async function extractErrorText(response: Response) {
@@ -185,42 +257,121 @@ async function performRequest(path: string, init: RequestInit) {
   }
 }
 
+function withCustomerPath(basePath: string, customerUserId: string, suffix = "") {
+  return `${basePath}/customer/${encodeURIComponent(customerUserId)}${suffix}`;
+}
+
+function withConversationPath(basePath: string, id: string, suffix = "") {
+  return `${basePath}/${encodeURIComponent(id)}${suffix}`;
+}
+
+async function requestJson(path: string, init: RequestInit) {
+  const response = await performRequest(path, init);
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(`Khong tim thay chat API tai ${path}.`);
+    }
+
+    throw new Error(await extractErrorText(response));
+  }
+
+  return response.json();
+}
+
+function normalizeConversation(payload: unknown): ChatConversation {
+  const id = readConversationId(payload);
+
+  if (!id) {
+    throw new Error("Frontend chua doc duoc conversation id tu chat API.");
+  }
+
+  return {
+    id,
+    conversationCode: readConversationCode(payload),
+    messages: readMessages(payload),
+  };
+}
+
 async function createConversation(basePath: string, initialMessage: string, customerName: string, userId: string) {
-  const resolvedCustomerName = customerName.trim() || import.meta.env.VITE_CHAT_CUSTOMER_NAME?.trim() || DEFAULT_CHAT_CUSTOMER_NAME;
-  const response = await performRequest(basePath, {
+  const resolvedCustomerName =
+    customerName.trim() || import.meta.env.VITE_CHAT_CUSTOMER_NAME?.trim() || DEFAULT_CHAT_CUSTOMER_NAME;
+  const payload = await requestJson(basePath, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-User-Id": userId,
     },
     body: JSON.stringify({
+      customerUserId: userId,
       customerName: resolvedCustomerName,
       message: initialMessage,
     }),
   });
 
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error(`Không tìm thấy chat API tại ${basePath}.`);
-    }
-
-    throw new Error(await extractErrorText(response));
-  }
-
-  const payload = await response.json();
-  const conversationId = readConversationId(payload);
-
-  if (!conversationId) {
-    throw new Error("Chat API đã tạo hội thoại nhưng frontend chưa đọc được conversation id.");
-  }
+  const conversation = normalizeConversation(payload);
 
   return {
-    conversationId,
-    conversationCode: readConversationCode(payload),
-    text:
-      readAssistantReply(payload) ??
-      "Tin nhắn của bạn đã được gửi. Tư vấn viên sẽ phản hồi sớm nhất có thể.",
+    conversationId: conversation.id,
+    conversationCode: conversation.conversationCode,
+    text: readDirectReply(payload),
   };
+}
+
+export async function listChatConversations(customerUserId: string) {
+  const basePath = import.meta.env.VITE_CHAT_API_PATH?.trim() || DEFAULT_CHAT_API_PATH;
+  const query = `?customerUserId=${encodeURIComponent(customerUserId)}`;
+  const payload = await requestJson(`${basePath}${query}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!Array.isArray(payload)) {
+    return [];
+  }
+
+  return payload
+    .map((item) => {
+      const id = readConversationId(item);
+
+      if (!id) {
+        return null;
+      }
+
+      return {
+        id,
+        conversationCode: readConversationCode(item),
+      };
+    })
+    .filter((item): item is { id: string; conversationCode: string | null } => Boolean(item));
+}
+
+export async function getChatConversationForCustomer(customerUserId: string, conversationId: string) {
+  const basePath = import.meta.env.VITE_CHAT_API_PATH?.trim() || DEFAULT_CHAT_API_PATH;
+  const payload = await requestJson(
+    withCustomerPath(basePath, customerUserId, `/${encodeURIComponent(conversationId)}`),
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return normalizeConversation(payload);
+}
+
+export async function markChatConversationRead(customerUserId: string, conversationId: string) {
+  const basePath = import.meta.env.VITE_CHAT_API_PATH?.trim() || DEFAULT_CHAT_API_PATH;
+
+  await requestJson(withCustomerPath(basePath, customerUserId, `/${encodeURIComponent(conversationId)}/read`), {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 }
 
 export async function sendChatMessage(params: {
@@ -242,41 +393,40 @@ export async function sendChatMessage(params: {
 
   if (!params.sessionId) {
     return {
-      text: conversation.text ?? "Tin nhắn của bạn đã được gửi.",
+      text: conversation.text,
       sessionId: conversation.conversationId,
       conversationCode: conversation.conversationCode,
     } satisfies ChatResponse;
   }
 
-  const response = await performRequest(`${basePath}/${conversation.conversationId}/messages`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-User-Id": params.userId,
-    },
-    body: JSON.stringify({
-      message: params.message,
-    }),
-  });
-
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error(`Không tìm thấy endpoint gửi tin nhắn tại ${basePath}/${conversation.conversationId}/messages.`);
+  const payload = await requestJson(
+    withCustomerPath(basePath, params.userId, `/${encodeURIComponent(conversation.conversationId)}/messages`),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-User-Id": params.userId,
+      },
+      body: JSON.stringify({
+        message: params.message,
+      }),
     }
-
-    throw new Error(await extractErrorText(response));
-  }
-
-  const payload = await response.json();
-  const text = readAssistantReply(payload);
-
-  if (!text) {
-    throw new Error("Chat API đã nhận tin nhắn nhưng chưa trả về nội dung phản hồi của assistant.");
-  }
+  );
 
   return {
-    text,
+    text: readDirectReply(payload),
     sessionId: readConversationId(payload) ?? conversation.conversationId,
     conversationCode: readConversationCode(payload) ?? conversation.conversationCode,
   } satisfies ChatResponse;
+}
+
+export async function getLatestChatConversation(customerUserId: string) {
+  const conversations = await listChatConversations(customerUserId);
+  const latestConversation = conversations[0];
+
+  if (!latestConversation) {
+    return null;
+  }
+
+  return getChatConversationForCustomer(customerUserId, latestConversation.id);
 }

@@ -5,7 +5,12 @@ import { LoaderCircle, MessageCircleMore, Send, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 
-import { sendChatMessage } from "../api";
+import {
+  getChatConversationForCustomer,
+  getLatestChatConversation,
+  markChatConversationRead,
+  sendChatMessage,
+} from "../api";
 import { getAuthUser } from "../lib/auth";
 
 interface ChatMessage {
@@ -18,9 +23,11 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: "welcome",
     role: "assistant",
-    content: "Xin chào, mình có thể hỗ trợ bạn tìm sản phẩm, bộ sưu tập hoặc tư vấn đơn hàng.",
+    content: "Xin chao, minh co the ho tro ban tim san pham, bo suu tap hoac tu van don hang.",
   },
 ];
+
+const CHAT_REFRESH_INTERVAL_MS = 5000;
 
 function createMessage(role: ChatMessage["role"], content: string): ChatMessage {
   return {
@@ -30,32 +37,136 @@ function createMessage(role: ChatMessage["role"], content: string): ChatMessage 
   };
 }
 
+function toChatMessages(messages: Array<{ role: ChatMessage["role"]; content: string }>) {
+  return messages.map((message) => createMessage(message.role, message.content));
+}
+
+function createMessagesSignature(messages: Array<{ role: ChatMessage["role"]; content: string }>) {
+  return JSON.stringify(messages.map((message) => [message.role, message.content]));
+}
+
 export function ChatWidget() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [loadingConversation, setLoadingConversation] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const latestMessagesSignatureRef = useRef(createMessagesSignature(INITIAL_MESSAGES));
+  const sessionIdRef = useRef<string | null>(null);
+  const hydratedUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    sessionIdRef.current = sessionId;
+  }, [sessionId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, isOpen]);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const trimmedInput = input.trim();
-    if (!trimmedInput || sending) {
+  useEffect(() => {
+    if (!isOpen) {
       return;
     }
 
     const authUser = getAuthUser();
     if (!authUser) {
-      toast.info("Vui lòng đăng nhập trước khi nhắn tin.");
+      return;
+    }
+
+    let isActive = true;
+
+    const syncConversation = async (showLoading: boolean) => {
+      const shouldShowLoading = showLoading && hydratedUserIdRef.current !== authUser.id;
+
+      if (shouldShowLoading) {
+        setLoadingConversation(true);
+      }
+      try {
+        let conversation = null;
+
+        if (sessionIdRef.current) {
+          try {
+            conversation = await getChatConversationForCustomer(authUser.id, sessionIdRef.current);
+          } catch {
+            conversation = await getLatestChatConversation(authUser.id);
+          }
+        } else {
+          conversation = await getLatestChatConversation(authUser.id);
+        }
+
+        if (!isActive) {
+          return;
+        }
+
+        if (!conversation || !conversation.messages.length) {
+          setSessionId(null);
+          setMessages(INITIAL_MESSAGES);
+          latestMessagesSignatureRef.current = createMessagesSignature(INITIAL_MESSAGES);
+          hydratedUserIdRef.current = authUser.id;
+          setError(null);
+          return;
+        }
+
+        const nextSignature = createMessagesSignature(conversation.messages);
+        setSessionId(conversation.id);
+
+        if (nextSignature !== latestMessagesSignatureRef.current) {
+          setMessages(toChatMessages(conversation.messages));
+          latestMessagesSignatureRef.current = nextSignature;
+        }
+
+        hydratedUserIdRef.current = authUser.id;
+        setError(null);
+
+        void markChatConversationRead(authUser.id, conversation.id).catch(() => {
+          if (!isActive) {
+            return;
+          }
+
+          // Do not block the chat UI if the read-status endpoint is slow or fails.
+        });
+      } catch (loadError) {
+        if (!isActive) {
+          return;
+        }
+
+        if (shouldShowLoading) {
+          setError(loadError instanceof Error ? loadError.message : "Khong the tai lich su chat luc nay.");
+        }
+      } finally {
+        if (isActive && shouldShowLoading) {
+          setLoadingConversation(false);
+        }
+      }
+    };
+
+    void syncConversation(true);
+    const intervalId = window.setInterval(() => {
+      void syncConversation(false);
+    }, CHAT_REFRESH_INTERVAL_MS);
+
+    return () => {
+      isActive = false;
+      window.clearInterval(intervalId);
+    };
+  }, [isOpen]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const trimmedInput = input.trim();
+    if (!trimmedInput || sending || loadingConversation) {
+      return;
+    }
+
+    const authUser = getAuthUser();
+    if (!authUser) {
+      toast.info("Vui long dang nhap truoc khi nhan tin.");
       navigate("/login", {
         state: {
           redirectTo: `${location.pathname}${location.search}`,
@@ -73,6 +184,13 @@ export function ChatWidget() {
       }));
 
     setMessages((prev) => [...prev, nextUserMessage]);
+    latestMessagesSignatureRef.current = createMessagesSignature([
+      ...messages,
+      {
+        role: nextUserMessage.role,
+        content: nextUserMessage.content,
+      },
+    ]);
     setInput("");
     setSending(true);
     setError(null);
@@ -86,10 +204,18 @@ export function ChatWidget() {
         customerName: authUser.fullName,
       });
 
-      setMessages((prev) => [...prev, createMessage("assistant", response.text)]);
+      if (response.text?.trim()) {
+        setMessages((prev) => {
+          const nextMessages = [...prev, createMessage("assistant", response.text as string)];
+          latestMessagesSignatureRef.current = createMessagesSignature(nextMessages);
+          return nextMessages;
+        });
+      }
+
       setSessionId(response.sessionId ?? sessionId);
+      hydratedUserIdRef.current = authUser.id;
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Không thể kết nối chat lúc này.");
+      setError(submitError instanceof Error ? submitError.message : "Khong the ket noi chat luc nay.");
     } finally {
       setSending(false);
     }
@@ -110,14 +236,14 @@ export function ChatWidget() {
             <div className="bg-primary px-5 py-4 text-white">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-white/70">Tư vấn nhanh</p>
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/70">Tu van nhanh</p>
                   <h3 className="mt-2 font-sterling text-[26px] leading-none">Oriven Chat</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   className="rounded-full border border-white/20 p-2 text-white transition-colors hover:bg-white/10"
-                  aria-label="Đóng cửa sổ chat"
+                  aria-label="Dong cua so chat"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -143,11 +269,20 @@ export function ChatWidget() {
                   </div>
                 ))}
 
+                {loadingConversation ? (
+                  <div className="flex justify-start">
+                    <div className="flex items-center gap-2 border border-border bg-white px-4 py-3 text-sm text-muted-foreground shadow-sm">
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                      Dang tai hoi thoai...
+                    </div>
+                  </div>
+                ) : null}
+
                 {sending ? (
                   <div className="flex justify-start">
                     <div className="flex items-center gap-2 border border-border bg-white px-4 py-3 text-sm text-muted-foreground shadow-sm">
                       <LoaderCircle className="h-4 w-4 animate-spin" />
-                      Đang trả lời...
+                      Dang tra loi...
                     </div>
                   </div>
                 ) : null}
@@ -165,15 +300,15 @@ export function ChatWidget() {
                 <textarea
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
-                  placeholder="Nhập câu hỏi của bạn..."
+                  placeholder="Nhap cau hoi cua ban..."
                   rows={2}
                   className="min-h-[52px] flex-1 resize-none border border-border bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                 />
                 <button
                   type="submit"
-                  disabled={sending || !input.trim()}
+                  disabled={sending || loadingConversation || !input.trim()}
                   className="flex h-[52px] w-[52px] items-center justify-center bg-primary text-white transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
-                  aria-label="Gửi tin nhắn"
+                  aria-label="Gui tin nhan"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -187,7 +322,7 @@ export function ChatWidget() {
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white shadow-[0_20px_55px_rgba(17,33,45,0.28)] transition-all duration-300 hover:bg-secondary"
-        aria-label={isOpen ? "Ẩn chat" : "Mở chat"}
+        aria-label={isOpen ? "An chat" : "Mo chat"}
       >
         {isOpen ? <X className="h-6 w-6" /> : <MessageCircleMore className="h-7 w-7" />}
       </button>
