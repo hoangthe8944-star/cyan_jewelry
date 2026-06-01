@@ -56,6 +56,7 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const widgetRef = useRef<HTMLDivElement | null>(null);
   const latestMessagesSignatureRef = useRef(createMessagesSignature(INITIAL_MESSAGES));
   const sessionIdRef = useRef<string | null>(null);
   const hydratedUserIdRef = useRef<string | null>(null);
@@ -73,9 +74,24 @@ export function ChatWidget() {
       return;
     }
 
+    const handlePointerDownOutside = (event: PointerEvent) => {
+      if (!widgetRef.current) {
+        return;
+      }
+
+      const target = event.target;
+      if (target instanceof Node && !widgetRef.current.contains(target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDownOutside);
+
     const authUser = getAuthUser();
     if (!authUser) {
-      return;
+      return () => {
+        document.removeEventListener('pointerdown', handlePointerDownOutside);
+      };
     }
 
     let isActive = true;
@@ -149,6 +165,7 @@ export function ChatWidget() {
     }, CHAT_REFRESH_INTERVAL_MS);
 
     return () => {
+      document.removeEventListener('pointerdown', handlePointerDownOutside);
       isActive = false;
       window.clearInterval(intervalId);
     };
@@ -220,7 +237,7 @@ export function ChatWidget() {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-6 right-6 z-[70] flex items-end justify-end">
+    <div ref={widgetRef} className="pointer-events-none fixed bottom-6 right-6 z-[70] flex items-end justify-end">
       <AnimatePresence>
         {isOpen ? (
           <motion.div
