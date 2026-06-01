@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
@@ -19,22 +19,49 @@ function ProductsDropdown({
   onNavigateProducts: () => void;
   onNavigateCategory: (slug: string) => void;
 }) {
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+  const [menuTop, setMenuTop] = useState(compact ? 142 : 196);
+
+  useEffect(() => {
+    const updateMenuTop = () => {
+      if (!triggerRef.current) {
+        return;
+      }
+
+      const { bottom } = triggerRef.current.getBoundingClientRect();
+      setMenuTop(bottom + 16);
+    };
+
+    updateMenuTop();
+    window.addEventListener('resize', updateMenuTop);
+    window.addEventListener('scroll', updateMenuTop, true);
+
+    return () => {
+      window.removeEventListener('resize', updateMenuTop);
+      window.removeEventListener('scroll', updateMenuTop, true);
+    };
+  }, [compact]);
+
   const linkClass = compact
     ? 'text-sm tracking-wide text-white transition-colors hover:text-accent-light'
     : 'text-xs uppercase tracking-wider text-white transition-colors hover:text-accent-light';
 
   const menuClass = compact
-    ? 'fixed left-1/2 top-[142px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
-    : 'fixed left-1/2 top-[196px] z-50 mt-4 w-screen -translate-x-1/2 border-y border-white/10 bg-black/70 py-6 text-white shadow-2xl backdrop-blur-[18px]';
+    ? 'fixed inset-x-0 z-50 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
+    : 'fixed inset-x-0 z-50 border-y border-white/10 bg-black/70 py-6 text-white shadow-2xl backdrop-blur-[18px]';
+  const hoverBridgeClass = compact
+    ? 'pointer-events-none absolute left-1/2 top-full h-10 w-32 -translate-x-1/2 group-hover:pointer-events-auto'
+    : 'pointer-events-none absolute left-1/2 top-full h-10 w-28 -translate-x-1/2 group-hover:pointer-events-auto';
 
   return (
-    <div className="group relative">
+    <div ref={triggerRef} className="group relative">
       <button className={`relative z-[60] ${linkClass}`} type="button" onClick={onNavigateProducts}>
         Sản phẩm
       </button>
-      <div className="pointer-events-none fixed left-1/2 top-0 h-[320px] w-screen -translate-x-1/2 group-hover:pointer-events-auto" />
+      <div className={hoverBridgeClass} />
       <div
         className={`invisible absolute opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`}
+        style={{ top: `${menuTop}px` }}
       >
         {categories.length === 0 ? (
           <div className="py-6 text-center text-sm text-white/70">Đang tải danh mục...</div>

@@ -16,6 +16,31 @@ export interface Banner {
   ctaLabel?: string | null;
 }
 
+export interface LandingPageTheme {
+  id?: string;
+  slug?: string;
+  name?: string | null;
+  title?: string | null;
+  heading?: string | null;
+  headline?: string | null;
+  description?: string | null;
+  summary?: string | null;
+  body?: string | null;
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    keywords?: string | null;
+  } | null;
+  eyebrow?: string | null;
+  badgeLabel?: string | null;
+  primaryButtonLabel?: string | null;
+  primaryButtonUrl?: string | null;
+  secondaryButtonLabel?: string | null;
+  secondaryButtonUrl?: string | null;
+  media?: MediaAsset | null;
+  heroMedia?: MediaAsset | null;
+}
+
 export interface CategoryNode {
   id: string;
   name: string;

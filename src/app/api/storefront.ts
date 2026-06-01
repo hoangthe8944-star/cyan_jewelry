@@ -10,6 +10,7 @@ import type {
   EditorialQueryParams,
   EditorialSummary,
   HomeResponse,
+  LandingPageTheme,
   OrderLookupRequest,
   OrderPayload,
   OrderResponse,
@@ -30,6 +31,10 @@ export const storefrontApi = {
 
   getBanners(placement: BannerPlacement) {
     return request<Banner[]>(`${STOREFRONT_PREFIX}/banners${buildQuery({ placement })}`);
+  },
+
+  getLandingTheme() {
+    return request<LandingPageTheme>(`${STOREFRONT_PREFIX}/landing-theme`);
   },
 
   getCategories() {
