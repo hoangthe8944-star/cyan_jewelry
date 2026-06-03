@@ -178,7 +178,7 @@ export function Footer() {
             <div className="space-y-3 text-sm text-white/70">
               <p>
                 <span className="block font-medium text-white/90">Địa chỉ:</span>
-                15 D5, thạnh mỹ tây, hồ chí minh
+                15 D5, Thạnh Mỹ Tây, Hồ Chí Minh
               </p>
               <p>
                 <span className="block font-medium text-white/90">Hotline:</span>
@@ -186,7 +186,7 @@ export function Footer() {
               </p>
               <p>
                 <span className="block font-medium text-white/90">Email:</span>
-                contact@orivenjewelry.com
+                orivenjewelry@gmail.com
               </p>
             </div>
           </motion.div>

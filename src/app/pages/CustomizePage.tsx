@@ -163,7 +163,7 @@ export function CustomizePage() {
 
     // Create Scene
     const scene = new BABYLON.Scene(engine);
-    scene.clearColor = new BABYLON.Color4(0.06, 0.11, 0.15, 1.0); // #0F1C26 Dark luxury background
+    scene.clearColor = new BABYLON.Color4(0, 0, 0, 0); // Transparent to reveal CSS background gradient
     sceneRef.current = scene;
 
     // Load gemstone geometries once from shape.obj
@@ -789,7 +789,7 @@ export function CustomizePage() {
               
               {/* Left Column: 3D Preview (Luxurious Viewport) */}
               <div className="lg:col-span-5 space-y-6">
-                <div className="sticky top-28 bg-[#0F1C26] rounded-2xl overflow-hidden border border-[#A36B31]/30 shadow-2xl relative">
+                <div className="sticky top-28 bg-[radial-gradient(circle_at_center,_#1b2d3c_0%,_#070c10_100%)] rounded-2xl overflow-hidden border border-[#A36B31]/30 shadow-2xl relative">
                   
                   {/* Viewport header */}
                   <div className="absolute top-4 left-4 z-10 flex flex-col gap-1 pointer-events-none">
