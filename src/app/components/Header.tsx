@@ -29,7 +29,7 @@ function ProductsDropdown({
       }
 
       const { bottom } = triggerRef.current.getBoundingClientRect();
-      setMenuTop(bottom + 16);
+      setMenuTop(compact ? bottom : bottom + 16);
     };
 
     updateMenuTop();
@@ -47,27 +47,30 @@ function ProductsDropdown({
     : 'text-xs uppercase tracking-wider text-white transition-colors hover:text-accent-light';
 
   const menuClass = compact
-    ? 'fixed inset-x-0 z-50 border-y border-white/10 bg-primary/95 py-6 text-white shadow-2xl backdrop-blur-[18px]'
+    ? 'fixed inset-x-0 z-50 border-y border-white/10 bg-primary/95 py-8 text-white shadow-2xl backdrop-blur-[18px]'
     : 'fixed inset-x-0 z-50 border-y border-white/10 bg-black/70 py-6 text-white shadow-2xl backdrop-blur-[18px]';
   const hoverBridgeClass = compact
     ? 'pointer-events-none absolute left-1/2 top-full h-10 w-32 -translate-x-1/2 group-hover:pointer-events-auto'
     : 'pointer-events-none absolute left-1/2 top-full h-10 w-28 -translate-x-1/2 group-hover:pointer-events-auto';
 
   return (
-    <div ref={triggerRef} className="group relative">
+    <div ref={triggerRef} className={compact ? 'group' : 'group relative'}>
       <button className={`relative z-[60] ${linkClass}`} type="button" onClick={onNavigateProducts}>
         Sản phẩm
       </button>
       <div className={hoverBridgeClass} />
       <div
-        className={`invisible absolute opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`}
+        className={compact 
+          ? `invisible opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`
+          : `invisible absolute opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 ${menuClass}`
+        }
         style={{ top: `${menuTop}px` }}
       >
         {categories.length === 0 ? (
           <div className="py-6 text-center text-sm text-white/70">Đang tải danh mục...</div>
         ) : (
           <div className="mx-auto max-w-[1800px] px-6">
-            <div className="grid grid-cols-3 gap-6">
+            <div className={compact ? "grid grid-cols-3 gap-12 max-w-[1200px] mx-auto" : "grid grid-cols-3 gap-6"}>
               {categories.map((category) => (
                 <div key={category.id} className="space-y-3">
                   <button
@@ -243,6 +246,7 @@ export function Header() {
   const navigateToCollections = () => navigate('/collections');
   const navigateToCategory = (slug: string) => navigate(`/products?category=${slug}`);
   const navigateToAbout = () => navigate('/about');
+  const navigateToNews = () => navigate('/news');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -327,6 +331,12 @@ export function Header() {
                 >
                   Về chúng tôi
                 </button>
+                <button
+                  onClick={navigateToNews}
+                  className="text-sm tracking-wide text-white transition-colors hover:text-accent-light"
+                >
+                  Tin tức
+                </button>
               </nav>
             </div>
 
@@ -339,6 +349,13 @@ export function Header() {
                 <Search className="h-5 w-5" />
               </button>
               <AccountDropdown compact authUser={authUser} onLogout={handleLogout} />
+              <button
+                onClick={() => navigate(authUser ? '/account' : '/login')}
+                className="text-white transition-colors hover:text-accent-light block md:hidden"
+                aria-label="Tài khoản"
+              >
+                <User className="h-5 w-5" />
+              </button>
               <button
                 onClick={() => navigate('/wishlist')}
                 className="relative text-white transition-colors hover:text-accent-light"
@@ -431,6 +448,15 @@ export function Header() {
             >
               Về chúng tôi
             </button>
+            <button
+              onClick={navigateToNews}
+              className="text-xs uppercase tracking-wider text-white transition-colors hover:text-accent-light"
+              style={{
+                textShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              Tin tức
+            </button>
           </nav>
 
           <div className="hidden h-4 w-px bg-white/30 lg:block" />
@@ -447,6 +473,16 @@ export function Header() {
               <Search className="h-4 w-4" />
             </button>
             <AccountDropdown compact={false} authUser={authUser} onLogout={handleLogout} />
+            <button
+              onClick={() => navigate(authUser ? '/account' : '/login')}
+              className="text-white transition-colors hover:text-accent-light block md:hidden"
+              aria-label="Tài khoản"
+              style={{
+                filter: 'drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))',
+              }}
+            >
+              <User className="h-4 w-4" />
+            </button>
             <button
               onClick={() => navigate('/wishlist')}
               className="relative text-white transition-colors hover:text-accent-light"

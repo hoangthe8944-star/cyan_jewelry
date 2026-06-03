@@ -35,6 +35,8 @@ function HeroMedia({ slide, title }: { slide: HeroSlide; title: string }) {
         loop
         playsInline
         onError={() => setVideoFailed(true)}
+        // @ts-expect-error fetchpriority is a valid HTML attribute
+        fetchpriority="high"
       />
     );
   }
@@ -44,6 +46,8 @@ function HeroMedia({ slide, title }: { slide: HeroSlide; title: string }) {
       src={resolveMediaPosterUrl(slide.media)}
       alt={title}
       className="h-full w-full object-cover"
+      // @ts-expect-error fetchPriority is a valid React attribute
+      fetchPriority="high"
     />
   );
 }
@@ -80,7 +84,7 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
     <div className="relative overflow-hidden h-[600px] lg:h-[700px]">
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentSlide}
+          key={activeSlide.title + currentSlide}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

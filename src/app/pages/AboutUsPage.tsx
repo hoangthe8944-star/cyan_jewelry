@@ -84,6 +84,32 @@ export function AboutUsPage() {
             </div>
           </div>
         </section>
+        <section className="relative overflow-hidden bg-primary">
+          <div className="relative">
+            <video
+              className="h-[50vh] w-full object-cover opacity-70 sm:h-[60vh] lg:h-[75vh]"
+              src="/aboutus.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/50 via-transparent to-primary/50" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
+              <p className="mb-3 text-xs uppercase tracking-[0.4em] text-white/70 sm:mb-4 sm:text-sm">
+                Câu chuyện thương hiệu
+              </p>
+              <h2 className="max-w-3xl font-sterling text-[28px] leading-tight sm:text-[40px] lg:text-[56px]">
+                Nơi cảm xúc được chạm khắc thành nghệ thuật
+              </h2>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-white/80 sm:mt-6 sm:text-base">
+                Mỗi món trang sức Oriven đều mang trong mình một câu chuyện — về tay nghề thủ công, về chất liệu quý và
+                về những khoảnh khắc xứng đáng được ghi nhớ.
+              </p>
+            </div>
+          </div>
+        </section>
 
         <section className="mx-auto max-w-[1800px] px-6 py-16 lg:py-24">
           <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">

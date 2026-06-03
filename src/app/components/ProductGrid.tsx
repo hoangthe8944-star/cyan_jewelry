@@ -25,22 +25,22 @@ export function ProductGrid({
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-white py-20">
-      <div className="mx-auto max-w-[1800px] px-6">
+    <section ref={ref} className="bg-white py-12 sm:py-20">
+      <div className="mx-auto max-w-[1800px] px-4 sm:px-6">
         <motion.div
-          className="mb-12 text-center"
+          className="mb-8 text-center sm:mb-12"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
           {eyebrow ? (
-            <p className="mb-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">{eyebrow}</p>
+            <p className="mb-2 text-xs uppercase tracking-[0.3em] text-muted-foreground sm:mb-3 sm:text-sm">{eyebrow}</p>
           ) : null}
-          <h2 className="mb-3 font-sterling text-[40px]">{title}</h2>
-          <p className="tracking-wide text-muted-foreground">{description}</p>
+          <h2 className="mb-2 font-sterling text-[28px] sm:mb-3 sm:text-[40px]">{title}</h2>
+          <p className="text-sm tracking-wide text-muted-foreground sm:text-base">{description}</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
           {products.map((product, index) => (
             <ProductCard
               key={product.id}

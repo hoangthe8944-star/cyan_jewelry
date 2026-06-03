@@ -624,6 +624,23 @@ export function ProductDetailPage() {
                   </motion.button>
                   <motion.button
                     onClick={() =>
+                      navigate('/customize', {
+                        state: {
+                          productName: activeProductName,
+                          productSku: productSku,
+                          price: activeVariant?.price ?? product.minPrice,
+                          image: resolveMediaUrl(activePrimaryMedia),
+                        },
+                      })
+                    }
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex w-full items-center justify-center gap-3 border border-[#A36B31] text-[#A36B31] hover:bg-[#A36B31]/5 py-5 tracking-wide transition-all duration-300"
+                  >
+                    Tùy chỉnh thiết kế riêng
+                  </motion.button>
+                  <motion.button
+                    onClick={() =>
                       toggleWishlist({
                         id: product.id,
                         slug: product.slug,

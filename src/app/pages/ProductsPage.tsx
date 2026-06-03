@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Filter, RefreshCcw, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -49,6 +49,7 @@ function detectProductColors(product: ProductCardItem) {
 }
 
 export function ProductsPage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<CategoryNode[]>([]);
   const [products, setProducts] = useState<ProductCardItem[]>([]);
@@ -183,8 +184,8 @@ export function ProductsPage() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-white pb-20 pt-28 lg:pt-32">
-        <div className="mx-auto max-w-[1800px] px-6">
+      <div className="min-h-screen bg-white pb-20 pt-24 sm:pt-28 lg:pt-32">
+        <div className="mx-auto max-w-[1800px] px-4 sm:px-6">
           <div className="mb-10 flex flex-col gap-4 border-b border-border pb-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="mb-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">Cửa hàng</p>
@@ -203,6 +204,13 @@ export function ProductsPage() {
               >
                 <Filter className="h-4 w-4" />
                 Lọc
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/customize')}
+                className="inline-flex items-center gap-3 border border-[#A36B31] text-[#A36B31] px-4 py-2 text-sm uppercase tracking-[0.22em] transition-colors hover:bg-[#A36B31]/5"
+              >
+                Tự thiết kế
               </button>
               <div className="text-sm text-muted-foreground">
                 {loading ? 'Đang tải sản phẩm...' : `${filteredProducts.length} sản phẩm`}
@@ -224,7 +232,7 @@ export function ProductsPage() {
               ) : null}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-6">
               <button
                 type="button"
                 onClick={() => updateFilter('category')}
@@ -235,9 +243,9 @@ export function ProductsPage() {
                 <div className="absolute inset-0 bg-primary" />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.2),_transparent_55%)]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-primary/20" />
-                <div className="absolute inset-0 flex flex-col justify-end p-5 text-white">
-                  <p className="text-xs uppercase tracking-[0.25em] text-white/70">Tất cả</p>
-                  <h3 className="mt-3 font-sterling text-[22px]">Tất cả sản phẩm</h3>
+                <div className="absolute inset-0 flex flex-col justify-end p-3 text-white sm:p-5">
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-white/70 sm:text-xs">Tất cả</p>
+                  <h3 className="mt-1.5 font-sterling text-[16px] sm:mt-3 sm:text-[22px]">Tất cả sản phẩm</h3>
                 </div>
               </button>
 
@@ -261,10 +269,10 @@ export function ProductsPage() {
                       />
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/35 to-transparent" />
-                    <div className="absolute inset-0 flex flex-col justify-end p-5 text-white">
-                      <p className="text-xs uppercase tracking-[0.25em] text-white/70">Danh mục</p>
-                      <h3 className="mt-3 font-sterling text-[22px] leading-tight">{category.name}</h3>
-                      <p className="mt-3 text-sm text-white/80">
+                    <div className="absolute inset-0 flex flex-col justify-end p-3 text-white sm:p-5">
+                      <p className="text-[10px] uppercase tracking-[0.25em] text-white/70 sm:text-xs">Danh mục</p>
+                      <h3 className="mt-1.5 font-sterling text-[16px] leading-tight sm:mt-3 sm:text-[22px]">{category.name}</h3>
+                      <p className="mt-1.5 text-xs text-white/80 sm:mt-3 sm:text-sm">
                         {category.children.length > 0
                           ? `${category.children.length} bộ sưu tập`
                           : 'Khám phá danh mục'}
@@ -458,13 +466,13 @@ export function ProductsPage() {
             ) : null}
 
             {!error && loading ? (
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div key={index} className="animate-pulse">
                     <div className="aspect-[3/4] bg-muted" />
-                    <div className="mt-4 h-3 w-24 bg-muted" />
-                    <div className="mt-3 h-4 w-3/4 bg-muted" />
-                    <div className="mt-3 h-4 w-20 bg-muted" />
+                    <div className="mt-3 h-2.5 w-16 bg-muted sm:mt-4 sm:h-3 sm:w-24" />
+                    <div className="mt-2 h-3 w-3/4 bg-muted sm:mt-3 sm:h-4" />
+                    <div className="mt-2 h-3 w-14 bg-muted sm:mt-3 sm:h-4 sm:w-20" />
                   </div>
                 ))}
               </div>
@@ -481,7 +489,7 @@ export function ProductsPage() {
 
             {!error && !loading && filteredProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
                   {paginatedProducts.map((product, index) => (
                     <ProductCard
                       key={product.id}

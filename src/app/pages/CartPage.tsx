@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, LoaderCircle, Minus, Plus, ShoppingBag, X } from 'lucide-react';
@@ -9,6 +9,7 @@ import { PageTransition } from '../components/PageTransition';
 import { buildCartItemKey, useShop } from '../context/ShopContext';
 import { saveRecentOrder } from '../lib/orderHistory';
 import type { OrderAddress, OrderCustomer, OrderPayload } from '../lib/types';
+import { getAuthUser } from '../lib/auth';
 
 function formatVndCurrency(value: number) {
   return new Intl.NumberFormat('vi-VN', {
@@ -56,6 +57,18 @@ export function CartPage() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [checkoutSuccess, setCheckoutSuccess] = useState<string | null>(null);
 
+  const authUser = getAuthUser();
+
+  useEffect(() => {
+    if (authUser) {
+      setForm((prev) => ({
+        ...prev,
+        fullName: prev.fullName || authUser.fullName,
+        email: prev.email || authUser.email,
+      }));
+    }
+  }, []);
+
   const cartSubtotal = getCartTotal();
   const invalidCartItems = useMemo(() => cart.filter((item) => !item.variantCode), [cart]);
 
@@ -82,6 +95,7 @@ export function CartPage() {
         fullName: form.fullName.trim(),
         phoneNumber: form.phoneNumber.trim(),
         ...(trimOrUndefined(form.email) ? { email: trimOrUndefined(form.email) } : {}),
+        ...(authUser ? { userId: authUser.id } : {}),
       };
 
       const shippingAddress: OrderAddress = {
@@ -110,6 +124,7 @@ export function CartPage() {
         shippingFee: 0,
         paymentMethod,
         ...(trimOrUndefined(form.note) ? { note: trimOrUndefined(form.note) } : {}),
+        ...(authUser ? { userId: authUser.id } : {}),
         ...(paymentMethod === 'MOMO'
           ? {
               momoPayment: {

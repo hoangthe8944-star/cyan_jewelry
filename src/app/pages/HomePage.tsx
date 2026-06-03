@@ -40,6 +40,14 @@ export function HomePage() {
   const [latestCollectionName, setLatestCollectionName] = useState('Bộ sưu tập mới nhất');
   const [featuredProducts, setFeaturedProducts] = useState<ProductCardItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showApiBanners, setShowApiBanners] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowApiBanners(true);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     Promise.all([storefrontApi.getHome(), storefrontApi.getProducts(), storefrontApi.getCollections()])
@@ -84,7 +92,47 @@ export function HomePage() {
 
   return (
     <PageTransition>
-      <HeroCarousel banners={homeData?.mainBanners ?? []} />
+      <HeroCarousel 
+        banners={
+          showApiBanners && homeData?.mainBanners && homeData.mainBanners.length > 0
+            ? homeData.mainBanners
+            : [
+                {
+                  id: 'local-banner',
+                  title: 'SẮC XANH THỜI ĐẠI',
+                  slug: 'banner',
+                  ctaLabel: 'Khi phong cách đương đại gặp gỡ linh hồn của đá quý, tạo nên sức hút không thể khước từ',
+                  media: {
+                    mediaType: 'MP4',
+                    url: `${window.location.origin}/banner.mp4`,
+                    thumbnailUrl: '',
+                  },
+                } as any,
+                {
+                  id: 'local-banner-2',
+                  title: 'GIAO THOA ÁNH NGUYỆT',
+                  slug: 'banner2',
+                  ctaLabel: 'Tuyệt tác trang sức đánh thức vẻ đẹp nữ tính và quyền năng từ ánh trăng',
+                  media: {
+                    mediaType: 'IMAGE',
+                    url: `${window.location.origin}/banner2.png`,
+                    thumbnailUrl: '',
+                  },
+                } as any,
+                {
+                  id: 'local-banner-3',
+                  title: 'HỒNG VÂN – Sắc Hồng Vĩnh Cửu',
+                  slug: 'banner3',
+                  ctaLabel: 'Nơi vẻ đẹp dịu dàng ngưng đọng, cho tâm hồn mãi rạng rỡ như thuở ban đầu',
+                  media: {
+                    mediaType: 'IMAGE',
+                    url: `${window.location.origin}/banner3.png`,
+                    thumbnailUrl: '',
+                  },
+                } as any,
+              ]
+        } 
+      />
       {error ? (
         <div className="mx-auto max-w-4xl px-6 py-10 text-center text-sm text-red-600">
           Failed to load storefront data: {error}

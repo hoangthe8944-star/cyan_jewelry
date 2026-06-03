@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { LoaderCircle, Search } from 'lucide-react';
 
@@ -6,6 +7,7 @@ import { storefrontApi } from '../api';
 import { PageTransition } from '../components/PageTransition';
 import { readRecentOrders, type RecentOrderRecord } from '../lib/orderHistory';
 import type { OrderResponse } from '../lib/types';
+import { getAuthUser } from '../lib/auth';
 
 function formatVndCurrency(value?: number) {
   if (typeof value !== 'number') {
@@ -35,7 +37,18 @@ function formatDate(value?: string) {
   }).format(date);
 }
 
+function getStepIndex(status?: string): number {
+  if (!status) return 0;
+  const s = status.toUpperCase();
+  if (s === 'PENDING') return 0;
+  if (s === 'AWAITING_PAYMENT' || s === 'PAID' || s === 'PROCESSING') return 1;
+  if (s === 'SHIPPED') return 2;
+  if (s === 'COMPLETED') return 3;
+  return 0;
+}
+
 export function MyOrdersPage() {
+  const navigate = useNavigate();
   const [orderCode, setOrderCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,8 +56,27 @@ export function MyOrdersPage() {
   const [order, setOrder] = useState<OrderResponse | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrderRecord[]>([]);
 
+  const authUser = getAuthUser();
+  const [userOrders, setUserOrders] = useState<OrderResponse[]>([]);
+  const [loadingUserOrders, setLoadingUserOrders] = useState(false);
+
   useEffect(() => {
     setRecentOrders(readRecentOrders());
+
+    if (authUser) {
+      setLoadingUserOrders(true);
+      storefrontApi
+        .getOrdersByUser(authUser.id)
+        .then((data) => {
+          setUserOrders(data || []);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch user orders:', err);
+        })
+        .finally(() => {
+          setLoadingUserOrders(false);
+        });
+    }
   }, []);
 
   const handleLookup = async (event: FormEvent<HTMLFormElement>) => {
@@ -70,6 +102,12 @@ export function MyOrdersPage() {
   const applyRecentOrder = (item: RecentOrderRecord) => {
     setOrderCode(item.orderCode);
     setPhoneNumber(item.phoneNumber);
+  };
+
+  const handleSelectOrder = (selectedOrder: OrderResponse) => {
+    setOrder(selectedOrder);
+    if (selectedOrder.orderCode) setOrderCode(selectedOrder.orderCode);
+    if (selectedOrder.customer?.phoneNumber) setPhoneNumber(selectedOrder.customer.phoneNumber);
   };
 
   return (
@@ -126,6 +164,49 @@ export function MyOrdersPage() {
                 </button>
               </form>
 
+              {authUser && (
+                <div className="border border-border bg-white p-8">
+                  <div className="mb-5">
+                    <h2 className="font-sterling text-[26px] text-primary">Lịch sử đơn hàng</h2>
+                    <p className="mt-2 text-sm text-foreground/70">
+                      Tất cả các đơn hàng đã đặt của tài khoản <strong>{authUser.fullName}</strong>.
+                    </p>
+                  </div>
+
+                  {loadingUserOrders ? (
+                    <div className="flex items-center justify-center py-6">
+                      <LoaderCircle className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                  ) : userOrders.length > 0 ? (
+                    <div className="space-y-4 max-h-[360px] overflow-y-auto pr-1">
+                      {userOrders.map((item) => (
+                        <button
+                          key={item.orderCode}
+                          type="button"
+                          onClick={() => handleSelectOrder(item)}
+                          className="block w-full border border-border px-5 py-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30"
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <div>
+                              <p className="text-xs uppercase tracking-[0.2em] text-foreground/55">{item.orderCode}</p>
+                              <h3 className="mt-2 text-sm font-medium text-foreground">{item.customer?.fullName || authUser.fullName}</h3>
+                            </div>
+                            <span className="text-sm text-accent">{formatVndCurrency(item.totalAmount)}</span>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-foreground/55">
+                            <span>{item.paymentMethod || '-'}</span>
+                            <span>{item.paymentStatus || '-'}</span>
+                            <span>{formatDate(item.createdAt)}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-foreground/60 py-2">Tài khoản này chưa có đơn hàng nào.</p>
+                  )}
+                </div>
+              )}
+
               {recentOrders.length > 0 ? (
                 <div className="border border-border bg-white p-8">
                   <div className="mb-5">
@@ -177,6 +258,59 @@ export function MyOrdersPage() {
                   <div className="border-b border-border pb-6">
                     <p className="text-xs uppercase tracking-[0.24em] text-foreground/60">Chi tiết đơn hàng</p>
                     <h2 className="mt-3 font-sterling text-[34px] text-primary">{order.orderCode}</h2>
+
+                    {/* Thanh theo dõi đơn hàng */}
+                    <div className="my-8 border-y border-border py-8">
+                      <p className="text-xs uppercase tracking-[0.24em] text-foreground/60 mb-6 text-center">Trạng thái xử lý đơn hàng</p>
+                      {['CANCELED', 'FAILED'].includes(order.orderStatus?.toUpperCase() || '') ? (
+                        <div className="flex flex-col items-center justify-center p-4 bg-red-50 border border-red-100 rounded text-center">
+                          <p className="text-sm font-semibold text-red-600 uppercase tracking-widest">
+                            Đơn hàng đã {order.orderStatus?.toUpperCase() === 'CANCELED' ? 'HỦY' : 'THẤT BẠI'}
+                          </p>
+                          <p className="mt-1 text-xs text-red-500">Đơn hàng này không thể tiếp tục xử lý hoặc giao nhận.</p>
+                        </div>
+                      ) : (
+                        <div className="relative flex items-center justify-between w-full px-4">
+                          {/* Background Line */}
+                          <div className="absolute top-[15px] left-0 w-full h-[2px] bg-muted/60 z-0" />
+                          {/* Active Fill Line */}
+                          <div 
+                            className="absolute top-[15px] left-0 h-[2px] bg-primary transition-all duration-500 z-0" 
+                            style={{ width: `${(getStepIndex(order.orderStatus) / 3) * 100}%` }}
+                          />
+
+                          {/* Steps */}
+                          {[
+                            { label: 'Đã nhận đơn', desc: 'Đơn hàng mới tạo' },
+                            { label: 'Đang chuẩn bị', desc: 'Nhà sản xuất gia công' },
+                            { label: 'Đang giao hàng', desc: 'Shipper đang chuyển đi' },
+                            { label: 'Đã hoàn thành', desc: 'Giao hàng thành công' }
+                          ].map((step, idx) => {
+                            const isActive = idx <= getStepIndex(order.orderStatus);
+                            return (
+                              <div key={idx} className="relative z-10 flex flex-col items-center flex-1">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold border-2 transition-all duration-300 ${
+                                  isActive 
+                                    ? 'bg-primary border-primary text-white shadow-md scale-110' 
+                                    : 'bg-white border-muted text-muted-foreground'
+                                }`}>
+                                  {idx + 1}
+                                </div>
+                                <p className={`mt-3 text-xs font-medium tracking-wider text-center transition-colors duration-300 ${
+                                  isActive ? 'text-primary font-semibold' : 'text-foreground/40'
+                                }`}>
+                                  {step.label}
+                                </p>
+                                <p className="hidden sm:block mt-1 text-[10px] text-foreground/45 text-center">
+                                  {step.desc}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="mt-5 grid gap-4 sm:grid-cols-2">
                       <div>
                         <p className="text-xs uppercase tracking-[0.18em] text-foreground/55">Khách hàng</p>
@@ -233,6 +367,19 @@ export function MyOrdersPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Nút yêu cầu hủy đơn hàng */}
+                  {!['CANCELED', 'FAILED', 'COMPLETED', 'SHIPPED'].includes(order.orderStatus?.toUpperCase() || '') && (
+                    <div className="mt-8 pt-6 border-t border-border flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => navigate('/contact', { state: { cancelOrderCode: order.orderCode } })}
+                        className="px-6 py-3 border border-red-200 text-red-600 hover:bg-red-50 transition-colors uppercase tracking-widest text-xs font-semibold"
+                      >
+                        Yêu cầu hủy đơn hàng
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

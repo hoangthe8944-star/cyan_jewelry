@@ -13,32 +13,32 @@ export function CategorySection({ categories }: { categories: CategoryNode[] }) 
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-muted py-20">
-      <div className="mx-auto max-w-[1800px] px-6">
+    <section ref={ref} className="bg-muted py-12 sm:py-20">
+      <div className="mx-auto max-w-[1800px] px-4 sm:px-6">
         <motion.div
-          className="mb-12 text-center"
+          className="mb-8 text-center sm:mb-12"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="mb-3 font-sterling text-[40px]">Danh mục sản phẩm</h2>
-          <p className="tracking-wide text-muted-foreground">
+          <h2 className="mb-2 font-sterling text-[28px] sm:mb-3 sm:text-[40px]">Danh mục sản phẩm</h2>
+          <p className="text-sm tracking-wide text-muted-foreground sm:text-base">
             Những lựa chọn được tuyển chọn cho từng phong cách và dịp khác nhau
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
           {categories.slice(0, 4).map((category, index) => (
             <motion.button
               key={category.id}
               type="button"
               onClick={() => navigate(`/products?category=${category.slug}`)}
-              className="group relative aspect-square overflow-hidden text-left"
+              className="group relative aspect-[3/4] overflow-hidden text-left sm:aspect-square"
               initial={{ opacity: 0, scale: 0.9, y: 50 }}
               animate={isInView ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.9, y: 50 }}
               transition={{
                 duration: 0.6,
-                delay: index * 0.15,
+                delay: index * 0.1,
                 ease: [0.21, 0.47, 0.32, 0.98],
               }}
               whileHover={{
@@ -65,7 +65,7 @@ export function CategorySection({ categories }: { categories: CategoryNode[] }) 
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <motion.h3
-                  className="font-sterling text-[32px] tracking-wide text-white"
+                  className="font-sterling text-[20px] tracking-wide text-white sm:text-[28px] lg:text-[32px]"
                   initial={{ y: 0 }}
                   whileHover={{ y: -10, scale: 1.1 }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}

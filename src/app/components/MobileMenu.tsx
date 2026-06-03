@@ -91,6 +91,14 @@ export function MobileMenu() {
                   <span className="tracking-wide">Về chúng tôi</span>
                   <ChevronRight className="h-5 w-5 text-muted-foreground transition-colors" />
                 </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('/news')}
+                  className="flex w-full items-center justify-between px-4 py-4 text-left transition-colors hover:bg-muted"
+                >
+                  <span className="tracking-wide">Tin tức</span>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground transition-colors" />
+                </button>
               </div>
 
               <div className="mt-6">

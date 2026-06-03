@@ -237,7 +237,7 @@ export function ChatWidget() {
   };
 
   return (
-    <div ref={widgetRef} className="pointer-events-none fixed bottom-6 right-6 z-[70] flex items-end justify-end">
+    <div ref={widgetRef} className="pointer-events-none fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-6 sm:right-6 z-[70] flex flex-col items-end justify-end">
       <AnimatePresence>
         {isOpen ? (
           <motion.div
@@ -246,7 +246,7 @@ export function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 18, scale: 0.98 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="pointer-events-auto mb-4 w-[min(92vw,380px)] overflow-hidden border border-[rgba(17,33,45,0.14)] bg-white shadow-[0_30px_90px_rgba(17,33,45,0.22)]"
+            className="pointer-events-auto mb-4 w-full sm:w-[380px] overflow-hidden rounded-2xl border border-[#A36B31]/20 bg-white shadow-[0_24px_60px_rgba(17,33,45,0.25)]"
           >
             <div className="bg-primary px-5 py-4 text-white">
               <div className="flex items-start justify-between gap-4">
@@ -333,14 +333,45 @@ export function ChatWidget() {
         ) : null}
       </AnimatePresence>
 
-      <button
-        type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white shadow-[0_20px_55px_rgba(17,33,45,0.28)] transition-all duration-300 hover:bg-secondary"
-        aria-label={isOpen ? 'Ẩn chat' : 'Mở chat'}
-      >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageCircleMore className="h-7 w-7" />}
-      </button>
+      <motion.div className="pointer-events-auto relative group">
+        {/* Colorful Gemstone Glow Aura behind the button on hover */}
+        <div className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,#00f2ea,#a855f7,#38bdf8,#e2e8f0)] opacity-0 group-hover:opacity-80 blur-md transition-all duration-500 scale-95 group-hover:scale-125 animate-pulse" />
+        
+        <motion.button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white overflow-hidden border border-white/20 transition-all duration-300"
+          style={{
+            boxShadow: '0 8px 32px rgba(17, 33, 45, 0.35)',
+          }}
+          aria-label={isOpen ? 'Ẩn chat' : 'Mở chat'}
+        >
+          {/* Shifting holographic gradient overlay on hover */}
+          <span className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,242,234,0.3),rgba(168,85,247,0.3),rgba(56,189,248,0.3))] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          {isOpen ? (
+            <X className="relative z-10 h-5 w-5" />
+          ) : (
+            <motion.img 
+              src="/mineral.png" 
+              alt="Mineral" 
+              className="h-full w-full object-cover relative z-10"
+              whileHover={{ scale: 1.2, rotate: 15 }}
+              transition={{ duration: 0.3 }}
+            />
+          )}
+
+          {/* Shimmering highlight line on hover */}
+          <motion.div
+            className="absolute top-0 w-1/2 h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)] -skew-x-12"
+            style={{ left: '-100%' }}
+            animate={{ left: ['-100%', '200%'] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+          />
+        </motion.button>
+      </motion.div>
     </div>
   );
 }

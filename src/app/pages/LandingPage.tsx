@@ -83,6 +83,8 @@ function LandingBackgroundMedia({ media, enabled }: { media?: MediaAsset | null;
         loop
         playsInline
         onError={() => setVideoFailed(true)}
+        // @ts-expect-error fetchpriority is a valid HTML attribute
+        fetchpriority="high"
       />
     );
   }
@@ -92,6 +94,8 @@ function LandingBackgroundMedia({ media, enabled }: { media?: MediaAsset | null;
       src={resolveMediaPosterUrl(media)}
       alt={media.altText ?? 'Landing page media'}
       className="absolute inset-0 h-full w-full object-cover"
+      // @ts-expect-error fetchPriority is a valid React attribute
+      fetchPriority="high"
     />
   );
 }

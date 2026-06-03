@@ -188,6 +188,7 @@ export interface OrderCustomer {
   fullName: string;
   email?: string | null;
   phoneNumber: string;
+  userId?: string | null;
 }
 
 export interface OrderAddress {
@@ -219,6 +220,7 @@ export interface OrderPayload {
   paymentMethod?: "COD" | "MOMO";
   orderStatus?: string;
   note?: string | null;
+  userId?: string | null;
   momoPayment?: {
     orderInfo?: string;
     redirectUrl?: string;

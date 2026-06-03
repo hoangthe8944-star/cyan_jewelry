@@ -84,6 +84,9 @@ export function CraftPage() {
             <video
               className="h-full max-h-[720px] w-full object-cover"
               src="/chetac.mp4"
+              autoPlay
+              muted
+              loop
               controls
               playsInline
               preload="metadata"
