@@ -5,7 +5,7 @@ export function JoinClubSection() {
     <section
       className="relative overflow-hidden bg-[#11212D] py-20 text-white lg:py-28"
       style={{
-        backgroundImage: 'url("../public/joinclub.jpg")',
+        backgroundImage: 'url("/joinclub.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

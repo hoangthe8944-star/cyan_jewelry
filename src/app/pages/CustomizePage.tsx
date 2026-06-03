@@ -206,13 +206,38 @@ export function CustomizePage() {
 
     // Lights
     const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
-    light.intensity = 0.6;
+    light.intensity = 0.5;
 
-    const dirLight1 = new BABYLON.DirectionalLight('dirLight1', new BABYLON.Vector3(5, -10, 7), scene);
-    dirLight1.intensity = 0.85;
+    const dirLight1 = new BABYLON.DirectionalLight('dirLight1', new BABYLON.Vector3(5, 10, 7), scene);
+    dirLight1.intensity = 1.2;
+    dirLight1.specular = new BABYLON.Color3(1, 1, 1);
 
-    const dirLight2 = new BABYLON.DirectionalLight('dirLight2', new BABYLON.Vector3(-5, 5, -2), scene);
-    dirLight2.intensity = 0.45;
+    const dirLight2 = new BABYLON.DirectionalLight('dirLight2', new BABYLON.Vector3(-5, -5, -2), scene);
+    dirLight2.intensity = 0.6;
+    dirLight2.specular = new BABYLON.Color3(0.8, 0.8, 1);
+
+    // Create default environment for PBR reflections (crucial for metal shine)
+    const envHelper = scene.createDefaultEnvironment({
+      createSkybox: false,
+      createGround: false,
+      activeCamera: camera
+    });
+    if (envHelper && envHelper.environmentTexture) {
+      scene.environmentTexture = envHelper.environmentTexture;
+    }
+
+    // Default Rendering Pipeline with Bloom effect for jewelry "blink blink" sparkle
+    const pipeline = new BABYLON.DefaultRenderingPipeline(
+      'defaultPipeline',
+      true, // HDR
+      scene,
+      [camera]
+    );
+    pipeline.bloomEnabled = true;
+    pipeline.bloomThreshold = 0.55; // Lower to trigger bloom on sparkly reflections
+    pipeline.bloomWeight = 0.8;    // Intensity of the sparkle glow
+    pipeline.bloomKernel = 64;     // Softness of the glow
+    pipeline.bloomScale = 0.5;
 
     // Create parent Node for loaded models
     const modelContainer = new BABYLON.TransformNode('modelContainer', scene);
@@ -449,8 +474,9 @@ export function CustomizePage() {
 
         const metalMat = new BABYLON.PBRMaterial('metalMat', scene);
         metalMat.albedoColor = metalColor;
-        metalMat.metallic = 0.95;
-        metalMat.roughness = 0.15;
+        metalMat.metallic = 1.0;
+        metalMat.roughness = 0.05;
+        metalMat.microSurface = 0.98;
         mesh.material = metalMat;
       };
 
@@ -645,12 +671,18 @@ export function CustomizePage() {
           const gemColor = BABYLON.Color3.FromHexString(gemColorStr);
           const gemMat = new BABYLON.PBRMaterial('gemMat_' + idx, scene);
           gemMat.albedoColor = gemColor;
-          gemMat.metallic = 0.0;
-          gemMat.roughness = 0.05;
-          gemMat.indexOfRefraction = 2.4;
-          gemMat.alpha = 0.85;
+          gemMat.metallic = 0.1;
+          gemMat.roughness = 0.0;
+          gemMat.indexOfRefraction = 2.6; // Diamond index of refraction
+          gemMat.alpha = 0.9;
           gemMat.subSurface.isRefractionEnabled = true;
-          gemMat.subSurface.refractionIntensity = 0.95;
+          gemMat.subSurface.refractionIntensity = 1.0;
+          
+          // Clear coat gives extra shiny facet reflections
+          gemMat.clearCoat.isEnabled = true;
+          gemMat.clearCoat.intensity = 1.0;
+          gemMat.clearCoat.roughness = 0.0;
+
           gemCutMesh.material = gemMat;
         }
       });
@@ -686,23 +718,25 @@ export function CustomizePage() {
   };
 
   const calculateEstimate = () => {
-    let base = 5000000;
-    if (jewelryType === 'Dây chuyền') base += 3500000;
-    if (jewelryType === 'Vòng tay') base += 2500000;
-    if (jewelryType === 'Hoa tai') base += 1500000;
+    let base = 600000;
+    if (jewelryType === 'Dây chuyền') base += 100000;
+    if (jewelryType === 'Vòng tay') base += 80000;
+    if (jewelryType === 'Hoa tai') base += 70000;
+    if (jewelryType === 'Nhẫn') base += 50000;
 
-    if (material === 'Bạch kim') base += 10000000;
-    if (material === 'Vàng trắng 18K') base += 4500000;
-    if (material === 'Vàng hồng 18K') base += 4000000;
-    if (material === 'Bạc') base -= 3500000;
+    if (material === 'Bạch kim') base += 150000;
+    if (material === 'Vàng trắng 18K') base += 120000;
+    if (material === 'Vàng hồng 18K') base += 110000;
+    if (material === 'Vàng 18K') base += 100000;
+    if (material === 'Bạc') base += 30000;
 
-    if (gemstone === 'Kim cương') base += 15000000;
-    if (gemstone === 'Emerald (Ngọc lục bảo)') base += 12000000;
-    if (gemstone === 'Sapphire (Lam ngọc)') base += 9000000;
-    if (gemstone === 'Ruby (Hồng ngọc)') base += 10000000;
-    if (gemstone === 'Không đính đá') base = Math.max(2000000, base - 3000000);
+    if (gemstone === 'Kim cương') base += 120000;
+    if (gemstone === 'Emerald (Ngọc lục bảo)') base += 90000;
+    if (gemstone === 'Sapphire (Lam ngọc)') base += 70000;
+    if (gemstone === 'Ruby (Hồng ngọc)') base += 80000;
+    if (gemstone === 'Không đính đá') base = Math.max(600000, base - 20000);
 
-    if (engraving) base += 500000;
+    if (engraving) base += 30000;
 
     return base;
   };
@@ -789,19 +823,19 @@ export function CustomizePage() {
               
               {/* Left Column: 3D Preview (Luxurious Viewport) */}
               <div className="lg:col-span-5 space-y-6">
-                <div className="sticky top-28 bg-[radial-gradient(circle_at_center,_#1b2d3c_0%,_#070c10_100%)] rounded-2xl overflow-hidden border border-[#A36B31]/30 shadow-2xl relative">
+                <div className="sticky top-28 bg-[radial-gradient(circle_at_center,_#ffffff_0%,_#fffcf0_55%,_#fbf4dc_100%)] rounded-2xl overflow-hidden border border-[#A36B31]/30 shadow-2xl relative">
                   
                   {/* Viewport header */}
                   <div className="absolute top-4 left-4 z-10 flex flex-col gap-1 pointer-events-none">
-                    <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">Studio 3D độc quyền</span>
-                    <h3 className="text-base text-[#f2e2cf] font-medium font-sterling flex items-center gap-1.5">
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-[#11212D]/60 font-semibold">Studio 3D độc quyền</span>
+                    <h3 className="text-base text-[#11212D] font-medium font-sterling flex items-center gap-1.5">
                       <span>Mô phỏng 3D tương tác</span>
                       <Sparkles className="h-3.5 w-3.5 text-[#A36B31] animate-pulse" />
                     </h3>
                   </div>
 
-                  <div className="absolute top-4 right-4 z-10 pointer-events-none flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] text-white/70 uppercase tracking-widest border border-white/5">
-                    <RotateCw className="h-3 w-3 animate-spin duration-3000" />
+                  <div className="absolute top-4 right-4 z-10 pointer-events-none flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] text-[#11212D]/80 uppercase tracking-widest border border-[#A36B31]/15">
+                    <RotateCw className="h-3 w-3 animate-spin duration-3000 text-[#A36B31]" />
                     <span>Kéo để xoay</span>
                   </div>
 
@@ -811,21 +845,21 @@ export function CustomizePage() {
                     className="w-full aspect-square md:aspect-[4/5] min-h-[350px] cursor-grab active:cursor-grabbing flex items-center justify-center relative"
                   >
                     {!threeLoaded && (
-                      <div className="text-center text-white/60 flex flex-col items-center gap-3">
+                      <div className="text-center text-[#11212D]/60 flex flex-col items-center gap-3">
                         <LoaderCircle className="h-8 w-8 animate-spin text-[#A36B31]" />
                         <p className="text-xs uppercase tracking-widest">Đang khởi động không gian 3D...</p>
                       </div>
                     )}
                     {threeLoaded && (
-                      <div className={`absolute inset-0 bg-[#0F1C26]/80 backdrop-blur-sm flex flex-col items-center justify-center text-white/90 z-20 space-y-4 transition-all duration-300 ease-in-out ${
+                      <div className={`absolute inset-0 bg-white/85 backdrop-blur-md flex flex-col items-center justify-center text-[#11212D] z-20 space-y-4 transition-all duration-300 ease-in-out ${
                         showLoadingOverlay ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                       }`}>
-                        <div className="w-12 h-12 rounded-full border-4 border-white/20 border-t-[#A36B31] animate-spin"></div>
+                        <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-[#A36B31] animate-spin"></div>
                         <div className="text-center space-y-1">
-                          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-[#f2e2cf]">Đang tải mô hình 3D...</p>
-                          <p className="text-[10px] text-white/50 font-mono">{loadProgress}%</p>
+                          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-[#11212D]">Đang tải mô hình 3D...</p>
+                          <p className="text-[10px] text-slate-500 font-mono">{loadProgress}%</p>
                         </div>
-                        <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className="w-48 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-[#A36B31] transition-all duration-300 ease-out" 
                             style={{ width: `${loadProgress}%` }}
@@ -836,10 +870,10 @@ export function CustomizePage() {
                   </div>
 
                   {/* Configuration bar overlay */}
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white text-xs space-y-2 pointer-events-none z-10">
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-white/95 via-white/60 to-transparent p-6 text-[#11212D] text-xs space-y-2 pointer-events-none z-10">
                     <div className="flex justify-between">
-                      <span className="text-white/50 uppercase tracking-wider">Cấu hình:</span>
-                      <span className="font-semibold text-[#f2e2cf]">{activeTemplate?.name} • {material} • {gemstone}</span>
+                      <span className="text-[#11212D]/60 uppercase tracking-wider">Cấu hình:</span>
+                      <span className="font-semibold text-[#11212D]">{activeTemplate?.name} • {material} • {gemstone}</span>
                     </div>
                   </div>
 

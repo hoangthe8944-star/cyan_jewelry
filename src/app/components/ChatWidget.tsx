@@ -1,16 +1,11 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 import { LoaderCircle, MessageCircleMore, Send, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { toast } from 'sonner';
 
-import {
-  getChatConversationForCustomer,
-  getLatestChatConversation,
-  markChatConversationRead,
-  sendChatMessage,
-} from '../api';
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
+
 import { getAuthUser } from '../lib/auth';
 
 interface ChatMessage {
@@ -46,24 +41,23 @@ function createMessagesSignature(messages: Array<{ role: ChatMessage['role']; co
 }
 
 export function ChatWidget() {
-  const navigate = useNavigate();
-  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [loadingConversation, setLoadingConversation] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = localStorage.getItem('oriven_chat_history');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return INITIAL_MESSAGES;
+      }
+    }
+    return INITIAL_MESSAGES;
+  });
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const widgetRef = useRef<HTMLDivElement | null>(null);
-  const latestMessagesSignatureRef = useRef(createMessagesSignature(INITIAL_MESSAGES));
-  const sessionIdRef = useRef<string | null>(null);
-  const hydratedUserIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    sessionIdRef.current = sessionId;
-  }, [sessionId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -86,149 +80,80 @@ export function ChatWidget() {
     };
 
     document.addEventListener('pointerdown', handlePointerDownOutside);
-
-    const authUser = getAuthUser();
-    if (!authUser) {
-      return () => {
-        document.removeEventListener('pointerdown', handlePointerDownOutside);
-      };
-    }
-
-    let isActive = true;
-
-    const syncConversation = async (showLoading: boolean) => {
-      const shouldShowLoading = showLoading && hydratedUserIdRef.current !== authUser.id;
-
-      if (shouldShowLoading) {
-        setLoadingConversation(true);
-      }
-      try {
-        let conversation = null;
-
-        if (sessionIdRef.current) {
-          try {
-            conversation = await getChatConversationForCustomer(authUser.id, sessionIdRef.current);
-          } catch {
-            conversation = await getLatestChatConversation(authUser.id);
-          }
-        } else {
-          conversation = await getLatestChatConversation(authUser.id);
-        }
-
-        if (!isActive) {
-          return;
-        }
-
-        if (!conversation || !conversation.messages.length) {
-          setSessionId(null);
-          setMessages(INITIAL_MESSAGES);
-          latestMessagesSignatureRef.current = createMessagesSignature(INITIAL_MESSAGES);
-          hydratedUserIdRef.current = authUser.id;
-          setError(null);
-          return;
-        }
-
-        const nextSignature = createMessagesSignature(conversation.messages);
-        setSessionId(conversation.id);
-
-        if (nextSignature !== latestMessagesSignatureRef.current) {
-          setMessages(toChatMessages(conversation.messages));
-          latestMessagesSignatureRef.current = nextSignature;
-        }
-
-        hydratedUserIdRef.current = authUser.id;
-        setError(null);
-
-        void markChatConversationRead(authUser.id, conversation.id).catch(() => {
-          if (!isActive) {
-            return;
-          }
-        });
-      } catch (loadError) {
-        if (!isActive) {
-          return;
-        }
-
-        if (shouldShowLoading) {
-          setError(loadError instanceof Error ? loadError.message : 'Không thể tải lịch sử chat lúc này.');
-        }
-      } finally {
-        if (isActive && shouldShowLoading) {
-          setLoadingConversation(false);
-        }
-      }
-    };
-
-    void syncConversation(true);
-    const intervalId = window.setInterval(() => {
-      void syncConversation(false);
-    }, CHAT_REFRESH_INTERVAL_MS);
-
     return () => {
       document.removeEventListener('pointerdown', handlePointerDownOutside);
-      isActive = false;
-      window.clearInterval(intervalId);
     };
   }, [isOpen]);
+
+  const saveMessages = (newMessages: ChatMessage[]) => {
+    setMessages(newMessages);
+    localStorage.setItem('oriven_chat_history', JSON.stringify(newMessages));
+  };
+
+  const fetchGeminiResponse = async (userMessage: string, chatHistory: ChatMessage[]) => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn('VITE_GEMINI_API_KEY is not configured in .env file.');
+      return 'Chào mừng bạn đến với Oriven Jewelry! Trợ lý ảo AI của cửa hàng hiện đang được thiết lập. Bạn có thể tự do trải nghiệm thiết kế trang sức 3D độc quyền tại phần Customizer nhé!';
+    }
+
+    const authUser = getAuthUser();
+    const customerName = authUser?.fullName || 'Khách hàng';
+
+    const systemInstruction = 
+      `Bạn là Oriven AI - trợ lý ảo chuyên nghiệp của thương hiệu trang sức cao cấp Oriven Jewelry. ` +
+      `Hãy nói chuyện với khách hàng tên là "${customerName}" bằng tiếng Việt một cách lịch sự, trang nhã, ngắn gọn và tận tâm. ` +
+      `Nhiệm vụ của bạn là tư vấn cho khách hàng về các sản phẩm trang sức (nhẫn, vòng tay, hoa tai, dây chuyền), các chất liệu cao cấp (Vàng 18K, Vàng trắng, Vàng hồng, Bạch kim, Bạc) và các loại đá quý chủ (Diamond, Emerald, Sapphire, Ruby). ` +
+      `Khuyến khích họ trải nghiệm tính năng thiết kế 3D độc quyền ở trang Customizer.`;
+
+    try {
+      const model = new ChatGoogleGenerativeAI({
+        apiKey,
+        model: 'gemini-2.5-flash',
+        temperature: 0.7,
+        maxOutputTokens: 500,
+      });
+
+      const messages = [
+        new SystemMessage(systemInstruction),
+        ...chatHistory
+          .filter((m) => m.id !== 'welcome')
+          .map((m) => {
+            return m.role === 'user'
+              ? new HumanMessage(m.content)
+              : new AIMessage(m.content);
+          }),
+        new HumanMessage(userMessage),
+      ];
+
+      const response = await model.invoke(messages);
+      const replyText = typeof response.content === 'string' ? response.content : '';
+      return replyText || 'Oriven chưa hiểu rõ ý bạn, bạn có thể nói chi tiết hơn được không?';
+    } catch (error) {
+      console.error('Error calling Gemini API via LangChain:', error);
+      throw new Error('Kết nối tới AI Chatbot gặp sự cố. Vui lòng thử lại sau.');
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedInput = input.trim();
-    if (!trimmedInput || sending || loadingConversation) {
-      return;
-    }
-
-    const authUser = getAuthUser();
-    if (!authUser) {
-      toast.info('Vui lòng đăng nhập trước khi nhắn tin.');
-      navigate('/login', {
-        state: {
-          redirectTo: `${location.pathname}${location.search}`,
-        },
-      });
+    if (!trimmedInput || sending) {
       return;
     }
 
     const nextUserMessage = createMessage('user', trimmedInput);
-    const history = messages
-      .filter((message) => message.role === 'user' || message.role === 'assistant')
-      .map((message) => ({
-        role: message.role,
-        content: message.content,
-      }));
-
-    setMessages((prev) => [...prev, nextUserMessage]);
-    latestMessagesSignatureRef.current = createMessagesSignature([
-      ...messages,
-      {
-        role: nextUserMessage.role,
-        content: nextUserMessage.content,
-      },
-    ]);
+    const newMessages = [...messages, nextUserMessage];
+    saveMessages(newMessages);
     setInput('');
     setSending(true);
     setError(null);
 
     try {
-      const response = await sendChatMessage({
-        message: trimmedInput,
-        history,
-        sessionId,
-        userId: authUser.id,
-        customerName: authUser.fullName,
-      });
-
-      if (response.text?.trim()) {
-        setMessages((prev) => {
-          const nextMessages = [...prev, createMessage('assistant', response.text as string)];
-          latestMessagesSignatureRef.current = createMessagesSignature(nextMessages);
-          return nextMessages;
-        });
-      }
-
-      setSessionId(response.sessionId ?? sessionId);
-      hydratedUserIdRef.current = authUser.id;
+      const reply = await fetchGeminiResponse(trimmedInput, messages);
+      const nextAssistantMessage = createMessage('assistant', reply);
+      saveMessages([...newMessages, nextAssistantMessage]);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Không thể kết nối chat lúc này.');
     } finally {
@@ -284,15 +209,6 @@ export function ChatWidget() {
                   </div>
                 ))}
 
-                {loadingConversation ? (
-                  <div className="flex justify-start">
-                    <div className="flex items-center gap-2 border border-border bg-white px-4 py-3 text-sm text-muted-foreground shadow-sm">
-                      <LoaderCircle className="h-4 w-4 animate-spin" />
-                      Đang tải hội thoại...
-                    </div>
-                  </div>
-                ) : null}
-
                 {sending ? (
                   <div className="flex justify-start">
                     <div className="flex items-center gap-2 border border-border bg-white px-4 py-3 text-sm text-muted-foreground shadow-sm">
@@ -321,7 +237,7 @@ export function ChatWidget() {
                 />
                 <button
                   type="submit"
-                  disabled={sending || loadingConversation || !input.trim()}
+                  disabled={sending || !input.trim()}
                   className="flex h-[52px] w-[52px] items-center justify-center bg-primary text-white transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="Gửi tin nhắn"
                 >
