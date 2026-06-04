@@ -653,9 +653,9 @@ export function CustomizePage() {
             // Iridescent Opal thin film interference shader setup
             gemMat.roughness = 0.05;
             gemMat.alpha = 0.85; // Opal is mostly opaque
-            gemMat.thinFilmInterference.isEnabled = true;
-            gemMat.thinFilmInterference.minThickness = 250;
-            gemMat.thinFilmInterference.maxThickness = 750;
+            gemMat.thinFilm.isEnabled = true;
+            gemMat.thinFilm.minThickness = 250;
+            gemMat.thinFilm.maxThickness = 750;
           } else if (gemstone === 'Morganite (Đá hồng Peach)') {
             gemMat.indexOfRefraction = 2.1; // Soft refraction
             gemMat.alpha = 0.28; // Very soft, clear feminine look
@@ -809,19 +809,19 @@ export function CustomizePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
               
               {/* Left Column: 3D Preview (Luxurious Viewport) */}
-              <div className="lg:col-span-5 space-y-6">
-                <div className="sticky top-28 bg-[radial-gradient(circle_at_center,_#ffffff_0%,_#fffcf0_55%,_#fbf4dc_100%)] rounded-2xl overflow-hidden border border-[#A36B31]/30 shadow-2xl relative">
+              <div className="lg:col-span-5 lg:sticky lg:top-36 space-y-6">
+                <div className="bg-[radial-gradient(circle_at_center,_#1C2541_0%,_#11212D_55%,_#0B132B_100%)] rounded-2xl overflow-hidden border border-[#A36B31]/30 shadow-2xl relative">
                   
                   {/* Viewport header */}
                   <div className="absolute top-4 left-4 z-10 flex flex-col gap-1 pointer-events-none">
-                    <span className="text-[10px] uppercase tracking-[0.25em] text-[#11212D]/60 font-semibold">Studio 3D độc quyền</span>
-                    <h3 className="text-base text-[#11212D] font-medium font-sterling flex items-center gap-1.5">
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-white/60 font-semibold">Studio 3D độc quyền</span>
+                    <h3 className="text-base text-white font-medium font-sterling flex items-center gap-1.5">
                       <span>Mô phỏng 3D tương tác</span>
                       <Sparkles className="h-3.5 w-3.5 text-[#A36B31] animate-pulse" />
                     </h3>
                   </div>
 
-                  <div className="absolute top-4 right-4 z-10 pointer-events-none flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] text-[#11212D]/80 uppercase tracking-widest border border-[#A36B31]/15">
+                  <div className="absolute top-4 right-4 z-10 pointer-events-none flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] text-white/90 uppercase tracking-widest border border-white/10">
                     <RotateCw className="h-3 w-3 animate-spin duration-3000 text-[#A36B31]" />
                     <span>Kéo để xoay</span>
                   </div>
@@ -832,21 +832,21 @@ export function CustomizePage() {
                     className="w-full aspect-square md:aspect-[4/5] min-h-[350px] cursor-grab active:cursor-grabbing flex items-center justify-center relative"
                   >
                     {!threeLoaded && (
-                      <div className="text-center text-[#11212D]/60 flex flex-col items-center gap-3">
+                      <div className="text-center text-white/60 flex flex-col items-center gap-3">
                         <LoaderCircle className="h-8 w-8 animate-spin text-[#A36B31]" />
                         <p className="text-xs uppercase tracking-widest">Đang khởi động không gian 3D...</p>
                       </div>
                     )}
                     {threeLoaded && (
-                      <div className={`absolute inset-0 bg-white/85 backdrop-blur-md flex flex-col items-center justify-center text-[#11212D] z-20 space-y-4 transition-all duration-300 ease-in-out ${
+                      <div className={`absolute inset-0 bg-[#0B132B]/90 backdrop-blur-md flex flex-col items-center justify-center text-white z-20 space-y-4 transition-all duration-300 ease-in-out ${
                         showLoadingOverlay ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                       }`}>
-                        <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-[#A36B31] animate-spin"></div>
+                        <div className="w-12 h-12 rounded-full border-4 border-white/10 border-t-[#A36B31] animate-spin"></div>
                         <div className="text-center space-y-1">
-                          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-[#11212D]">Đang tải mô hình 3D...</p>
-                          <p className="text-[10px] text-slate-500 font-mono">{loadProgress}%</p>
+                          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-white/80">Đang tải mô hình 3D...</p>
+                          <p className="text-[10px] text-slate-400 font-mono">{loadProgress}%</p>
                         </div>
-                        <div className="w-48 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-[#A36B31] transition-all duration-300 ease-out" 
                             style={{ width: `${loadProgress}%` }}
@@ -857,10 +857,10 @@ export function CustomizePage() {
                   </div>
 
                   {/* Configuration bar overlay */}
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-white/95 via-white/60 to-transparent p-6 text-[#11212D] text-xs space-y-2 pointer-events-none z-10">
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 text-white text-xs space-y-2 pointer-events-none z-10">
                     <div className="flex justify-between">
-                      <span className="text-[#11212D]/60 uppercase tracking-wider">Cấu hình:</span>
-                      <span className="font-semibold text-[#11212D]">{activeTemplate?.name} • {material} • {gemstone}</span>
+                      <span className="text-white/60 uppercase tracking-wider">Cấu hình:</span>
+                      <span className="font-semibold text-white">{activeTemplate?.name} • {material} • {gemstone}</span>
                     </div>
                   </div>
 
