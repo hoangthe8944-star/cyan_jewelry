@@ -217,7 +217,7 @@ export interface OrderPayload {
   items: OrderItemPayload[];
   shippingFee?: number;
   discountAmount?: number;
-  paymentMethod?: "COD" | "MOMO";
+  paymentMethod?: "COD" | "MOMO" | "VNPAY";
   orderStatus?: string;
   note?: string | null;
   userId?: string | null;
@@ -227,6 +227,12 @@ export interface OrderPayload {
     ipnUrl?: string;
     extraData?: string;
     requestType?: string;
+    lang?: string;
+  } | null;
+  vnpayPayment?: {
+    orderInfo?: string;
+    redirectUrl?: string;
+    ipnUrl?: string;
     lang?: string;
   } | null;
 }

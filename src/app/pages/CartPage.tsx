@@ -30,7 +30,7 @@ interface CheckoutFormState {
   note: string;
 }
 
-type CheckoutPaymentMethod = 'MOMO' | 'COD';
+type CheckoutPaymentMethod = 'MOMO' | 'COD' | 'VNPAY';
 
 const INITIAL_FORM: CheckoutFormState = {
   fullName: '',
@@ -136,12 +136,22 @@ export function CartPage() {
               },
             }
           : {}),
+        ...(paymentMethod === 'VNPAY'
+          ? {
+              vnpayPayment: {
+                orderInfo: `Thanh toan don hang OrivenJewelry ${Date.now()}`,
+                redirectUrl: `${window.location.origin}/cart`,
+                ipnUrl: `${API_BASE_URL}/api/public/payments/vnpay/ipn`,
+                lang: 'vi',
+              },
+            }
+          : {}),
       };
 
       const response = await storefrontApi.createOrder(payload);
       saveRecentOrder(response.order);
 
-      if (paymentMethod === 'MOMO' && response.payUrl) {
+      if ((paymentMethod === 'MOMO' || paymentMethod === 'VNPAY') && response.payUrl) {
         window.location.href = response.payUrl;
         return;
       }
@@ -150,7 +160,7 @@ export function CartPage() {
       setCheckoutSuccess(
         paymentMethod === 'COD'
           ? `Đã đặt hàng COD thành công${response.order.orderCode ? `, mã đơn ${response.order.orderCode}` : ''}.`
-          : `Đã tạo đơn hàng${response.order.orderCode ? ` ${response.order.orderCode}` : ''} nhưng backend chưa trả về payUrl cho MoMo.`
+          : `Đã tạo đơn hàng${response.order.orderCode ? ` ${response.order.orderCode}` : ''} nhưng backend chưa trả về payUrl cho ${paymentMethod}.`
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể khởi tạo thanh toán.';
@@ -158,6 +168,9 @@ export function CartPage() {
       if (paymentMethod === 'MOMO' && /MoMo payment is not enabled/i.test(message)) {
         setPaymentMethod('COD');
         setCheckoutError('Backend Cyan chưa bật MoMo. Mình đã chuyển sang COD để bạn có thể tiếp tục đặt hàng.');
+      } else if (paymentMethod === 'VNPAY' && /VNPay payment is not enabled/i.test(message)) {
+        setPaymentMethod('COD');
+        setCheckoutError('Backend Cyan chưa bật VNPay. Mình đã chuyển sang COD để bạn có thể tiếp tục đặt hàng.');
       } else {
         setCheckoutError(message);
       }
@@ -284,7 +297,7 @@ export function CartPage() {
 
                   <div className="space-y-3">
                     <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Phương thức thanh toán</p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('MOMO')}
@@ -295,6 +308,17 @@ export function CartPage() {
                         }`}
                       >
                         MoMo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('VNPAY')}
+                        className={`border px-4 py-3 text-sm transition-colors ${
+                          paymentMethod === 'VNPAY'
+                            ? 'border-primary bg-primary text-white'
+                            : 'border-border bg-white text-foreground hover:border-primary'
+                        }`}
+                      >
+                        VNPAY
                       </button>
                       <button
                         type="button"
@@ -309,9 +333,9 @@ export function CartPage() {
                       </button>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {paymentMethod === 'MOMO'
-                        ? 'Nếu backend đã bật MoMo, hệ thống sẽ chuyển bạn sang cổng thanh toán.'
-                        : 'Thanh toán khi nhận hàng, không cần chuyển sang cổng thanh toán.'}
+                      {paymentMethod === 'MOMO' && 'Nếu backend đã bật MoMo, hệ thống sẽ chuyển bạn sang cổng thanh toán.'}
+                      {paymentMethod === 'VNPAY' && 'Hệ thống sẽ chuyển bạn sang cổng thanh toán VNPay để hoàn tất đơn hàng.'}
+                      {paymentMethod === 'COD' && 'Thanh toán khi nhận hàng, không cần chuyển sang cổng thanh toán.'}
                     </p>
                   </div>
 
@@ -417,7 +441,9 @@ export function CartPage() {
                         ? 'Đang xử lý đơn hàng...'
                         : paymentMethod === 'MOMO'
                           ? 'Thanh toán với MoMo'
-                          : 'Đặt hàng COD'}
+                          : paymentMethod === 'VNPAY'
+                            ? 'Thanh toán với VNPAY'
+                            : 'Đặt hàng COD'}
                     </span>
                   </button>
 
