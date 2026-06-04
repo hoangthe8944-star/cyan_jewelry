@@ -57,7 +57,11 @@ const GEM_ATTACH_CONFIG: Record<
     scale: [number, number, number];
   }
 > = {
-  '/nhan.glb': { position: [0, 0.45, 0], rotation: [0, 0, 0], scale: [0.35, 0.35, 0.35] },
+  '/nhan.glb': {
+    position: [0, 1.35, -0.15],
+    rotation: [Math.PI / 2, 0, 0],
+    scale: [0.28, 0.28, 0.28],
+  },
   '/nhan3.glb': { position: [0, 0.45, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
   '/nhan4.glb': { position: [0, 0.48, 0], rotation: [0, 0, 0], scale: [0.35, 0.35, 0.35] },
   '/nhan2.glb': { position: [0, 0.5, 0], rotation: [0, 0, 0], scale: [0.4, 0.4, 0.4] },
@@ -459,8 +463,8 @@ export function CustomizePage() {
       if (gemstone === 'Sapphire (Lam ngọc)') gemColorStr = '#0f52ba';
       if (gemstone === 'Ruby (Hồng ngọc)') gemColorStr = '#e0115f';
 
-      // Discard previous custom stones and attach points from the scene to prevent duplicates
-      const prevCustomGems = scene.meshes.filter((m: any) => m.name && m.name.startsWith("customGem_"));
+      // Discard previous custom stones, attach points, and debug axes from the scene to prevent duplicates
+      const prevCustomGems = scene.meshes.filter((m: any) => m.name && (m.name.startsWith("customGem_") || m.name.startsWith("customGem_debug_axis_")));
       prevCustomGems.forEach((mesh: any) => mesh.dispose());
 
       const prevAttachPoints = scene.transformNodes.filter((t: any) => t.name === "gem_attach_point");
@@ -502,6 +506,24 @@ export function CustomizePage() {
       attachPoint.position.set(config.position[0], config.position[1], config.position[2]);
       attachPoint.rotation.set(config.rotation[0], config.rotation[1], config.rotation[2]);
       attachPoint.scaling.set(config.scale[0], config.scale[1], config.scale[2]);
+
+      // Console logs for easy tweaking and debugging
+      console.log(`[Babylon Customizer Gemstone Attached] Model: ${activeTemplate.path}`);
+      console.log(`- Position: X=${config.position[0]}, Y=${config.position[1]}, Z=${config.position[2]}`);
+      console.log(`- Rotation: X=${config.rotation[0]}, Y=${config.rotation[1]}, Z=${config.rotation[2]}`);
+      console.log(`- Scale: X=${config.scale[0]}, Y=${config.scale[1]}, Z=${config.scale[2]}`);
+
+      // Optional Babylon axes viewer to visually debug the attach point's local axis orientation (Red=X, Green=Y, Blue=Z)
+      const debugAxes = true; // Set to true to show helper lines
+      if (debugAxes) {
+        const localAxes = new BABYLON.AxesViewer(scene, 0.4);
+        localAxes.xAxis.parent = attachPoint;
+        localAxes.yAxis.parent = attachPoint;
+        localAxes.zAxis.parent = attachPoint;
+        localAxes.xAxis.name = "customGem_debug_axis_x";
+        localAxes.yAxis.name = "customGem_debug_axis_y";
+        localAxes.zAxis.name = "customGem_debug_axis_z";
+      }
 
       const getCustomMesh = () => {
         if (gemCut === 'Diamond' && gemGeometriesRef.current['Round_diamond']) {
