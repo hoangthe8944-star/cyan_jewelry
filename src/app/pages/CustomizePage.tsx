@@ -425,12 +425,12 @@ export function CustomizePage() {
       }
 
       let gemColorStr = '#ffffff'; // Default clear
-      if (gemstone === 'Sapphire (Lam ngọc)') gemColorStr = '#061d6e'; // Saturated deep royal blue
-      if (gemstone === 'Emerald (Lục bảo)') gemColorStr = '#004d2c'; // Rich forest emerald green
-      if (gemstone === 'Ruby (Hồng ngọc)') gemColorStr = '#9b111e'; // Saturated crimson ruby red
-      if (gemstone === 'Amethyst (Thạch anh tím)') gemColorStr = '#4b0082'; // Royal dark violet purple
-      if (gemstone === 'Opal (Đá mắt mèo)') gemColorStr = '#c8def4'; // Blue-tinted opalescent base
-      if (gemstone === 'Morganite (Đá hồng Peach)') gemColorStr = '#f09a95'; // Deeper warm peach pink
+      if (gemstone === 'Sapphire (Lam ngọc)') gemColorStr = '#02071d'; // Saturated deep royal blue (near midnight)
+      if (gemstone === 'Emerald (Lục bảo)') gemColorStr = '#002614'; // Deepest forest luxury emerald green
+      if (gemstone === 'Ruby (Hồng ngọc)') gemColorStr = '#5a000c'; // Saturated dark blood crimson ruby red
+      if (gemstone === 'Amethyst (Thạch anh tím)') gemColorStr = '#1d003a'; // Royal dark violet imperial purple
+      if (gemstone === 'Aquamarine (Hải lam bảo)') gemColorStr = '#00434f'; // Deep ocean turquoise aquamarine cyan
+      if (gemstone === 'Morganite (Đá hồng Peach)') gemColorStr = '#b84d46'; // Deeper warm peach salmon pink
 
       // Discard previous custom stones, attach points, and debug axes from the scene to prevent duplicates
       const prevCustomGems = scene.meshes.filter((m: any) => m.name && (m.name.startsWith("customGem_") || m.name.startsWith("customGem_debug_axis_")));
@@ -637,31 +637,25 @@ export function CustomizePage() {
           // Apply unique visual effects per gemstone type
           if (gemstone === 'Sapphire (Lam ngọc)') {
             gemMat.indexOfRefraction = 2.65; // Highly reflective facets
-            gemMat.alpha = 0.55; // Darker and more saturated blue
+            gemMat.alpha = 0.65; // Highly saturated blue tone
           } else if (gemstone === 'Emerald (Lục bảo)') {
-            gemMat.subSurface.refractionIntensity = 1.5; // Luxury heavy refraction
-            gemMat.alpha = 0.6; // Richer emerald tone
+            gemMat.subSurface.refractionIntensity = 1.6; // Luxury heavy refraction
+            gemMat.alpha = 0.7; // Deepest luxury emerald green tone
           } else if (gemstone === 'Ruby (Hồng ngọc)') {
             // Emissive glow for a warm glowing effect
-            gemMat.emissiveColor = new BABYLON.Color3(0.3, 0.01, 0.03);
-            gemMat.alpha = 0.55;
+            gemMat.emissiveColor = new BABYLON.Color3(0.35, 0.0, 0.02);
+            gemMat.alpha = 0.65;
           } else if (gemstone === 'Amethyst (Thạch anh tím)') {
             // Fantasy purple glow
-            gemMat.emissiveColor = new BABYLON.Color3(0.12, 0.0, 0.25);
-            gemMat.alpha = 0.5;
-          } else if (gemstone === 'Opal (Đá mắt mèo)') {
-            // Iridescent Opal thin film interference shader setup
-            gemMat.roughness = 0.05;
-            gemMat.alpha = 0.9; // Opal is almost fully opaque
-            if (gemMat.iridescence) {
-              gemMat.iridescence.isEnabled = true;
-              gemMat.iridescence.intensity = 1.0;
-              gemMat.iridescence.minimumThickness = 250;
-              gemMat.iridescence.maximumThickness = 750;
-            }
+            gemMat.emissiveColor = new BABYLON.Color3(0.14, 0.0, 0.28);
+            gemMat.alpha = 0.6;
+          } else if (gemstone === 'Aquamarine (Hải lam bảo)') {
+            // Oceanic transparent cyan-teal look
+            gemMat.indexOfRefraction = 2.25;
+            gemMat.alpha = 0.55;
           } else if (gemstone === 'Morganite (Đá hồng Peach)') {
             gemMat.indexOfRefraction = 2.1; // Soft refraction
-            gemMat.alpha = 0.4; // Saturated soft peach pink
+            gemMat.alpha = 0.5; // Deeper peach tone
           }
           
           // Clear coat gives extra shiny facet reflections
@@ -722,7 +716,7 @@ export function CustomizePage() {
     if (gemstone === 'Emerald (Lục bảo)') base += 90000;
     if (gemstone === 'Ruby (Hồng ngọc)') base += 80000;
     if (gemstone === 'Amethyst (Thạch anh tím)') base += 50000;
-    if (gemstone === 'Opal (Đá mắt mèo)') base += 110000;
+    if (gemstone === 'Aquamarine (Hải lam bảo)') base += 75000;
     if (gemstone === 'Morganite (Đá hồng Peach)') base += 60000;
     if (gemstone === 'Không đính đá') base = Math.max(600000, base - 20000);
 
@@ -987,7 +981,7 @@ export function CustomizePage() {
                         'Emerald (Lục bảo)',
                         'Ruby (Hồng ngọc)',
                         'Amethyst (Thạch anh tím)',
-                        'Opal (Đá mắt mèo)',
+                        'Aquamarine (Hải lam bảo)',
                         'Morganite (Đá hồng Peach)',
                         'Không đính đá',
                       ].map((gem) => (
