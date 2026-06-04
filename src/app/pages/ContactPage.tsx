@@ -127,7 +127,7 @@ export function ContactPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="font-bold text-[#11212D] shrink-0">Email:</span>
-                      <a href="mailto:contact@orivenjewelry.com" className="text-[#11212D] hover:text-[#A36B31] transition-colors font-bold">contact@orivenjewelry.com</a>
+                      <a href="mailto:orivenjewelry@gmail.com" className="text-[#11212D] hover:text-[#A36B31] transition-colors font-bold">contact@orivenjewelry.com</a>
                     </div>
                   </div>
                 </div>
