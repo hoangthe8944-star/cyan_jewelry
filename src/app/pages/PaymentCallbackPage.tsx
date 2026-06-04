@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckCircle2, XCircle, ArrowRight, ShoppingBag, CreditCard } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -18,7 +18,12 @@ export function PaymentCallbackPage() {
     paymentGateway: 'VNPAY' | 'MOMO' | 'UNKNOWN';
   }>({ paymentGateway: 'UNKNOWN' });
 
+  const hasProcessed = useRef(false);
+
   useEffect(() => {
+    if (hasProcessed.current) return;
+    hasProcessed.current = true;
+
     // Determine payment gateway from query parameters
     const vnpResponseCode = searchParams.get('vnp_ResponseCode');
     const momoResultCode = searchParams.get('resultCode');
@@ -53,19 +58,24 @@ export function PaymentCallbackPage() {
       bank = 'MoMo Wallet';
     }
 
+    let active = true;
+    let timeoutId: any = null;
+
     if (gateway !== 'UNKNOWN') {
       if (isSuccess) {
         setStatus('success');
         clearCart(); // Auto clear cart upon successful payment
         
         // Trigger celebratory confetti after component renders to avoid thread freezing
-        setTimeout(() => {
+        timeoutId = setTimeout(() => {
+          if (!active) return;
           confetti({
-            particleCount: 150,
-            spread: 80,
-            origin: { y: 0.6 }
+            particleCount: 80, // Optimized from 150 to 80 to prevent lag
+            spread: 60,
+            origin: { y: 0.6 },
+            disableForReducedMotion: true,
           });
-        }, 400);
+        }, 300);
       } else {
         setStatus('failure');
       }
@@ -81,6 +91,13 @@ export function PaymentCallbackPage() {
       // If no valid callback parameters, redirect back to cart
       navigate('/cart');
     }
+
+    return () => {
+      active = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [searchParams, clearCart, navigate]);
 
   const formatVndCurrency = (value?: string) => {

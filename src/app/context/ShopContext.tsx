@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 
 import type { ShopProduct } from '../lib/types';
 
@@ -81,7 +81,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     window.sessionStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
   }, [wishlist]);
 
-  const addToCart = (product: ShopProduct) => {
+  const addToCart = useCallback((product: ShopProduct) => {
     setCart((prev) => {
       const existing = prev.find((item) => buildCartItemKey(item) === buildCartItemKey(product));
       if (existing) {
@@ -93,13 +93,13 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
-  };
+  }, []);
 
-  const removeFromCart = (cartKey: string) => {
+  const removeFromCart = useCallback((cartKey: string) => {
     setCart((prev) => prev.filter((item) => buildCartItemKey(item) !== cartKey));
-  };
+  }, []);
 
-  const updateQuantity = (cartKey: string, quantity: number) => {
+  const updateQuantity = useCallback((cartKey: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(cartKey);
       return;
@@ -107,13 +107,13 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     setCart((prev) =>
       prev.map((item) => (buildCartItemKey(item) === cartKey ? { ...item, quantity } : item))
     );
-  };
+  }, [removeFromCart]);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
-  const toggleWishlist = (product: ShopProduct) => {
+  const toggleWishlist = useCallback((product: ShopProduct) => {
     setWishlist((prev) => {
       const exists = prev.find((item) => item.id === product.id);
       if (exists) {
@@ -121,13 +121,13 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, product];
     });
-  };
+  }, []);
 
-  const isInWishlist = (productId: string) => wishlist.some((item) => item.id === productId);
+  const isInWishlist = useCallback((productId: string) => wishlist.some((item) => item.id === productId), [wishlist]);
 
-  const getCartTotal = () => cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const getCartTotal = useCallback(() => cart.reduce((total, item) => total + item.price * item.quantity, 0), [cart]);
 
-  const getCartCount = () => cart.reduce((count, item) => count + item.quantity, 0);
+  const getCartCount = useCallback(() => cart.reduce((count, item) => count + item.quantity, 0), [cart]);
 
   return (
     <ShopContext.Provider
