@@ -48,6 +48,32 @@ const MODEL_TEMPLATES: Record<string, Array<{ name: string; path: string; type: 
   ]
 };
 
+// 3D Gemstone attachment configuration per model path
+const GEM_ATTACH_CONFIG: Record<
+  string,
+  {
+    position: [number, number, number];
+    rotation: [number, number, number];
+    scale: [number, number, number];
+  }
+> = {
+  '/nhan.glb': { position: [0, 0.45, 0], rotation: [0, 0, 0], scale: [0.35, 0.35, 0.35] },
+  '/nhan3.glb': { position: [0, 0.45, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+  '/nhan4.glb': { position: [0, 0.48, 0], rotation: [0, 0, 0], scale: [0.35, 0.35, 0.35] },
+  '/nhan2.glb': { position: [0, 0.5, 0], rotation: [0, 0, 0], scale: [0.4, 0.4, 0.4] },
+  '/daychuyen2.glb': { position: [0, 0.1, -0.05], rotation: [0, 0, 0], scale: [0.25, 0.25, 0.25] },
+  '/daychuyen3.glb': { position: [0, 0.1, -0.05], rotation: [0, 0, 0], scale: [0.25, 0.25, 0.25] },
+  '/daychuyen.glb': { position: [0, 0.1, -0.05], rotation: [0, 0, 0], scale: [0.25, 0.25, 0.25] },
+  '/bongtai4.glb': { position: [0, -0.2, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+  '/bongtai2.glb': { position: [0, -0.2, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+  '/bongtai.glb': { position: [0, -0.2, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+  '/bongtai3.glb': { position: [0, -0.2, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+  '/vongtay2.glb': { position: [0, 0.3, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+  '/vongtay4.glb': { position: [0, 0.3, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+  '/vongtay.glb': { position: [0, 0.3, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+  '/vongtay3.glb': { position: [0, 0.3, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
+};
+
 export function CustomizePage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -62,7 +88,7 @@ export function CustomizePage() {
 
   const [jewelryType, setJewelryType] = useState('Nhẫn');
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
-  const [material, setMaterial] = useState('Vàng 18K');
+  const [material, setMaterial] = useState('Bạc 925');
   const [gemstone, setGemstone] = useState('Kim cương');
   const [gemCut, setGemCut] = useState('Diamond');
   const [size, setSize] = useState('12');
@@ -423,55 +449,26 @@ export function CustomizePage() {
       const modelContainer = modelContainerRef.current;
 
       // Set colors based on selections
-      let metalColorStr = '#d4af37'; // Yellow Gold
-      if (material === 'Vàng hồng 18K') metalColorStr = '#e5c2b2';
-      if (material === 'Vàng trắng 18K' || material === 'Bạch kim') metalColorStr = '#e5e8e8';
-      if (material === 'Bạc') metalColorStr = '#d9dbdd';
+      let metalColorStr = '#d9dbdd'; // Silver
+      if (material === 'Bạc Thái') {
+        metalColorStr = '#a3a5a7'; // Oxidized/darker silver
+      }
 
       let gemColorStr = '#ffffff'; // Diamond
       if (gemstone === 'Emerald (Ngọc lục bảo)') gemColorStr = '#50c878';
       if (gemstone === 'Sapphire (Lam ngọc)') gemColorStr = '#0f52ba';
       if (gemstone === 'Ruby (Hồng ngọc)') gemColorStr = '#e0115f';
 
-      // Discard previous custom stones from the scene to prevent duplicates
+      // Discard previous custom stones and attach points from the scene to prevent duplicates
       const prevCustomGems = scene.meshes.filter((m: any) => m.name && m.name.startsWith("customGem_"));
       prevCustomGems.forEach((mesh: any) => mesh.dispose());
 
+      const prevAttachPoints = scene.transformNodes.filter((t: any) => t.name === "gem_attach_point");
+      prevAttachPoints.forEach((node: any) => node.dispose());
+
       const applyMaterialToMesh = (mesh: any) => {
         if (!mesh.material) return;
-
-        const name = (mesh.name || '').toLowerCase();
-        const matName = (mesh.material.name || '').toLowerCase();
-        
         const metalColor = BABYLON.Color3.FromHexString(metalColorStr);
-
-        const isGem = 
-          name.includes('gem') || 
-          name.includes('diamond') || 
-          name.includes('da_') || 
-          name.includes('da ') || 
-          name.includes('stone') || 
-          name.includes('glass') || 
-          name.includes('crystal') ||
-          matName.includes('gem') || 
-          matName.includes('diamond') || 
-          matName.includes('da_') || 
-          matName.includes('da ') || 
-          matName.includes('stone') || 
-          matName.includes('glass') || 
-          matName.includes('crystal');
-
-        if (isGem) {
-          // Hide original gem placeholder mesh but keep it enabled in hierarchy
-          mesh.isVisible = false;
-          mesh.visibility = 0;
-          mesh.getChildMeshes && mesh.getChildMeshes().forEach((c: any) => {
-            c.isVisible = false;
-            c.visibility = 0;
-          });
-          return; // Custom cuts handled below
-        }
-
         const metalMat = new BABYLON.PBRMaterial('metalMat', scene);
         metalMat.albedoColor = metalColor;
         metalMat.metallic = 1.0;
@@ -480,212 +477,164 @@ export function CustomizePage() {
         mesh.material = metalMat;
       };
 
+      // Apply metal materials to all meshes of the loaded GLB model
       const meshes = modelContainer.getChildMeshes();
-      
-      // Identify all gem placeholder meshes
-      const gemPlaceholders: any[] = [];
       meshes.forEach((mesh: any) => {
         applyMaterialToMesh(mesh);
         mesh.getChildMeshes && mesh.getChildMeshes().forEach((child: any) => applyMaterialToMesh(child));
-        
-        const name = (mesh.name || '').toLowerCase();
-        const matName = (mesh.material && mesh.material.name || '').toLowerCase();
-        const isGem = 
-          name.includes('gem') || 
-          name.includes('diamond') || 
-          name.includes('da_') || 
-          name.includes('da ') || 
-          name.includes('stone') || 
-          name.includes('glass') || 
-          name.includes('crystal') ||
-          (mesh.material && (
-            matName.includes('gem') || 
-            matName.includes('diamond') || 
-            matName.includes('da_') || 
-            matName.includes('da ') || 
-            matName.includes('stone') || 
-            matName.includes('glass') || 
-            matName.includes('crystal')
-          ));
-
-        if (isGem) {
-          gemPlaceholders.push(mesh);
-        }
       });
 
-      // If 'Không đính đá', just hide them and do not create custom cut shapes
+      // If 'Không đính đá', do not create custom cut shapes
       if (gemstone === 'Không đính đá') {
-        gemPlaceholders.forEach((placeholder: any) => {
-          placeholder.isVisible = false;
-          placeholder.visibility = 0;
-          placeholder.getChildMeshes && placeholder.getChildMeshes().forEach((c: any) => {
-            c.isVisible = false;
-            c.visibility = 0;
-          });
-        });
         return;
       }
 
-      // Generate custom cut shapes at placeholder locations
-      gemPlaceholders.forEach((placeholder: any, idx: number) => {
-        placeholder.isVisible = false; // Hide placeholder
-        placeholder.visibility = 0;
-        placeholder.getChildMeshes && placeholder.getChildMeshes().forEach((c: any) => {
-          c.isVisible = false;
-          c.visibility = 0;
-        });
+      // Create TransformNode as attach point for the gemstone
+      const attachPoint = new BABYLON.TransformNode("gem_attach_point", scene);
+      attachPoint.parent = modelContainer;
 
-        const getCustomMesh = () => {
-          if (gemCut === 'Diamond' && gemGeometriesRef.current['Round_diamond']) {
-            return gemGeometriesRef.current['Round_diamond'].clone("customGem_" + idx);
-          } else if (gemCut === 'Vuông' && gemGeometriesRef.current['Cushion_diamond']) {
-            return gemGeometriesRef.current['Cushion_diamond'].clone("customGem_" + idx);
-          } else if (gemCut === 'Heart' && gemGeometriesRef.current['Heart_diamond']) {
-            return gemGeometriesRef.current['Heart_diamond'].clone("customGem_" + idx);
-          } else if (gemCut === 'Giọt nước' && gemGeometriesRef.current['Pear_diamond']) {
-            return gemGeometriesRef.current['Pear_diamond'].clone("customGem_" + idx);
-          } else if (gemCut === 'Oval' && gemGeometriesRef.current['Oval_diamond']) {
-            return gemGeometriesRef.current['Oval_diamond'].clone("customGem_" + idx);
+      const config = GEM_ATTACH_CONFIG[activeTemplate.path] || {
+        position: [0, 0.45, 0],
+        rotation: [0, 0, 0],
+        scale: [0.35, 0.35, 0.35]
+      };
+
+      attachPoint.position.set(config.position[0], config.position[1], config.position[2]);
+      attachPoint.rotation.set(config.rotation[0], config.rotation[1], config.rotation[2]);
+      attachPoint.scaling.set(config.scale[0], config.scale[1], config.scale[2]);
+
+      const getCustomMesh = () => {
+        if (gemCut === 'Diamond' && gemGeometriesRef.current['Round_diamond']) {
+          return gemGeometriesRef.current['Round_diamond'].clone("customGem_0");
+        } else if (gemCut === 'Vuông' && gemGeometriesRef.current['Cushion_diamond']) {
+          return gemGeometriesRef.current['Cushion_diamond'].clone("customGem_0");
+        } else if (gemCut === 'Heart' && gemGeometriesRef.current['Heart_diamond']) {
+          return gemGeometriesRef.current['Heart_diamond'].clone("customGem_0");
+        } else if (gemCut === 'Giọt nước' && gemGeometriesRef.current['Pear_diamond']) {
+          return gemGeometriesRef.current['Pear_diamond'].clone("customGem_0");
+        } else if (gemCut === 'Oval' && gemGeometriesRef.current['Oval_diamond']) {
+          return gemGeometriesRef.current['Oval_diamond'].clone("customGem_0");
+        }
+        return null;
+      };
+
+      let gemCutMesh = getCustomMesh();
+      if (gemCutMesh) {
+        gemCutMesh.setEnabled(true);
+      } else {
+        // Procedural fallback
+        if (gemCut === 'Diamond') {
+          const profile = [
+            new BABYLON.Vector3(0, -0.5, 0),
+            new BABYLON.Vector3(0.5, -0.1, 0),
+            new BABYLON.Vector3(0.5, 0, 0),
+            new BABYLON.Vector3(0.3, 0.3, 0),
+            new BABYLON.Vector3(0, 0.3, 0)
+          ];
+          gemCutMesh = BABYLON.MeshBuilder.CreateLathe("customGem_0", {
+            shape: profile,
+            tessellation: 8
+          }, scene);
+        } else if (gemCut === 'Vuông') {
+          const profile = [
+            new BABYLON.Vector3(0, -0.5, 0),
+            new BABYLON.Vector3(0.5, -0.1, 0),
+            new BABYLON.Vector3(0.5, 0, 0),
+            new BABYLON.Vector3(0.4, 0.25, 0),
+            new BABYLON.Vector3(0, 0.25, 0)
+          ];
+          gemCutMesh = BABYLON.MeshBuilder.CreateLathe("customGem_0", {
+            shape: profile,
+            tessellation: 4
+          }, scene);
+          gemCutMesh.rotation.y = Math.PI / 4;
+        } else if (gemCut === 'Bán cầu') {
+          const profile = [];
+          for (let i = 0; i <= 10; i++) {
+            const angle = (i / 10) * Math.PI / 2;
+            profile.push(new BABYLON.Vector3(Math.cos(angle) * 0.5, Math.sin(angle) * 0.5 - 0.25, 0));
           }
-          return null;
-        };
+          profile.push(new BABYLON.Vector3(0, -0.25, 0));
+          gemCutMesh = BABYLON.MeshBuilder.CreateLathe("customGem_0", {
+            shape: profile,
+            tessellation: 24
+          }, scene);
+        } else if (gemCut === 'Giọt nước') {
+          gemCutMesh = BABYLON.MeshBuilder.CreateSphere("customGem_0", { segments: 16, diameter: 1 }, scene);
+          gemCutMesh.scaling.set(0.75, 1.25, 0.75);
+          const positions = gemCutMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+          for (let i = 0; i < positions.length; i += 3) {
+            let x = positions[i];
+            let y = positions[i+1];
+            let z = positions[i+2];
+            const progress = (y + 0.625) / 1.25;
+            const factor = Math.max(0.1, 1 - progress);
+            positions[i] = x * factor;
+            positions[i+2] = z * factor;
+          }
+          gemCutMesh.setVerticesData(BABYLON.VertexBuffer.PositionKind, positions);
+          gemCutMesh.createNormals(true);
+        } else if (gemCut === 'Heart') {
+          gemCutMesh = BABYLON.MeshBuilder.CreateSphere("customGem_0", { segments: 16, diameter: 1 }, scene);
+          gemCutMesh.scaling.set(1.0, 0.9, 0.7);
+          const positions = gemCutMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+          for (let i = 0; i < positions.length; i += 3) {
+            let x = positions[i];
+            let y = positions[i+1];
+            let z = positions[i+2];
+            if (y > 0) {
+              y -= 0.18 * Math.max(0, 1 - Math.abs(x) * 3);
+            }
+            if (y < 0) {
+              const progress = (y + 0.5);
+              x *= progress * 2.0;
+              z *= progress * 2.0;
+            }
+            if (y > -0.2 && y < 0.2) {
+              x *= 1.25;
+            }
+            positions[i] = x;
+            positions[i+1] = y;
+            positions[i+2] = z;
+          }
+          gemCutMesh.setVerticesData(BABYLON.VertexBuffer.PositionKind, positions);
+          gemCutMesh.createNormals(true);
+        } else if (gemCut === 'Oval') {
+          gemCutMesh = BABYLON.MeshBuilder.CreateSphere("customGem_0", { segments: 16, diameter: 1 }, scene);
+          gemCutMesh.scaling.set(0.7, 0.5, 1.2);
+        }
+      }
 
-        let gemCutMesh = getCustomMesh();
-        if (gemCutMesh) {
-          gemCutMesh.setEnabled(true);
+      if (gemCutMesh) {
+        // Parent custom gem to the attach point TransformNode
+        gemCutMesh.parent = attachPoint;
+
+        // Reset local position, rotation to follow the attachPoint
+        gemCutMesh.position = BABYLON.Vector3.Zero();
+        if (gemCutMesh.rotationQuaternion) {
+          gemCutMesh.rotationQuaternion = BABYLON.Quaternion.Identity();
         } else {
-          // Procedural fallback
-          if (gemCut === 'Diamond') {
-            const profile = [
-              new BABYLON.Vector3(0, -0.5, 0),
-              new BABYLON.Vector3(0.5, -0.1, 0),
-              new BABYLON.Vector3(0.5, 0, 0),
-              new BABYLON.Vector3(0.3, 0.3, 0),
-              new BABYLON.Vector3(0, 0.3, 0)
-            ];
-            gemCutMesh = BABYLON.MeshBuilder.CreateLathe("customGem_" + idx, {
-              shape: profile,
-              tessellation: 8
-            }, scene);
-          } else if (gemCut === 'Vuông') {
-            const profile = [
-              new BABYLON.Vector3(0, -0.5, 0),
-              new BABYLON.Vector3(0.5, -0.1, 0),
-              new BABYLON.Vector3(0.5, 0, 0),
-              new BABYLON.Vector3(0.4, 0.25, 0),
-              new BABYLON.Vector3(0, 0.25, 0)
-            ];
-            gemCutMesh = BABYLON.MeshBuilder.CreateLathe("customGem_" + idx, {
-              shape: profile,
-              tessellation: 4
-            }, scene);
-            gemCutMesh.rotation.y = Math.PI / 4;
-          } else if (gemCut === 'Bán cầu') {
-            const profile = [];
-            for (let i = 0; i <= 10; i++) {
-              const angle = (i / 10) * Math.PI / 2;
-              profile.push(new BABYLON.Vector3(Math.cos(angle) * 0.5, Math.sin(angle) * 0.5 - 0.25, 0));
-            }
-            profile.push(new BABYLON.Vector3(0, -0.25, 0));
-            gemCutMesh = BABYLON.MeshBuilder.CreateLathe("customGem_" + idx, {
-              shape: profile,
-              tessellation: 24
-            }, scene);
-          } else if (gemCut === 'Giọt nước') {
-            gemCutMesh = BABYLON.MeshBuilder.CreateSphere("customGem_" + idx, { segments: 16, diameter: 1 }, scene);
-            gemCutMesh.scaling.set(0.75, 1.25, 0.75);
-            const positions = gemCutMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
-            for (let i = 0; i < positions.length; i += 3) {
-              let x = positions[i];
-              let y = positions[i+1];
-              let z = positions[i+2];
-              const progress = (y + 0.625) / 1.25;
-              const factor = Math.max(0.1, 1 - progress);
-              positions[i] = x * factor;
-              positions[i+2] = z * factor;
-            }
-            gemCutMesh.setVerticesData(BABYLON.VertexBuffer.PositionKind, positions);
-            gemCutMesh.createNormals(true);
-          } else if (gemCut === 'Heart') {
-            gemCutMesh = BABYLON.MeshBuilder.CreateSphere("customGem_" + idx, { segments: 16, diameter: 1 }, scene);
-            gemCutMesh.scaling.set(1.0, 0.9, 0.7);
-            const positions = gemCutMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
-            for (let i = 0; i < positions.length; i += 3) {
-              let x = positions[i];
-              let y = positions[i+1];
-              let z = positions[i+2];
-              if (y > 0) {
-                y -= 0.18 * Math.max(0, 1 - Math.abs(x) * 3);
-              }
-              if (y < 0) {
-                const progress = (y + 0.5);
-                x *= progress * 2.0;
-                z *= progress * 2.0;
-              }
-              if (y > -0.2 && y < 0.2) {
-                x *= 1.25;
-              }
-              positions[i] = x;
-              positions[i+1] = y;
-              positions[i+2] = z;
-            }
-            gemCutMesh.setVerticesData(BABYLON.VertexBuffer.PositionKind, positions);
-            gemCutMesh.createNormals(true);
-          } else if (gemCut === 'Oval') {
-            gemCutMesh = BABYLON.MeshBuilder.CreateSphere("customGem_" + idx, { segments: 16, diameter: 1 }, scene);
-            gemCutMesh.scaling.set(0.7, 0.5, 1.2);
-          }
+          gemCutMesh.rotation.set(0, 0, 0);
         }
 
-        if (gemCutMesh) {
-          // Parent custom gem to the same parent as placeholder to maintain coordinate space
-          gemCutMesh.parent = placeholder.parent || modelContainer;
+        // Apply gem materials
+        const gemColor = BABYLON.Color3.FromHexString(gemColorStr);
+        const gemMat = new BABYLON.PBRMaterial('gemMat_0', scene);
+        gemMat.albedoColor = gemColor;
+        gemMat.metallic = 0.1;
+        gemMat.roughness = 0.0;
+        gemMat.indexOfRefraction = 2.6; // Diamond index of refraction
+        gemMat.alpha = 0.9;
+        gemMat.subSurface.isRefractionEnabled = true;
+        gemMat.subSurface.refractionIntensity = 1.0;
+        
+        // Clear coat gives extra shiny facet reflections
+        gemMat.clearCoat.isEnabled = true;
+        gemMat.clearCoat.intensity = 1.0;
+        gemMat.clearCoat.roughness = 0.0;
 
-          // Copy position and rotation of original placeholder
-          gemCutMesh.position.copyFrom(placeholder.position);
-          if (placeholder.rotationQuaternion) {
-            gemCutMesh.rotationQuaternion = placeholder.rotationQuaternion.clone();
-          } else {
-            gemCutMesh.rotation.copyFrom(placeholder.rotation);
-          }
-
-          // Calculate precise scaling to fit the placeholder bounds exactly
-          let scaleX = placeholder.scaling.x;
-          let scaleY = placeholder.scaling.y;
-          let scaleZ = placeholder.scaling.z;
-
-          if (placeholder.getBoundingInfo && gemCutMesh.getBoundingInfo) {
-            const placeholderLocalSize = placeholder.getBoundingInfo().boundingBox.extendSize.scale(2);
-            const customLocalSize = gemCutMesh.getBoundingInfo().boundingBox.extendSize.scale(2);
-            
-            if (customLocalSize.x > 0 && customLocalSize.y > 0 && customLocalSize.z > 0) {
-              scaleX = (placeholderLocalSize.x * placeholder.scaling.x) / customLocalSize.x;
-              scaleY = (placeholderLocalSize.y * placeholder.scaling.y) / customLocalSize.y;
-              scaleZ = (placeholderLocalSize.z * placeholder.scaling.z) / customLocalSize.z;
-            }
-          }
-
-          gemCutMesh.scaling.set(scaleX, scaleY, scaleZ);
-
-          // Apply gem materials
-          const gemColor = BABYLON.Color3.FromHexString(gemColorStr);
-          const gemMat = new BABYLON.PBRMaterial('gemMat_' + idx, scene);
-          gemMat.albedoColor = gemColor;
-          gemMat.metallic = 0.1;
-          gemMat.roughness = 0.0;
-          gemMat.indexOfRefraction = 2.6; // Diamond index of refraction
-          gemMat.alpha = 0.9;
-          gemMat.subSurface.isRefractionEnabled = true;
-          gemMat.subSurface.refractionIntensity = 1.0;
-          
-          // Clear coat gives extra shiny facet reflections
-          gemMat.clearCoat.isEnabled = true;
-          gemMat.clearCoat.intensity = 1.0;
-          gemMat.clearCoat.roughness = 0.0;
-
-          gemCutMesh.material = gemMat;
-        }
-      });
+        gemCutMesh.material = gemMat;
+      }
     };
 
     triggerMaterialUpdateRef.current = updateMaterials;
@@ -724,11 +673,13 @@ export function CustomizePage() {
     if (jewelryType === 'Hoa tai') base += 70000;
     if (jewelryType === 'Nhẫn') base += 50000;
 
-    if (material === 'Bạch kim') base += 150000;
-    if (material === 'Vàng trắng 18K') base += 120000;
-    if (material === 'Vàng hồng 18K') base += 110000;
-    if (material === 'Vàng 18K') base += 100000;
-    if (material === 'Bạc') base += 30000;
+    if (material === 'Bạc 925') base += 30000;
+    if (material === 'Bạc S925 (Bạc Sterling)') base += 35000;
+    if (material === 'Bạc S950') base += 40000;
+    if (material === 'Bạc S999') base += 50000;
+    if (material === 'Bạc Ý (Bạc Italy)') base += 45000;
+    if (material === 'Bạc Thái') base += 55000;
+    if (material === 'Bạc Ta') base += 60000;
 
     if (gemstone === 'Kim cương') base += 120000;
     if (gemstone === 'Emerald (Ngọc lục bảo)') base += 90000;
@@ -964,8 +915,16 @@ export function CustomizePage() {
                   {/* Step 2: Chọn chất liệu */}
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold uppercase tracking-wider text-primary border-b border-border pb-2">2. Chất liệu kim loại</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                      {['Vàng 18K', 'Vàng hồng 18K', 'Vàng trắng 18K', 'Bạch kim', 'Bạc'].map((mat) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {[
+                        'Bạc 925',
+                        'Bạc S925 (Bạc Sterling)',
+                        'Bạc S950',
+                        'Bạc S999',
+                        'Bạc Ý (Bạc Italy)',
+                        'Bạc Thái',
+                        'Bạc Ta'
+                      ].map((mat) => (
                         <button
                           key={mat}
                           type="button"
