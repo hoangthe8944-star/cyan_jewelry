@@ -136,16 +136,6 @@ export function CartPage() {
               },
             }
           : {}),
-        ...(paymentMethod === 'VNPAY'
-          ? {
-              vnpayPayment: {
-                orderInfo: `Thanh toan don hang OrivenJewelry ${Date.now()}`,
-                redirectUrl: `${window.location.origin}/cart`,
-                ipnUrl: `${API_BASE_URL}/api/public/payments/vnpay/ipn`,
-                lang: 'vi',
-              },
-            }
-          : {}),
       };
 
       const response = await storefrontApi.createOrder(payload);
