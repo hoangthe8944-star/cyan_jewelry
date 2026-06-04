@@ -33,6 +33,7 @@ const SizeGuidePage = lazy(() => import('./pages/SizeGuidePage').then(m => ({ de
 const CareGuidePage = lazy(() => import('./pages/CareGuidePage').then(m => ({ default: m.CareGuidePage })));
 const SustainabilityPage = lazy(() => import('./pages/SustainabilityPage').then(m => ({ default: m.SustainabilityPage })));
 const CustomizePage = lazy(() => import('./pages/CustomizePage').then(m => ({ default: m.CustomizePage })));
+const PaymentCallbackPage = lazy(() => import('./pages/PaymentCallbackPage').then(m => ({ default: m.PaymentCallbackPage })));
 
 export default function App() {
   return (
@@ -121,6 +122,7 @@ export default function App() {
                 <Route path="/wishlist" element={<WishlistPage />} />
                 <Route path="/product/:slug" element={<ProductDetailPage />} />
                 <Route path="/customize" element={<CustomizePage />} />
+                <Route path="/payment/callback" element={<PaymentCallbackPage />} />
               </Routes>
             </Suspense>
           </main>

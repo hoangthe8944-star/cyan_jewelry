@@ -129,7 +129,7 @@ export function CartPage() {
           ? {
               momoPayment: {
                 orderInfo: `Thanh toan don hang OrivenJewelry ${Date.now()}`,
-                redirectUrl: `${window.location.origin}/cart`,
+                redirectUrl: `${window.location.origin}/payment/callback`,
                 ipnUrl: `${API_BASE_URL}/api/public/payments/momo/ipn`,
                 requestType: 'CAPTURE_WALLET',
                 lang: 'vi',
