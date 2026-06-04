@@ -29,7 +29,8 @@ const MODEL_TEMPLATES: Record<string, Array<{ name: string; path: string; type: 
     { name: 'Quý phái', path: '/nhan2.glb', type: 'glb', size: '1.3 MB', defaultCut: 'Oval' }
   ],
   'Dây chuyền': [
-    { name: 'Dịu dàng', path: '/daychuyen3.glb', type: 'glb', size: '326 KB', defaultCut: 'Oval' }
+    { name: 'Dịu dàng', path: '/daychuyen3.glb', type: 'glb', size: '722 KB', defaultCut: 'Oval' },
+    { name: 'Quý phái', path: '/daychuyen2.glb', type: 'glb', size: '9.7 MB', defaultCut: 'Diamond' }
   ],
   'Hoa tai': [
     { name: 'Tinh tế', path: '/bongtai2.glb', type: 'glb', size: '371 KB', defaultCut: 'Heart' },
@@ -59,7 +60,7 @@ export function CustomizePage() {
   const [jewelryType, setJewelryType] = useState('Nhẫn');
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
   const [material, setMaterial] = useState('Bạc 925');
-  const [gemstone, setGemstone] = useState('Sapphire (Lam ngọc)');
+  const [gemstone, setGemstone] = useState('Thạch anh tím (Amethyst)');
   const [gemCut, setGemCut] = useState('Diamond');
   const [size, setSize] = useState('12');
   const [engraving, setEngraving] = useState('');
@@ -425,12 +426,10 @@ export function CustomizePage() {
       }
 
       let gemColorStr = '#ffffff'; // Default clear
-      if (gemstone === 'Sapphire (Lam ngọc)') gemColorStr = '#02071d'; // Saturated deep royal blue (near midnight)
-      if (gemstone === 'Emerald (Lục bảo)') gemColorStr = '#002614'; // Deepest forest luxury emerald green
-      if (gemstone === 'Ruby (Hồng ngọc)') gemColorStr = '#5a000c'; // Saturated dark blood crimson ruby red
-      if (gemstone === 'Amethyst (Thạch anh tím)') gemColorStr = '#1d003a'; // Royal dark violet imperial purple
-      if (gemstone === 'Aquamarine (Hải lam bảo)') gemColorStr = '#00434f'; // Deep ocean turquoise aquamarine cyan
-      if (gemstone === 'Morganite (Đá hồng Peach)') gemColorStr = '#b84d46'; // Deeper warm peach salmon pink
+      if (gemstone === 'Thạch anh tím (Amethyst)') gemColorStr = '#520d8a'; // Royal deep violet purple
+      if (gemstone === 'Thạch anh hồng (Rose Quartz)') gemColorStr = '#d65672'; // Saturated rose quartz pink
+      if (gemstone === 'Thạch anh vàng (Citrine)') gemColorStr = '#d47a00'; // Saturated yellow golden amber
+      if (gemstone === 'Đá mặt trăng (Moonstone)') gemColorStr = '#e0f0ff'; // Translucent bluish white
 
       // Discard previous custom stones, attach points, and debug axes from the scene to prevent duplicates
       const prevCustomGems = scene.meshes.filter((m: any) => m.name && (m.name.startsWith("customGem_") || m.name.startsWith("customGem_debug_axis_")));
@@ -628,34 +627,31 @@ export function CustomizePage() {
           gemMat.metallic = 0.0; // Non-metal for crystal refraction
           gemMat.roughness = 0.0;
           gemMat.indexOfRefraction = 2.42; // Default diamond index of refraction
-          gemMat.alpha = 0.45; // Default clear transparent look
+          gemMat.alpha = 0.94; // Higher default opacity to make colors deep and rich
           
           gemMat.subSurface.isRefractionEnabled = true;
-          gemMat.subSurface.refractionIntensity = 1.2;
+          gemMat.subSurface.refractionIntensity = 0.5; // Balanced refraction to keep colors rich and saturated
           gemMat.subSurface.linkRefractionWithAlbedoColor = true; // Tints the light passing through the gem
 
           // Apply unique visual effects per gemstone type
-          if (gemstone === 'Sapphire (Lam ngọc)') {
-            gemMat.indexOfRefraction = 2.65; // Highly reflective facets
-            gemMat.alpha = 0.65; // Highly saturated blue tone
-          } else if (gemstone === 'Emerald (Lục bảo)') {
-            gemMat.subSurface.refractionIntensity = 1.6; // Luxury heavy refraction
-            gemMat.alpha = 0.7; // Deepest luxury emerald green tone
-          } else if (gemstone === 'Ruby (Hồng ngọc)') {
-            // Emissive glow for a warm glowing effect
-            gemMat.emissiveColor = new BABYLON.Color3(0.35, 0.0, 0.02);
-            gemMat.alpha = 0.65;
-          } else if (gemstone === 'Amethyst (Thạch anh tím)') {
-            // Fantasy purple glow
-            gemMat.emissiveColor = new BABYLON.Color3(0.14, 0.0, 0.28);
-            gemMat.alpha = 0.6;
-          } else if (gemstone === 'Aquamarine (Hải lam bảo)') {
-            // Oceanic transparent cyan-teal look
-            gemMat.indexOfRefraction = 2.25;
-            gemMat.alpha = 0.55;
-          } else if (gemstone === 'Morganite (Đá hồng Peach)') {
-            gemMat.indexOfRefraction = 2.1; // Soft refraction
-            gemMat.alpha = 0.5; // Deeper peach tone
+          if (gemstone === 'Thạch anh tím (Amethyst)') {
+            gemMat.indexOfRefraction = 2.42;
+            gemMat.emissiveColor = new BABYLON.Color3(0.18, 0.02, 0.32);
+            gemMat.alpha = 0.93; // Deep royal purple
+          } else if (gemstone === 'Thạch anh hồng (Rose Quartz)') {
+            gemMat.indexOfRefraction = 2.2;
+            gemMat.alpha = 0.92; // Deep rose quartz pink
+          } else if (gemstone === 'Thạch anh vàng (Citrine)') {
+            gemMat.indexOfRefraction = 2.3;
+            gemMat.alpha = 0.93; // Saturated citrine golden amber
+          } else if (gemstone === 'Đá mặt trăng (Moonstone)') {
+            gemMat.indexOfRefraction = 1.8;
+            gemMat.alpha = 0.88; // Translucent moonstone
+            gemMat.roughness = 0.12; // Slightly satin/milky surface for realism
+            gemMat.emissiveColor = new BABYLON.Color3(0.15, 0.25, 0.5); // Mysterious inner blue glow (adularescence)
+            gemMat.iridescence.isEnabled = true;
+            gemMat.iridescence.intensity = 0.8;
+            gemMat.iridescence.indexOfRefraction = 1.6;
           }
           
           // Clear coat gives extra shiny facet reflections
@@ -712,12 +708,10 @@ export function CustomizePage() {
     if (material === 'Bạc Thái') base += 55000;
     if (material === 'Bạc Ta') base += 60000;
 
-    if (gemstone === 'Sapphire (Lam ngọc)') base += 70000;
-    if (gemstone === 'Emerald (Lục bảo)') base += 90000;
-    if (gemstone === 'Ruby (Hồng ngọc)') base += 80000;
-    if (gemstone === 'Amethyst (Thạch anh tím)') base += 50000;
-    if (gemstone === 'Aquamarine (Hải lam bảo)') base += 75000;
-    if (gemstone === 'Morganite (Đá hồng Peach)') base += 60000;
+    if (gemstone === 'Thạch anh tím (Amethyst)') base += 50000;
+    if (gemstone === 'Thạch anh hồng (Rose Quartz)') base += 55000;
+    if (gemstone === 'Thạch anh vàng (Citrine)') base += 60000;
+    if (gemstone === 'Đá mặt trăng (Moonstone)') base += 75000;
     if (gemstone === 'Không đính đá') base = Math.max(600000, base - 20000);
 
     if (engraving) base += 30000;
@@ -977,12 +971,10 @@ export function CustomizePage() {
                     <h3 className="text-sm font-semibold uppercase tracking-wider text-primary border-b border-border pb-2">3. Đá quý đính kèm</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {[
-                        'Sapphire (Lam ngọc)',
-                        'Emerald (Lục bảo)',
-                        'Ruby (Hồng ngọc)',
-                        'Amethyst (Thạch anh tím)',
-                        'Aquamarine (Hải lam bảo)',
-                        'Morganite (Đá hồng Peach)',
+                        'Thạch anh tím (Amethyst)',
+                        'Thạch anh hồng (Rose Quartz)',
+                        'Thạch anh vàng (Citrine)',
+                        'Đá mặt trăng (Moonstone)',
                         'Không đính đá',
                       ].map((gem) => (
                         <button
