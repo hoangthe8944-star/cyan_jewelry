@@ -48,36 +48,6 @@ const MODEL_TEMPLATES: Record<string, Array<{ name: string; path: string; type: 
   ]
 };
 
-// 3D Gemstone attachment configuration per model path
-const GEM_ATTACH_CONFIG: Record<
-  string,
-  {
-    position: [number, number, number];
-    rotation: [number, number, number];
-    scale: [number, number, number];
-  }
-> = {
-  '/nhan.glb': {
-    position: [0, 1.35, -0.15],
-    rotation: [Math.PI / 2, 0, 0],
-    scale: [0.28, 0.28, 0.28],
-  },
-  '/nhan3.glb': { position: [0, 0.45, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-  '/nhan4.glb': { position: [0, 0.48, 0], rotation: [0, 0, 0], scale: [0.35, 0.35, 0.35] },
-  '/nhan2.glb': { position: [0, 0.5, 0], rotation: [0, 0, 0], scale: [0.4, 0.4, 0.4] },
-  '/daychuyen2.glb': { position: [0, 0.1, -0.05], rotation: [0, 0, 0], scale: [0.25, 0.25, 0.25] },
-  '/daychuyen3.glb': { position: [0, 0.1, -0.05], rotation: [0, 0, 0], scale: [0.25, 0.25, 0.25] },
-  '/daychuyen.glb': { position: [0, 0.1, -0.05], rotation: [0, 0, 0], scale: [0.25, 0.25, 0.25] },
-  '/bongtai4.glb': { position: [0, -0.2, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-  '/bongtai2.glb': { position: [0, -0.2, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-  '/bongtai.glb': { position: [0, -0.2, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-  '/bongtai3.glb': { position: [0, -0.2, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-  '/vongtay2.glb': { position: [0, 0.3, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-  '/vongtay4.glb': { position: [0, 0.3, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-  '/vongtay.glb': { position: [0, 0.3, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-  '/vongtay3.glb': { position: [0, 0.3, 0], rotation: [0, 0, 0], scale: [0.3, 0.3, 0.3] },
-};
-
 export function CustomizePage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -488,41 +458,45 @@ export function CustomizePage() {
         mesh.getChildMeshes && mesh.getChildMeshes().forEach((child: any) => applyMaterialToMesh(child));
       });
 
+      // Find the attach point named "Sphere" (TransformNode or Mesh) in the scene
+      const attachPoint = scene.getTransformNodeByName("Sphere") || scene.getMeshByName("Sphere");
+
+      if (attachPoint) {
+        if ('isVisible' in attachPoint) {
+          attachPoint.isVisible = false;
+        }
+        if ('visibility' in attachPoint) {
+          attachPoint.visibility = 0;
+        }
+
+        // Console logs for easy tweaking and debugging socket coordinates from GLB
+        console.log(`[Babylon Customizer Socket] Found 'Sphere' attach point inside: ${activeTemplate.path}`);
+        console.log(`- Position: ${attachPoint.position ? attachPoint.position.toString() : 'N/A'}`);
+        if (attachPoint.rotationQuaternion) {
+          console.log(`- Rotation (Quaternion): ${attachPoint.rotationQuaternion.toString()}`);
+        } else {
+          console.log(`- Rotation (Euler): ${attachPoint.rotation ? attachPoint.rotation.toString() : 'N/A'}`);
+        }
+        console.log(`- Scale: ${attachPoint.scaling ? attachPoint.scaling.toString() : 'N/A'}`);
+
+        // Optional Babylon axes viewer to visually debug the attach point's local axis orientation (Red=X, Green=Y, Blue=Z)
+        const debugAxes = true; // Set to true to show helper lines
+        if (debugAxes) {
+          const localAxes = new BABYLON.AxesViewer(scene, 0.4);
+          localAxes.xAxis.parent = attachPoint;
+          localAxes.yAxis.parent = attachPoint;
+          localAxes.zAxis.parent = attachPoint;
+          localAxes.xAxis.name = "customGem_debug_axis_x";
+          localAxes.yAxis.name = "customGem_debug_axis_y";
+          localAxes.zAxis.name = "customGem_debug_axis_z";
+        }
+      } else {
+        console.warn(`[Babylon Customizer Socket] Attach point 'Sphere' not found in model: ${activeTemplate.path}`);
+      }
+
       // If 'Không đính đá', do not create custom cut shapes
       if (gemstone === 'Không đính đá') {
         return;
-      }
-
-      // Create TransformNode as attach point for the gemstone
-      const attachPoint = new BABYLON.TransformNode("gem_attach_point", scene);
-      attachPoint.parent = modelContainer;
-
-      const config = GEM_ATTACH_CONFIG[activeTemplate.path] || {
-        position: [0, 0.45, 0],
-        rotation: [0, 0, 0],
-        scale: [0.35, 0.35, 0.35]
-      };
-
-      attachPoint.position.set(config.position[0], config.position[1], config.position[2]);
-      attachPoint.rotation.set(config.rotation[0], config.rotation[1], config.rotation[2]);
-      attachPoint.scaling.set(config.scale[0], config.scale[1], config.scale[2]);
-
-      // Console logs for easy tweaking and debugging
-      console.log(`[Babylon Customizer Gemstone Attached] Model: ${activeTemplate.path}`);
-      console.log(`- Position: X=${config.position[0]}, Y=${config.position[1]}, Z=${config.position[2]}`);
-      console.log(`- Rotation: X=${config.rotation[0]}, Y=${config.rotation[1]}, Z=${config.rotation[2]}`);
-      console.log(`- Scale: X=${config.scale[0]}, Y=${config.scale[1]}, Z=${config.scale[2]}`);
-
-      // Optional Babylon axes viewer to visually debug the attach point's local axis orientation (Red=X, Green=Y, Blue=Z)
-      const debugAxes = true; // Set to true to show helper lines
-      if (debugAxes) {
-        const localAxes = new BABYLON.AxesViewer(scene, 0.4);
-        localAxes.xAxis.parent = attachPoint;
-        localAxes.yAxis.parent = attachPoint;
-        localAxes.zAxis.parent = attachPoint;
-        localAxes.xAxis.name = "customGem_debug_axis_x";
-        localAxes.yAxis.name = "customGem_debug_axis_y";
-        localAxes.zAxis.name = "customGem_debug_axis_z";
       }
 
       const getCustomMesh = () => {
@@ -627,17 +601,18 @@ export function CustomizePage() {
         }
       }
 
-      if (gemCutMesh) {
-        // Parent custom gem to the attach point TransformNode
+      if (gemCutMesh && attachPoint) {
+        // Parent custom gem to the attach point (Sphere socket)
         gemCutMesh.parent = attachPoint;
 
-        // Reset local position, rotation to follow the attachPoint
+        // Reset local position, rotation, and scaling to align with the socket transform
         gemCutMesh.position = BABYLON.Vector3.Zero();
         if (gemCutMesh.rotationQuaternion) {
           gemCutMesh.rotationQuaternion = BABYLON.Quaternion.Identity();
         } else {
           gemCutMesh.rotation.set(0, 0, 0);
         }
+        gemCutMesh.scaling = BABYLON.Vector3.One();
 
         // Apply gem materials
         const gemColor = BABYLON.Color3.FromHexString(gemColorStr);
