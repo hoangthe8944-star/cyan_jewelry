@@ -653,9 +653,9 @@ export function CustomizePage() {
             // Iridescent Opal thin film interference shader setup
             gemMat.roughness = 0.05;
             gemMat.alpha = 0.85; // Opal is mostly opaque
-            gemMat.thinFilm.isEnabled = true;
-            gemMat.thinFilm.minThickness = 250;
-            gemMat.thinFilm.maxThickness = 750;
+            gemMat.subSurface.thinFilm.isEnabled = true;
+            gemMat.subSurface.thinFilm.minThickness = 250;
+            gemMat.subSurface.thinFilm.maxThickness = 750;
           } else if (gemstone === 'Morganite (Đá hồng Peach)') {
             gemMat.indexOfRefraction = 2.1; // Soft refraction
             gemMat.alpha = 0.28; // Very soft, clear feminine look
