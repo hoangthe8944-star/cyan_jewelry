@@ -58,12 +58,14 @@ export function PaymentCallbackPage() {
         setStatus('success');
         clearCart(); // Auto clear cart upon successful payment
         
-        // Trigger celebratory confetti
-        confetti({
-          particleCount: 150,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
+        // Trigger celebratory confetti after component renders to avoid thread freezing
+        setTimeout(() => {
+          confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 }
+          });
+        }, 400);
       } else {
         setStatus('failure');
       }
