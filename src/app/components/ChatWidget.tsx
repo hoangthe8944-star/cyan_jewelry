@@ -3,7 +3,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { LoaderCircle, MessageCircleMore, Send, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { ChatGroq } from '@langchain/groq';
 import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
 
 import { getAuthUser } from '../lib/auth';
@@ -90,10 +90,10 @@ export function ChatWidget() {
     localStorage.setItem('oriven_chat_history', JSON.stringify(newMessages));
   };
 
-  const fetchGeminiResponse = async (userMessage: string, chatHistory: ChatMessage[]) => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const fetchGroqResponse = async (userMessage: string, chatHistory: ChatMessage[]) => {
+    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
     if (!apiKey) {
-      console.warn('VITE_GEMINI_API_KEY is not configured in .env file.');
+      console.warn('VITE_GROQ_API_KEY is not configured in .env file.');
       return 'Chào mừng bạn đến với Oriven Jewelry! Trợ lý ảo AI của cửa hàng hiện đang được thiết lập. Bạn có thể tự do trải nghiệm thiết kế trang sức 3D độc quyền tại phần Customizer nhé!';
     }
 
@@ -107,11 +107,11 @@ export function ChatWidget() {
       `Khuyến khích họ trải nghiệm tính năng thiết kế 3D độc quyền ở trang Customizer.`;
 
     try {
-      const model = new ChatGoogleGenerativeAI({
+      const model = new ChatGroq({
         apiKey,
-        model: 'gemini-2.5-flash',
+        model: 'llama-3.3-70b-versatile',
         temperature: 0.7,
-        maxOutputTokens: 500,
+        maxTokens: 500,
       });
 
       const messages = [
@@ -130,7 +130,7 @@ export function ChatWidget() {
       const replyText = typeof response.content === 'string' ? response.content : '';
       return replyText || 'Oriven chưa hiểu rõ ý bạn, bạn có thể nói chi tiết hơn được không?';
     } catch (error) {
-      console.error('Error calling Gemini API via LangChain:', error);
+      console.error('Error calling Groq API via LangChain:', error);
       throw new Error('Kết nối tới AI Chatbot gặp sự cố. Vui lòng thử lại sau.');
     }
   };
@@ -151,7 +151,7 @@ export function ChatWidget() {
     setError(null);
 
     try {
-      const reply = await fetchGeminiResponse(trimmedInput, messages);
+      const reply = await fetchGroqResponse(trimmedInput, newMessages);
       const nextAssistantMessage = createMessage('assistant', reply);
       saveMessages([...newMessages, nextAssistantMessage]);
     } catch (submitError) {
