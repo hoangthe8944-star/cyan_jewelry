@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { PageTransition } from '../components/PageTransition';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
+import { storefrontApi } from '../api/storefront';
 
 export function ContactPage() {
   const location = useLocation();
@@ -34,8 +35,14 @@ export function ContactPage() {
     }
 
     setIsSubmitting(true);
-    // Simulate API request
-    setTimeout(() => {
+    storefrontApi.createContact({
+      customerName: formData.name,
+      email: formData.email,
+      phoneNumber: formData.phone || undefined,
+      subject: formData.subject,
+      message: formData.message,
+    })
+    .then(() => {
       toast.success('Gửi lời nhắn thành công! Oriven sẽ phản hồi quý khách sớm nhất.');
       setFormData({
         name: '',
@@ -44,8 +51,14 @@ export function ContactPage() {
         subject: 'Tư vấn sản phẩm',
         message: '',
       });
+    })
+    .catch((err) => {
+      console.error('Error submitting contact form:', err);
+      toast.error('Gửi liên hệ thất bại. Vui lòng thử lại sau.');
+    })
+    .finally(() => {
       setIsSubmitting(false);
-    }, 1500);
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

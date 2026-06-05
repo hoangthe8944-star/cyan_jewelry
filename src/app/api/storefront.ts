@@ -110,6 +110,13 @@ export const storefrontApi = {
   getOrdersByUser(userId: string) {
     return request<OrderResponse[]>(`${STOREFRONT_PREFIX}/orders/user/${userId}`);
   },
+
+  createContact(payload: { customerName: string; email: string; phoneNumber?: string; subject: string; message: string }) {
+    return request<any>(`${STOREFRONT_PREFIX}/contacts`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
 };
 
 export function toShopProduct(product: ProductDetail | ProductCatalogResponse["items"][number]): ShopProduct {

@@ -23,6 +23,7 @@ const CollectionDetailPage = lazy(() => import('./pages/CollectionDetailPage').t
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage').then(m => ({ default: m.CollectionsPage })));
 const CraftPage = lazy(() => import('./pages/CraftPage').then(m => ({ default: m.CraftPage })));
 const InfoPage = lazy(() => import('./pages/InfoPage').then(m => ({ default: m.InfoPage })));
+const ShippingReturnsPage = lazy(() => import('./pages/ShippingReturnsPage').then(m => ({ default: m.ShippingReturnsPage })));
 const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage').then(m => ({ default: m.MyOrdersPage })));
 const NewsDetailPage = lazy(() => import('./pages/NewsDetailPage').then(m => ({ default: m.NewsDetailPage })));
 const NewsPage = lazy(() => import('./pages/NewsPage').then(m => ({ default: m.NewsPage })));
@@ -83,23 +84,7 @@ export default function App() {
                 />
                 <Route
                   path="/shipping-returns"
-                  element={
-                    <InfoPage
-                      eyebrow="Vận chuyển và đổi trả"
-                      title="Thông tin cơ bản về giao hàng, kiểm tra đơn và chính sách hỗ trợ đổi trả tại Oriven."
-                      lead="Chúng tôi cố gắng để mỗi đơn hàng đến tay khách hàng nhanh chóng, an toàn và rõ ràng trong toàn bộ quá trình xử lý."
-                      sections={[
-                        {
-                          title: 'Vận chuyển',
-                          body: 'Thời gian giao hàng có thể thay đổi tùy khu vực và thời điểm đặt mua. Sau khi đơn được xác nhận, Oriven sẽ cập nhật trạng thái xử lý và giao nhận để bạn thuận tiện theo dõi.',
-                        },
-                        {
-                          title: 'Đổi trả',
-                          body: 'Nếu sản phẩm gặp vấn đề cần hỗ trợ, bạn có thể liên hệ với Oriven sớm nhất để được hướng dẫn quy trình kiểm tra và xử lý phù hợp với tình trạng đơn hàng.',
-                        },
-                      ]}
-                    />
-                  }
+                  element={<ShippingReturnsPage />}
                 />
                 <Route
                   path="/size-guide"

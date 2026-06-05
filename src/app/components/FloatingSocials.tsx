@@ -16,7 +16,7 @@ const SOCIALS = [
   },
   {
     name: 'Facebook',
-    href: 'https://www.facebook.com/profile.php',
+    href: 'https://www.facebook.com/profile.php?id=61590086295000',
     color: '#1877F2',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">

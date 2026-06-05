@@ -24,26 +24,76 @@ function flattenCategories(categories: CategoryNode[]) {
 }
 
 const COLOR_RULES = [
-  { label: 'Vàng', keywords: ['gold', 'yellow gold'] },
-  { label: 'Bạc', keywords: ['silver', 'white gold', 'platinum'] },
-  { label: 'Vàng hồng', keywords: ['rose gold', 'pink gold'] },
-  { label: 'Đen', keywords: ['black', 'onyx'] },
-  { label: 'Xanh dương', keywords: ['blue', 'sapphire', 'topaz', 'aquamarine'] },
-  { label: 'Xanh lá', keywords: ['green', 'emerald'] },
-  { label: 'Đỏ', keywords: ['red', 'ruby', 'garnet'] },
-  { label: 'Tím', keywords: ['purple', 'amethyst'] },
-  { label: 'Trắng', keywords: ['white', 'diamond', 'pearl', 'crystal'] },
+  { label: 'Vàng', keywords: ['gold', 'yellow gold', 'citrine', 'vàng', 'thạch anh vàng'] },
+  { label: 'Bạc', keywords: ['silver', 'white gold', 'platinum', 'bạc'] },
+  { label: 'Vàng hồng', keywords: ['rose gold', 'pink gold', 'rose gold'] },
+  { label: 'Đen', keywords: ['black', 'onyx', 'đen'] },
+  { label: 'Xanh dương', keywords: ['blue', 'sapphire', 'topaz', 'aquamarine', 'xanh dương', 'hải lam bảo', 'lam ngọc'] },
+  { label: 'Xanh lá', keywords: ['green', 'emerald', 'xanh lá', 'lục bảo'] },
+  { label: 'Đỏ', keywords: ['red', 'ruby', 'garnet', 'đỏ', 'hồng ngọc'] },
+  { label: 'Tím', keywords: ['purple', 'amethyst', 'tím', 'thạch anh tím'] },
+  { label: 'Hồng', keywords: ['rose quartz', 'pink', 'morganite', 'hồng', 'thạch anh hồng', 'đá hồng'] },
+  { label: 'Trắng', keywords: ['white', 'diamond', 'pearl', 'crystal', 'moonstone', 'trắng', 'đá mặt trăng', 'ánh trăng'] },
+] as const;
+
+const DESTINY_RULES = [
+  { label: 'Kim (Mệnh Kim)', keywords: ['diamond', 'pearl', 'silver', 'white gold', 'moonstone', 'citrine', 'vàng', 'bạc', 'trắng', 'thạch anh vàng', 'đá mặt trăng'] },
+  { label: 'Mộc (Mệnh Mộc)', keywords: ['emerald', 'sapphire', 'aquamarine', 'green', 'blue', 'black', 'xanh', 'lục bảo', 'lam ngọc', 'hải lam bảo'] },
+  { label: 'Thủy (Mệnh Thủy)', keywords: ['sapphire', 'aquamarine', 'moonstone', 'diamond', 'pearl', 'blue', 'black', 'white', 'silver', 'lam ngọc', 'hải lam bảo', 'đá mặt trăng'] },
+  { label: 'Hỏa (Mệnh Hỏa)', keywords: ['ruby', 'amethyst', 'rose quartz', 'emerald', 'red', 'pink', 'purple', 'green', 'hồng ngọc', 'thạch anh tím', 'thạch anh hồng', 'lục bảo'] },
+  { label: 'Thổ (Mệnh Thổ)', keywords: ['citrine', 'ruby', 'amethyst', 'rose quartz', 'yellow', 'red', 'pink', 'purple', 'thạch anh vàng', 'hồng ngọc', 'thạch anh tím', 'thạch anh hồng'] },
+] as const;
+
+const STYLE_RULES = [
+  { label: 'Cổ điển', keywords: ['cổ điển', 'classic', 'hoài cổ', 'quý phái', 'traditional', 'heritage'] },
+  { label: 'Hiện đại', keywords: ['hiện đại', 'modern', 'thời thượng', 'contemporary', 'trend'] },
+  { label: 'Tinh tế', keywords: ['tinh tế', 'thanh lịch', 'mảnh mai', 'dịu dàng', 'minimal', 'simple', 'elegant'] },
+  { label: 'Sang trọng', keywords: ['sang trọng', 'kiêu kỳ', 'quý phái', 'kiêu sa', 'luxury', 'royal'] },
+  { label: 'Quyến rũ', keywords: ['quyến rũ', 'kiều diễm', 'glamour', 'glamorous', 'feminine', 'sexy'] },
+] as const;
+
+const ENERGY_RULES = [
+  { label: 'Tình yêu & Gắn kết', keywords: ['rose quartz', 'morganite', 'peach', 'heart', 'thạch anh hồng', 'hồng đào', 'tình yêu', 'love', 'giọt nước'] },
+  { label: 'Tài lộc & Thịnh vượng', keywords: ['citrine', 'gold', 'thạch anh vàng', 'vàng', 'tài lộc', 'wealth', 'fortune'] },
+  { label: 'Bình an & Trực giác', keywords: ['moonstone', 'aquamarine', 'đá mặt trăng', 'hải lam bảo', 'bình an', 'peace', 'calm', 'moon'] },
+  { label: 'Trí tuệ & Tập trung', keywords: ['amethyst', 'sapphire', 'thạch anh tím', 'lam ngọc', 'trí tuệ', 'wisdom', 'focus'] },
+  { label: 'Sức khỏe & Bảo hộ', keywords: ['emerald', 'ruby', 'lục bảo', 'hồng ngọc', 'sức khỏe', 'health', 'protection'] },
 ] as const;
 
 const PRODUCTS_PER_PAGE = 8;
 
-function detectProductColors(product: ProductCardItem) {
-  const haystack = [product.name, product.material, product.gemstone]
+function getHaystack(product: ProductCardItem) {
+  return [product.name, product.material, product.gemstone, ...(product.tags || [])]
     .filter(Boolean)
     .join(' ')
     .toLowerCase();
+}
 
+function detectProductColors(product: ProductCardItem) {
+  const haystack = getHaystack(product);
   return COLOR_RULES.filter((rule) => rule.keywords.some((keyword) => haystack.includes(keyword))).map(
+    (rule) => rule.label
+  );
+}
+
+function detectProductDestiny(product: ProductCardItem) {
+  const haystack = getHaystack(product);
+  return DESTINY_RULES.filter((rule) => rule.keywords.some((keyword) => haystack.includes(keyword))).map(
+    (rule) => rule.label
+  );
+}
+
+function detectProductStyle(product: ProductCardItem) {
+  if (!product.tags || product.tags.length === 0) return [];
+  return product.tags
+    .flatMap(t => t.split(','))
+    .map(t => t.trim())
+    .filter(Boolean);
+}
+
+function detectProductEnergy(product: ProductCardItem) {
+  const haystack = getHaystack(product);
+  return ENERGY_RULES.filter((rule) => rule.keywords.some((keyword) => haystack.includes(keyword))).map(
     (rule) => rule.label
   );
 }
@@ -59,6 +109,9 @@ export function ProductsPage() {
 
   const selectedCategorySlug = searchParams.get('category') ?? '';
   const selectedColor = searchParams.get('color') ?? '';
+  const selectedDestiny = searchParams.get('destiny') ?? '';
+  const selectedStyle = searchParams.get('style') ?? '';
+  const selectedEnergy = searchParams.get('energy') ?? '';
   const minPrice = searchParams.get('minPrice') ?? '';
   const maxPrice = searchParams.get('maxPrice') ?? '';
   const featured = searchParams.get('featured') === 'true';
@@ -69,21 +122,40 @@ export function ProductsPage() {
     return new Map(entries);
   }, [categories]);
 
-  const colorOptions = useMemo(() => {
+  const colorOptions = COLOR_RULES.map((rule) => rule.label);
+  const destinyOptions = DESTINY_RULES.map((rule) => rule.label);
+  const styleOptions = useMemo(() => {
     const values = new Set<string>();
     products.forEach((product) => {
-      detectProductColors(product).forEach((color) => values.add(color));
+      detectProductStyle(product).forEach((tag) => {
+        const formatted = tag.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        if (formatted) values.add(formatted);
+      });
     });
     return Array.from(values);
   }, [products]);
+  const energyOptions = ENERGY_RULES.map((rule) => rule.label);
 
   const filteredProducts = useMemo(() => {
-    if (!selectedColor) {
-      return products;
+    let result = products;
+
+    if (selectedColor) {
+      result = result.filter((product) => detectProductColors(product).includes(selectedColor));
+    }
+    if (selectedDestiny) {
+      result = result.filter((product) => detectProductDestiny(product).includes(selectedDestiny));
+    }
+    if (selectedStyle) {
+      result = result.filter((product) => 
+        detectProductStyle(product).some(tag => tag.toLowerCase() === selectedStyle.toLowerCase())
+      );
+    }
+    if (selectedEnergy) {
+      result = result.filter((product) => detectProductEnergy(product).includes(selectedEnergy));
     }
 
-    return products.filter((product) => detectProductColors(product).includes(selectedColor));
-  }, [products, selectedColor]);
+    return result;
+  }, [products, selectedColor, selectedDestiny, selectedStyle, selectedEnergy]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -389,6 +461,54 @@ export function ProductsPage() {
                         {colorOptions.map((color) => (
                           <option key={color} value={color}>
                             {color}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Bản mệnh (Ngũ hành)</h3>
+                      <select
+                        value={selectedDestiny}
+                        onChange={(event) => updateFilter('destiny', event.target.value)}
+                        className="w-full border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary"
+                      >
+                        <option value="">Tất cả bản mệnh</option>
+                        {destinyOptions.map((destiny) => (
+                          <option key={destiny} value={destiny}>
+                            {destiny}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Phong cách</h3>
+                      <select
+                        value={selectedStyle}
+                        onChange={(event) => updateFilter('style', event.target.value)}
+                        className="w-full border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary"
+                      >
+                        <option value="">Tất cả phong cách</option>
+                        {styleOptions.map((style) => (
+                          <option key={style} value={style}>
+                            {style}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-foreground">Năng lượng Đá quý</h3>
+                      <select
+                        value={selectedEnergy}
+                        onChange={(event) => updateFilter('energy', event.target.value)}
+                        className="w-full border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary"
+                      >
+                        <option value="">Tất cả năng lượng</option>
+                        {energyOptions.map((energy) => (
+                          <option key={energy} value={energy}>
+                            {energy}
                           </option>
                         ))}
                       </select>
